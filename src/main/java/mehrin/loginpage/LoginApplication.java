@@ -14,7 +14,7 @@ public class LoginApplication extends Application {
 
         Scene scene = new Scene(loader.load());
         stage.setTitle("RUET Library");
-        String css = this.getClass().getResource("Style.css").toExternalForm();
+        String css = this.getClass().getResource("loginStyle.css").toExternalForm();
         scene.getStylesheets().add(css);
         stage.setScene(scene);
         stage.show();
@@ -24,5 +24,4 @@ public class LoginApplication extends Application {
         launch(args);
     }
 }
-
 

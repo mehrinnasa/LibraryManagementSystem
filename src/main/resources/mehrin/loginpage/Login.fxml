@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -11,10 +12,10 @@
     </HBox>
 
     <!-- FULL PAGE BACKGROUND -->
-    <StackPane alignment="CENTER" VBox.vgrow="ALWAYS">
+    <StackPane alignment="CENTER" style="-fx-background-color: #C5D5F3;" VBox.vgrow="ALWAYS">
 
         <!-- LOGIN CARD -->
-        <HBox alignment="CENTER" maxHeight="420" maxWidth="600" prefHeight="420" prefWidth="600" style="-fx-background-color: #e6e9ec; -fx-background-radius: 22;-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 18, 0, 0, 8);">
+        <HBox alignment="CENTER" maxHeight="420" maxWidth="600" prefHeight="420" prefWidth="600" style="-fx-background-color: #E6E9EC; -fx-background-radius: 22; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 18, 0, 0, 8);">
 
             <!-- LEFT SIDE -->
             <VBox alignment="CENTER_LEFT" prefHeight="420.0" prefWidth="368.0" spacing="14" style="-fx-padding: 40;">
