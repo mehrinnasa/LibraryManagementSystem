@@ -1,0 +1,36 @@
+/* ===== Sidebar ===== */
+.sidebar {
+    -fx-background-color: #143F73;
+}
+
+/* ===== Buttons (same color as sidebar) ===== */
+.sidebar-button {
+    -fx-background-color: #143F73;   /* SAME COLOR */
+    -fx-text-fill: white;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 0 0 14;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+}
+
+/* ===== Hover (no color change, only feel) ===== */
+.sidebar-button:hover {
+    -fx-background-color: #143F73;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.25), 10, 0.3, 0, 0);
+}
+
+/* ===== Pressed ===== */
+.sidebar-button:pressed {
+    -fx-background-color: #143F73;
+    -fx-opacity: 0.85;
+}
+
+/* ===== Focused / Active indicator ===== */
+.sidebar-button:focused {
+    -fx-background-color: #143F73;
+   // -fx-border-color: #FFFFFF;
+    -fx-border-width: 0 0 0 4;
+    -fx-background-insets: 0;
+}
