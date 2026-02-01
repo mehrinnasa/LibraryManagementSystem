@@ -9,6 +9,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.scene.control.Alert.AlertType;
+
 
 import java.io.IOException;
 
@@ -35,11 +37,12 @@ public class LoginController {
 
         // Empty field check (this stays)
         if (username.isEmpty() || password.isEmpty()) {
-            showAlert(
-                    Alert.AlertType.WARNING,
-                    "Invalid Information",
-                    "Please enter both username and password"
+            new MyAlert(
+                    AlertType.INFORMATION,
+                    "Validation Error",
+                    "Please enter all the required fields"
             );
+
             return;
         }
 
@@ -48,7 +51,7 @@ public class LoginController {
         /*
         if (!username.equals(DB_USERNAME) || !password.equals(DB_PASSWORD)) {
             showAlert(
-                    Alert.AlertType.ERROR,
+                    MyAlert.AlertType.ERROR,
                     "Login Failed",
                     "Username or Password incorrect"
             );
@@ -88,11 +91,5 @@ public class LoginController {
     }
 
     // ALERT METHOD (Reusable)
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+
 }
