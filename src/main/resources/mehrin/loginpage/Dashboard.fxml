@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox alignment="TOP_CENTER" prefHeight="550.0" prefWidth="730.0" spacing="0" stylesheets="@mainStyle.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mehrin.loginpage.DashboardController">
+
+    <!-- ================= HEADER ================= -->
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: #0B2A4A; -fx-padding: 14 30;">
+        <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Rajshahi University of Engineering &amp; Technology" />
+    </HBox>
+
+    <!-- ================= BODY ================= -->
+    <StackPane style="-fx-background-color: #C5D5F3;" VBox.vgrow="ALWAYS">
+
+        <HBox>
+
+            <!-- ========== SIDEBAR ========== -->
+            <VBox alignment="TOP_CENTER" prefWidth="137.0" spacing="4" style="-fx-background-color: #143F73;" styleClass="sidebar">
+
+                <Button fx:id="home" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">
+                    <font><Font size="14" /></font>
+                </Button>
+
+                <Button fx:id="books" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books">
+                    <font><Font size="14" /></font>
+                </Button>
+
+                <Button fx:id="students" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Students">
+                    <font><Font size="14" /></font>
+                </Button>
+
+                <Button fx:id="issuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book">
+                    <font><Font size="14" /></font>
+                </Button>
+
+                <Button fx:id="retunbooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Return Book">
+                    <font><Font size="14" /></font>
+                </Button>
+
+                <Button fx:id="allIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books">
+                    <font><Font size="14" /></font>
+                </Button>
+
+                <Button fx:id="announcement" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">
+                    <font><Font size="14" /></font>
+                </Button>
+
+                <Button fx:id="export" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export">
+                    <font><Font size="14" /></font>
+                </Button>
+
+                <Button fx:id="clearance" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance">
+                    <font><Font size="14" /></font>
+                </Button>
+
+                <Button fx:id="logout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout">
+                    <font><Font size="14" /></font>
+                </Button>
+
+            </VBox>
+         <VBox alignment="CENTER" prefHeight="499.0" prefWidth="593.0">
+            <children>
+               <HBox prefHeight="57.0" prefWidth="593.0" spacing="20">
+                    <VBox alignment="CENTER" spacing="4.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label styleClass="card-title" text="Total Books" />
+                        <Label fx:id="totalBooksLabel" styleClass="card-value" text="0" />
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="4.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label styleClass="card-title" text="Issued Books" />
+                        <Label fx:id="issuedBooksLabel" styleClass="card-value" text="0" />
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="4.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label styleClass="card-title" text="Total Students" />
+                        <Label fx:id="totalStudentsLabel" styleClass="card-value" text="0" />
+                    </VBox>
+                </HBox>
+                <VBox fx:id="chartContainer" alignment="CENTER" style="-fx-background-color: #E6E9EC; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 5); -fx-padding: 20;" VBox.vgrow="ALWAYS">
+                    <Label styleClass="card-title" text="Book Status Distribution" />
+                </VBox>
+            </children></VBox>
+        </HBox>
+    </StackPane>
+</VBox>

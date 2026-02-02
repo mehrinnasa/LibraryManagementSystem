@@ -19,7 +19,7 @@
          <!-- ========== SIDEBAR ========== -->
          <VBox alignment="TOP_CENTER" prefWidth="137.0" spacing="4" style="-fx-background-color: #143F73;" styleClass="sidebar">
 
-            <Button fx:id="home" onAction="#loadBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">
+            <Button fx:id="home" onAction="#loadHomePanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">
                <font><Font size="14" /></font>
             </Button>
 
@@ -62,7 +62,7 @@
          </VBox>
 
          <!-- ========== CONTENT AREA ========== -->
-         <BorderPane fx:id="contentPane" prefHeight="499" prefWidth="598" />
+         <BorderPane fx:id="contentPane" prefHeight="499.0" prefWidth="601.0" />
 
       </HBox>
    </StackPane>

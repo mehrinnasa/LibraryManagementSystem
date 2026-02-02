@@ -32,7 +32,7 @@ public class LoginController {
     @FXML
     private void changePass(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/ResetPassword.fxml", node,false); // small window
+        new LoadStage("/mehrin/loginpage/ResetPassword.fxml", node,true); // small window
     }
 
     // ================= VALIDATION =================
