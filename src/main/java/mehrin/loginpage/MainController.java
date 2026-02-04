@@ -2,22 +2,13 @@ package mehrin.loginpage;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 
 public class MainController {
 
     @FXML
     private BorderPane contentPane;
-
-    // Load Dashboard on app start
-    @FXML
-    public void initialize(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Dashboard.fxml", node,true);
-    }
 
 
     // ===== Sidebar buttons =====
