@@ -1,9 +1,9 @@
-package mehrin.loginpage;
+package mehrin.loginpage.Service;
 
 
 
-import mehrin.loginpage.Book;
-import mehrin.loginpage.FileUtil;
+import mehrin.loginpage.Model.Book;
+import mehrin.loginpage.Util.FileUtil;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,14 +16,14 @@ public class BookService {
         loadBooks();
     }
 
-   /* private void loadBooks() {
+    private void loadBooks() {
         books = new ArrayList<>();
         List<String> lines = FileUtil.readFile(BOOKS_FILE);
         for (String line : lines) {
             Book book = Book.fromCSV(line);
             if (book != null) books.add(book);
         }
-    }*/
+    }
 
     public List<Book> getAllBooks() {
         return new ArrayList<>(books);

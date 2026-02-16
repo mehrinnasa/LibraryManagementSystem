@@ -66,7 +66,8 @@ public class MainController {
          }
 
     @FXML
-    private void logout() {
-        System.out.println("Logout clicked");
+    private void logout(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        new LoadStage("/mehrin/loginpage/Login.fxml", node,true);
     }
 }

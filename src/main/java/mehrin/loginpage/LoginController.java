@@ -25,7 +25,7 @@ public class LoginController {
 
         // For now, direct success (DB logic can be added later)
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Main.fxml", node,true); // full screen
+        new LoadStage("/mehrin/loginpage/Dashboard.fxml", node,true); // full screen
     }
 
     // ================= FORGOT PASSWORD =================

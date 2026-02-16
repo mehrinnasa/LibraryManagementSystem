@@ -1,6 +1,5 @@
 package mehrin.loginpage;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -8,7 +7,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-
+import mehrin.loginpage.Model.Book;
+import mehrin.loginpage.Service.BookService;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -233,8 +233,9 @@ public class BooksController implements Initializable {
     }
 
     @FXML
-    private void logout() {
-        System.out.println("Logout clicked");
+    private void logout(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        new LoadStage("/mehrin/loginpage/Login.fxml", node,true);
     }
     // ================= ALERT =================
     private void showAlert(Alert.AlertType type, String title, String msg) {

@@ -5,49 +5,49 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="550.0" prefWidth="730.0" style="-fx-background-color: #C5D5F3;" stylesheets="@mainStyle.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mehrin.loginpage.BooksController">
+<BorderPane prefHeight="550.0" prefWidth="730.0" style="-fx-background-color: #C5D5F3;" stylesheets="@mainStyle.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mehrin.loginpage.BooksController">
 
     <!-- ================= LEFT SIDEBAR ================= -->
     <left>
         <VBox alignment="TOP_CENTER" prefWidth="137.0" spacing="4" style="-fx-background-color: #143F73;" styleClass="sidebar">
 
-            <Button fx:id="home" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">
+            <Button fx:id="home" onAction="#loadHomePanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">
                 <font><Font size="14" /></font>
             </Button>
 
-            <Button fx:id="books" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books">
+            <Button fx:id="books" onAction="#loadBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books">
                 <font><Font size="14" /></font>
             </Button>
 
-            <Button fx:id="students" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Students">
+            <Button fx:id="students" onAction="#loadStudentPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Students">
                 <font><Font size="14" /></font>
             </Button>
 
-            <Button fx:id="issuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book">
+            <Button fx:id="issuedBooks" onAction="#loadIssueBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book">
                 <font><Font size="14" /></font>
             </Button>
 
-            <Button fx:id="retunbooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Return Book">
+            <Button fx:id="retunbooks" onAction="#loadReturnBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Return Book">
                 <font><Font size="14" /></font>
             </Button>
 
-            <Button fx:id="allIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books">
+            <Button fx:id="allIssuedBooks" onAction="#viewAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books">
                 <font><Font size="14" /></font>
             </Button>
 
-            <Button fx:id="announcement" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">
+            <Button fx:id="announcement" onAction="#loadSendAnnouncementsPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">
                 <font><Font size="14" /></font>
             </Button>
 
-            <Button fx:id="export" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export">
+            <Button fx:id="export" onAction="#loadExportDataPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export">
                 <font><Font size="14" /></font>
             </Button>
 
-            <Button fx:id="clearance" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance">
+            <Button fx:id="clearance" onAction="#loadClearancePanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance">
                 <font><Font size="14" /></font>
             </Button>
 
-            <Button fx:id="logout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout">
+            <Button fx:id="logout" onAction="#logout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout">
                 <font><Font size="14" /></font>
             </Button>
 
@@ -64,13 +64,7 @@
                     <Insets bottom="30" left="30" right="15" top="30" />
                 </padding>
 
-                <HBox alignment="CENTER_LEFT">
-                    <Label styleClass="page-title" text="Library Management System">
-                        <font>
-                            <Font size="18" />
-                        </font>
-                    </Label>
-                </HBox>
+                <HBox alignment="CENTER_LEFT" />
 
                 <Label styleClass="section-title" text="Books">
                     <font>
