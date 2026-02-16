@@ -2,7 +2,9 @@ package mehrin.loginpage.Util;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * File Utility Class
@@ -183,5 +185,54 @@ public class FileUtil {
             e.printStackTrace();
         }
     }
+    public static int getTotalBooks() {
+        List<String> lines = readFile("books.csv");
+        return lines.size(); // header skip করা already readFile এ হয়েছে
+    }
 
+    public static int getTotalStudents() {
+        List<String> lines = readFile("students.csv");
+        return lines.size();
+    }
+
+    public static int getIssuedBooks() {
+        List<String> lines = readFile("books.csv");
+        int issued = 0;
+        for (String line : lines) {
+            String[] parts = line.split(",");
+            // ধরছি books.csv এর 6th column হলো Remaining (0-indexed 6)
+            // Quantity - Remaining = Issued
+            try {
+                int quantity = Integer.parseInt(parts[5].trim());
+                int remaining = Integer.parseInt(parts[6].trim());
+                issued += (quantity - remaining);
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                // skip invalid line
+            }
+        }
+        return issued;
+    }
+    public static Map<String, Integer> getBookStatusCount() {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("Available", 0);
+        map.put("Issued", 0);
+
+        List<String> lines = readFile("books.csv");
+        for (String line : lines) {
+            try {
+                String[] parts = line.split(",");
+                int quantity = Integer.parseInt(parts[5].trim()); // Quantity
+                int remaining = Integer.parseInt(parts[6].trim()); // Remaining
+
+                int issued = quantity - remaining;
+
+                map.put("Available", map.get("Available") + remaining);
+                map.put("Issued", map.get("Issued") + issued);
+            } catch (Exception e) {
+                // skip invalid line
+            }
+        }
+
+        return map;
+    }
 }

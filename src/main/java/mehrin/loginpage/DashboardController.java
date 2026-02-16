@@ -10,8 +10,10 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import mehrin.loginpage.Util.FileUtil;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class DashboardController implements Initializable {
@@ -98,22 +100,29 @@ public class DashboardController implements Initializable {
 
     // ================== STAT VALUES ==================
     private void setupStats() {
-        totalBooksLabel.setText("150");
-        issuedBooksLabel.setText("30");
-        totalStudentsLabel.setText("85");
+        int totalBooks = FileUtil.getTotalBooks();
+        int issuedBooks = FileUtil.getIssuedBooks();
+        int totalStudents = FileUtil.getTotalStudents();
+
+        totalBooksLabel.setText(String.valueOf(totalBooks));
+        issuedBooksLabel.setText(String.valueOf(issuedBooks));
+        totalStudentsLabel.setText(String.valueOf(totalStudents));
     }
+
 
     // ================== PIE CHART ==================
     private void setupBookStatusChart() {
 
+        Map<String, Integer> statusCount = FileUtil.getBookStatusCount();
+
         PieChart pieChart = new PieChart();
 
         pieChart.getData().addAll(
-                new PieChart.Data("Available", 120),
-                new PieChart.Data("Issued", 30)
+                new PieChart.Data("Available", statusCount.get("Available")),
+                new PieChart.Data("Issued", statusCount.get("Issued"))
         );
 
-        // ⭐ FIX: chart size control
+        // ⭐ chart size control
         pieChart.setPrefSize(460, 460);
         pieChart.setMinSize(460, 460);
         pieChart.setMaxSize(460, 460);
@@ -122,10 +131,8 @@ public class DashboardController implements Initializable {
         pieChart.setLabelsVisible(true);
         pieChart.setTitle(null);
 
-        // ⭐ FIX: VBox যেন chart কে stretch না করে
         VBox.setVgrow(pieChart, Priority.NEVER);
 
-        // ⭐ FIX: center alignment
         chartContainer.getChildren().clear();
         chartContainer.setAlignment(Pos.CENTER);
         chartContainer.getChildren().add(pieChart);
