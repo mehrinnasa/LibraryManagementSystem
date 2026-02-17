@@ -6,22 +6,23 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import mehrin.loginpage.Util.FileUtil;
 
-import java.util.Optional;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class IssueBookController {
-
-    @FXML
-    private Label minimise, fullscreen, unfullscreen, close;
 
     @FXML
     private TextField bookSearchField, studentSearchTextField;
@@ -32,50 +33,10 @@ public class IssueBookController {
     @FXML
     private Text studentName, studentEmail, contact;
 
-    @FXML
-    private javafx.scene.control.Button issueBook;
-
     private String boName = "";
     private String stuName = "";
 
-    // ================== WINDOW CONTROLS ==================
-    @FXML
-    private void minimize(MouseEvent event) {
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setIconified(true);
-    }
-
-    @FXML
-    private void fullscreen(MouseEvent event) {
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setFullScreen(true);
-    }
-
-    @FXML
-    private void unfullscreen(MouseEvent event) {
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setFullScreen(false);
-    }
-
-    @FXML
-    private void close(MouseEvent event) {
-        Platform.exit();
-    }
-
-    // ================== HELPER METHODS ==================
-    private void clearFieldsAndLabels() {
-        bookSearchField.clear();
-        studentSearchTextField.clear();
-        bookName.setText("Book Title");
-        bookAuthor.setText("Book Author");
-        bookPublisher.setText("Book Publisher");
-        availability.setText("Availability");
-        studentName.setText("Student Name");
-        studentEmail.setText("Email Address");
-        contact.setText("Contact");
-        boName = "";
-        stuName = "";
-    }
+    private static final String ISSUED_FILE = "issueBooks.csv";
 
     // ================== SEARCH BOOK ==================
     @FXML
@@ -87,8 +48,8 @@ public class IssueBookController {
                 return;
             }
 
-            // Simple demo: lookup in CSV
-            FileUtil.readFile("books.csv").forEach(line -> {
+            boolean found = false;
+            for (String line : FileUtil.readFile("books.csv")) {
                 String[] parts = line.split(",");
                 if (parts.length > 1 && parts[0].equalsIgnoreCase(input)) {
                     boName = parts[1];
@@ -96,8 +57,15 @@ public class IssueBookController {
                     bookAuthor.setText(parts[2]);
                     bookPublisher.setText(parts[3]);
                     availability.setText(parts[8]);
+                    found = true;
+                    break;
                 }
-            });
+            }
+
+            if (!found) {
+                showAlert("Not Found", "No such book in the system", Alert.AlertType.INFORMATION);
+                clearBookFields();
+            }
         }
     }
 
@@ -111,16 +79,23 @@ public class IssueBookController {
                 return;
             }
 
-            // Simple demo: lookup in CSV
-            FileUtil.readFile("students.csv").forEach(line -> {
+            boolean found = false;
+            for (String line : FileUtil.readFile("students.csv")) {
                 String[] parts = line.split(",");
                 if (parts.length > 1 && parts[0].equalsIgnoreCase(input)) {
                     stuName = parts[1];
                     studentName.setText(parts[1]);
                     studentEmail.setText(parts[3]);
                     contact.setText(parts[2]);
+                    found = true;
+                    break;
                 }
-            });
+            }
+
+            if (!found) {
+                showAlert("Not Found", "Student not found", Alert.AlertType.INFORMATION);
+                clearStudentFields();
+            }
         }
     }
 
@@ -128,7 +103,19 @@ public class IssueBookController {
     @FXML
     private void issueBook(ActionEvent event) {
         if (boName.isEmpty() || stuName.isEmpty()) {
-            showAlert("Missing Info", "Please search and select both book and student", Alert.AlertType.WARNING);
+            showAlert("Missing Info", "Please search both book and student", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // Check if student already has this book
+        boolean alreadyIssued = FileUtil.readFile(ISSUED_FILE).stream()
+                .anyMatch(line -> {
+                    String[] parts = line.split(",");
+                    return parts[0].equalsIgnoreCase(bookSearchField.getText().trim()) &&
+                            parts[2].equalsIgnoreCase(studentSearchTextField.getText().trim());
+                });
+        if (alreadyIssued) {
+            showAlert("Already Issued", stuName + " already has this book", Alert.AlertType.INFORMATION);
             return;
         }
 
@@ -137,22 +124,73 @@ public class IssueBookController {
         confirm.setHeaderText(null);
         confirm.setContentText("Issue \"" + boName + "\" to \"" + stuName + "\"?");
         Optional<ButtonType> result = confirm.showAndWait();
+
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            // Demo: simulate issuing by updating CSV (or your DB in real app)
-            showAlert("Success", "Book issued successfully", Alert.AlertType.INFORMATION);
-            clearFieldsAndLabels();
+            try {
+                issueBookInFile();
+                showAlert("Success", "Book issued successfully", Alert.AlertType.INFORMATION);
+                clearAllFields();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to issue book", Alert.AlertType.ERROR);
+            }
         }
+    }
+
+    private void issueBookInFile() throws IOException {
+        List<String> books = FileUtil.readFile("books.csv");
+        List<String> updatedBooks = new ArrayList<>();
+        for (String line : books) {
+            String[] parts = line.split(",");
+            if (parts[0].equalsIgnoreCase(bookSearchField.getText().trim())) {
+                int remaining = Integer.parseInt(parts[6].trim());
+                if (remaining > 0) {
+                    remaining--;
+                    parts[6] = String.valueOf(remaining);
+                    parts[8] = (remaining == 0) ? "Not Available" : "Available";
+                }
+                line = String.join(",", parts);
+            }
+            updatedBooks.add(line);
+        }
+        FileUtil.writeFile("books.csv", updatedBooks,
+                "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability");
+
+        // Append to issuedBooks.csv
+        List<String> issued = new ArrayList<>(FileUtil.readFile(ISSUED_FILE));
+        LocalDate today = LocalDate.now();
+        issued.add(String.join(",", bookSearchField.getText().trim(), boName,
+                studentSearchTextField.getText().trim(), stuName, today.toString(), today.plusDays(14).toString()));
+        FileUtil.writeFile(ISSUED_FILE, issued,
+                "BookID,BookName,StudentID,StudentName,IssuedDate,ReturnDate");
     }
 
     @FXML
     private void cancel(ActionEvent event) {
-        clearFieldsAndLabels();
+        clearAllFields();
     }
-    @FXML
-    private BorderPane contentPane;
 
+    private void clearBookFields() {
+        boName = "";
+        bookSearchField.clear();
+        bookName.setText("Book Title");
+        bookAuthor.setText("Book Author");
+        bookPublisher.setText("Book Publisher");
+        availability.setText("Availability");
+    }
 
-    // ===== Sidebar buttons =====
+    private void clearStudentFields() {
+        stuName = "";
+        studentSearchTextField.clear();
+        studentName.setText("Student Name");
+        studentEmail.setText("Email Address");
+        contact.setText("Contact");
+    }
+
+    private void clearAllFields() {
+        clearBookFields();
+        clearStudentFields();
+    }
     @FXML
     private void loadHomePanel(ActionEvent event) {
         Node node = (Node) event.getSource();
@@ -211,14 +249,11 @@ public class IssueBookController {
         Node node = (Node) event.getSource();
         new LoadStage("/mehrin/loginpage/Login.fxml", node,true);
     }
-    // ================== UTILITY ==================
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-
     }
-
 }
