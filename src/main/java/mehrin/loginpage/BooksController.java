@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import mehrin.loginpage.Model.Book;
 import mehrin.loginpage.Service.BookService;
+
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -16,12 +17,16 @@ import java.util.ResourceBundle;
 public class BooksController implements Initializable {
 
     // ================= TABLE =================
-    @FXML
-    private TableView<Book> booksTable;
-    @FXML private TableColumn<Book, String> bookIdColumn;
-    @FXML private TableColumn<Book, String> titleColumn;
-    @FXML private TableColumn<Book, String> authorColumn;
-    @FXML private TableColumn<Book, String> statusColumn;
+    @FXML private TableView<Book> booksTable;
+    @FXML private TableColumn<Book, String> bookId;
+    @FXML private TableColumn<Book, String> title;
+    @FXML private TableColumn<Book, String> author;
+    @FXML private TableColumn<Book, String> status;
+    @FXML private TableColumn<Book, String> publisher;
+    @FXML private TableColumn<Book, String> edition;
+    @FXML private TableColumn<Book, String> quantity;
+    @FXML private TableColumn<Book, String> remainingBooks;
+    @FXML private TableColumn<Book, String> sectionCol;
 
     // ================= FORM =================
     @FXML private TextField searchField;
@@ -38,19 +43,24 @@ public class BooksController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         bookService = new BookService();
 
-        statusComboBox.setItems(FXCollections.observableArrayList(
-                "Available", "Not Available"
-        ));
+        // Status ComboBox
+        statusComboBox.setItems(FXCollections.observableArrayList("Available", "Not Available"));
 
-        bookIdColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getIsbn()));
-        titleColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getTitle()));
-        authorColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getAuthor()));
-        statusColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getAvailability()));
+        // TableColumn CellValueFactories
+        bookId.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getIsbn()));
+        title.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getTitle()));
+        author.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getAuthor()));
+        status.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getAvailability()));
+        publisher.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getPublisher()));
+        edition.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getEdition())));
 
+        // Int fields converted to String
+        quantity.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getQuantity())));
+        remainingBooks.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getRemaining())));
+
+        sectionCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getSection()));
+
+        // Load books and setup
         loadBooks();
         setupSearch();
         setupTableClick();
@@ -99,15 +109,13 @@ public class BooksController implements Initializable {
     // ================= SAVE =================
     @FXML
     private void handleSave() {
-
         String isbn = bookIdField.getText().trim();
-        String title = bookTitleField.getText().trim();
-        String author = authorField.getText().trim();
-        String status = statusComboBox.getValue();
+        String titleVal = bookTitleField.getText().trim();
+        String authorVal = authorField.getText().trim();
+        String statusVal = statusComboBox.getValue();
 
-        if (isbn.isEmpty() || title.isEmpty() || author.isEmpty() || status == null) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error",
-                    "Please fill all required fields.");
+        if (isbn.isEmpty() || titleVal.isEmpty() || authorVal.isEmpty() || statusVal == null) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", "Please fill all required fields.");
             return;
         }
 
@@ -116,23 +124,13 @@ public class BooksController implements Initializable {
         if (selected != null) {
             // UPDATE
             selected.setIsbn(isbn);
-            selected.setTitle(title);
-            selected.setAuthor(author);
-            selected.setAvailability(status);
+            selected.setTitle(titleVal);
+            selected.setAuthor(authorVal);
+            selected.setAvailability(statusVal);
             bookService.updateBook(selected);
         } else {
             // ADD
-            Book book = new Book(
-                    isbn,
-                    title,
-                    author,
-                    "Unknown",
-                    1,
-                    1,
-                    1,
-                    "General",
-                    status
-            );
+            Book book = new Book(isbn, titleVal, authorVal, "Unknown", 1, 1, 1, "General", statusVal);
             bookService.addBook(book);
         }
 
@@ -146,8 +144,7 @@ public class BooksController implements Initializable {
         Book selected = booksTable.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert(Alert.AlertType.ERROR, "Error",
-                    "Please select a book to delete.");
+            showAlert(Alert.AlertType.ERROR, "Error", "Please select a book to delete.");
             return;
         }
 
@@ -182,7 +179,8 @@ public class BooksController implements Initializable {
     @FXML
     private void loadHomePanel(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Dashboard.fxml", node,true); }
+        new LoadStage("/mehrin/loginpage/Dashboard.fxml", node,true);
+    }
 
     @FXML
     private void loadBooksPanel(ActionEvent event) {
@@ -237,6 +235,7 @@ public class BooksController implements Initializable {
         Node node = (Node) event.getSource();
         new LoadStage("/mehrin/loginpage/Login.fxml", node,true);
     }
+
     // ================= ALERT =================
     private void showAlert(Alert.AlertType type, String title, String msg) {
         Alert alert = new Alert(type);

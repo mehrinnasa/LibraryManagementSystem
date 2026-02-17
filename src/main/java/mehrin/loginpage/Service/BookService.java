@@ -84,6 +84,6 @@ public class BookService {
     private void saveBooks() {
         List<String> lines = new ArrayList<>();
         for (Book book : books) lines.add(book.toCSV());
-        //FileUtil.writeFile(BOOKS_FILE, lines, HEADER);
+        FileUtil.writeFile(BOOKS_FILE, lines, HEADER);
     }
 }

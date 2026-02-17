@@ -187,8 +187,30 @@ public class FileUtil {
     }
     public static int getTotalBooks() {
         List<String> lines = readFile("books.csv");
-        return lines.size(); // header skip করা already readFile এ হয়েছে
+        int total = 0;
+
+        for (String line : lines) {
+            // Skip empty lines
+            if (line.trim().isEmpty()) continue;
+
+            // Split CSV line by comma
+            String[] parts = line.split(",", -1); // -1 to include empty strings
+
+            // Skip header if it contains "ISBN"
+            if (parts[0].equalsIgnoreCase("ISBN")) continue;
+
+            // Parse Quantity column (index 5)
+            try {
+                int quantity = Integer.parseInt(parts[5].trim());
+                total += quantity;
+            } catch (NumberFormatException e) {
+                // skip if Quantity is empty or invalid
+            }
+        }
+
+        return total;
     }
+
 
     public static int getTotalStudents() {
         List<String> lines = readFile("students.csv");

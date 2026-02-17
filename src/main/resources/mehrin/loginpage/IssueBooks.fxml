@@ -84,7 +84,7 @@
                             <Insets bottom="30" left="30" right="30" top="30" />
                         </padding>
 
-                        <Label styleClass="panel-title" text="Book Information">
+                        <Label prefHeight="23.0" prefWidth="130.0" styleClass="panel-title" text="Book Information">
                             <font>
                                 <Font name="System Bold" size="18" />
                             </font>
@@ -93,27 +93,46 @@
                         <VBox spacing="10">
                             <Label text="Book Search">
                         <font>
-                           <Font name="System Bold" size="13.0" />
+                           <Font name="System Bold" size="14.0" />
                         </font></Label>
                             <TextField fx:id="bookSearchField" onKeyReleased="#searchBook" promptText="Enter ISBN / barcode" />
 
                             <Label text="Book Name">
                         <font>
-                           <Font name="System Bold" size="13.0" />
+                           <Font name="System Bold" size="14.0" />
                         </font></Label>
-                            <Text fx:id="bookName" text="Book Title" />
+                            <Text fx:id="bookName" text="Book Title">
+                        <font>
+                           <Font size="14.0" />
+                        </font></Text>
 
                             <Label text="Author">
                         <font>
-                           <Font name="System Bold" size="13.0" />
+                           <Font name="System Bold" size="14.0" />
                         </font></Label>
-                            <Text fx:id="bookAuthor" text="Book Author" />
+                            <Text fx:id="bookAuthor" text="Book Author">
+                        <font>
+                           <Font size="14.0" />
+                        </font></Text>
+                     <Label text="Publisher">
+                        <font>
+                           <Font name="System Bold" size="14.0" />
+                        </font>
+                     </Label>
+                     <Text fx:id="bookPublisher" strokeType="OUTSIDE" strokeWidth="0.0" text="Publisher">
+                        <font>
+                           <Font size="14.0" />
+                        </font>
+                     </Text>
 
                             <Label text="Status">
                         <font>
-                           <Font name="System Bold" size="13.0" />
+                           <Font name="System Bold" size="14.0" />
                         </font></Label>
-                            <Text fx:id="availability" text="Availability" />
+                            <Text fx:id="availability" text="Availability">
+                        <font>
+                           <Font size="14.0" />
+                        </font></Text>
                         </VBox>
                     </VBox>
 
@@ -132,27 +151,36 @@
                         <VBox spacing="10">
                             <Label text="Student Search">
                         <font>
-                           <Font name="System Bold" size="13.0" />
+                           <Font name="System Bold" size="14.0" />
                         </font></Label>
                             <TextField fx:id="studentSearchTextField" onKeyPressed="#searchStudent" promptText="Enter student ID" />
 
                             <Label text="Student Name">
                         <font>
-                           <Font name="System Bold" size="13.0" />
+                           <Font name="System Bold" size="14.0" />
                         </font></Label>
-                            <Text fx:id="studentName" text="Student Name" />
+                            <Text fx:id="studentName" text="Student Name">
+                        <font>
+                           <Font size="14.0" />
+                        </font></Text>
 
                             <Label text="Email">
                         <font>
-                           <Font name="System Bold" size="13.0" />
+                           <Font name="System Bold" size="14.0" />
                         </font></Label>
-                            <Text fx:id="studentEmail" text="Email Address" />
+                            <Text fx:id="studentEmail" text="Email Address">
+                        <font>
+                           <Font size="14.0" />
+                        </font></Text>
 
                             <Label text="Contact">
                         <font>
-                           <Font name="System Bold" size="13.0" />
+                           <Font name="System Bold" size="14.0" />
                         </font></Label>
-                            <Text fx:id="contact" text="Contact" />
+                            <Text fx:id="contact" text="Contact">
+                        <font>
+                           <Font size="14.0" />
+                        </font></Text>
                         </VBox>
                     </VBox>
 
@@ -162,8 +190,14 @@
 
                 <!-- ===== ACTION BUTTONS ===== -->
                 <HBox spacing="10">
-                    <Button onAction="#cancel" text="Cancel" HBox.hgrow="ALWAYS" />
-                    <Button fx:id="issueBook" onAction="#issueBook" text="Issue Book" HBox.hgrow="ALWAYS" />
+                    <Button onAction="#cancel" text="Cancel" HBox.hgrow="ALWAYS">
+                  <font>
+                     <Font size="14.0" />
+                  </font></Button>
+                    <Button fx:id="issueBook" onAction="#issueBook" text="Issue Book" HBox.hgrow="ALWAYS">
+                  <font>
+                     <Font size="14.0" />
+                  </font></Button>
                 </HBox>
 
             </VBox>
