@@ -1,7 +1,6 @@
 package mehrin.loginpage;
 
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -131,7 +130,7 @@ public class AnnouncementController implements Initializable {
     @FXML
     private void handleReturnBook(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/ReturnBooks.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", node,true);
     }
 
     @FXML

@@ -1,7 +1,7 @@
 ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability
 9780071161619,Data Structures with C,John R. Hubbard P.,McGrawHill,2,1,0,Long Loan Book,Not Available
 9780071362078,COMPUTER ARCHI...,NICHOLAS CARTER...,McGrawHill,2,1,1,Long Loan Book,Available
-9781259255663,Using Information T...,Williams Sawyer,McGraw Hill,11,6,6,Long Loan Book,Available
+9781259255663,Using Information T...,Williams Sawyer,McGraw Hill,11,6,5,Long Loan Book,Available
 9781259029936,Object Oriented Pr...,E Balagurusamy,Mc Graw Hill Educa...,6,1,1,Long Loan Book,Available
 9780340815809,Browse's Introducti...,Norman L. Browse ...,BookPower,4,1,1,Short Loan Book,Available
 9780446577069,Battlefield of the Mi...,JOYCE MEYER,Faith Words,1,1,1,Long Loan Book,Available
@@ -14,4 +14,4 @@ ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability
 9780273787105,Systems Analysis an...,Kenneth E. Kendall ...,PEARSON,9,1,1,Long Loan Book,Available
 9780131854758,Corporate Computer...,Raymond R. Panko,PEARSON,2,1,1,Short Loan Book,Available
 9788131792544,Data Structures Usi...,A. K. Sharma,PearsonIn,2,1,1,Long Loan Book,Available
-909988987690,piku,tuni,Unknown,1,1,1,General,Available
+909988987690,piku,tuni,Unknown,1,1,0,General,Not Available

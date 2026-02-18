@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="550.0" prefWidth="730.0" style="-fx-background-color: #C5D5F3;" stylesheets="@mainStyle.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mehrin.loginpage.AllIssuedBooksController">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <left>
+        <VBox alignment="TOP_CENTER" prefWidth="137.0" spacing="4" style="-fx-background-color: #143F73;" styleClass="sidebar">
+
+            <Button onAction="#handleHome" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home" />
+            <Button onAction="#handleBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books" />
+            <Button onAction="#handleStudents" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Students" />
+            <Button onAction="#handleIssueBook" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book" />
+            <Button onAction="#handleReturnBook" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Return Book" />
+            <Button onAction="#handleAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books" />
+            <Button onAction="#handleAnnouncement" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement" />
+            <Button onAction="#handleExport" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export" />
+            <Button onAction="#handleClearance" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance" />
+            <Button onAction="#logout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout" />
+
+        </VBox>
+    </left>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <center>
+        <HBox spacing="0" styleClass="main-content">
+
+            <!-- ===== RETURN TABLE SECTION ===== -->
+            <VBox spacing="20" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets bottom="30" left="30" right="15" top="30" />
+                </padding>
+
+                <Label styleClass="section-title" text="Issued books">
+                    <font>
+                        <Font name="System Bold" size="32" />
+                    </font>
+                </Label>
+
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <TextField fx:id="issuedIdField" prefWidth="300" promptText="Enter Issued ID" styleClass="search-field" />
+
+                    <Button onAction="#loadIssuedBookDetails" styleClass="secondary-button" text="Load Details" />
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <Button onAction="#submitBook" styleClass="secondary-button" text="Submit Return" />
+                </HBox>
+
+                <TableView fx:id="returnTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+
+                    <columns>
+                        <TableColumn fx:id="issuedIdCol" text="Issued ID" />
+                        <TableColumn fx:id="studentIdCol" text="Student ID" />
+                        <TableColumn fx:id="bookIdCol" text="Book ID" />
+                        <TableColumn fx:id="issueDateCol" text="Issue Date" />
+                        <TableColumn fx:id="dueDateCol" text="Due Date" />
+                        <TableColumn fx:id="lateFeeCol" text="Late Fee" />
+                    </columns>
+
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+
+                </TableView>
+            </VBox>
+
+            <!-- ===== RETURN INFO PANEL ===== -->
+            <VBox prefWidth="350" spacing="20" styleClass="info-panel">
+                <padding>
+                    <Insets bottom="30" left="30" right="30" top="30" />
+                </padding>
+
+                <Label styleClass="panel-title" text="Return Details">
+                    <font>
+                        <Font name="System Bold" size="18" />
+                    </font>
+                </Label>
+
+                <VBox spacing="15">
+
+                    <VBox spacing="8">
+                        <Label text="Issued ID" />
+                        <TextField fx:id="issuedIdInfo" editable="false" />
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Book ID" />
+                        <TextField fx:id="bookIdInfo" editable="false" />
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Student ID" />
+                        <TextField fx:id="studentIdInfo" editable="false" />
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Late Fee" />
+                        <TextField fx:id="lateFeeField" editable="false" />
+                    </VBox>
+
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <HBox spacing="10">
+                    <Button maxWidth="Infinity" onAction="#handleCancel" text="Cancel" HBox.hgrow="ALWAYS" />
+
+                    <Button maxWidth="Infinity" onAction="#submitBook" text="Confirm Return" HBox.hgrow="ALWAYS" />
+                </HBox>
+
+            </VBox>
+
+        </HBox>
+    </center>
+
+    <!-- ================= TOP BAR ================= -->
+    <top>
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #0B2A4A; -fx-padding: 14 30;">
+            <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Rajshahi University of Engineering &amp; Technology" />
+        </HBox>
+    </top>
+
+</BorderPane>

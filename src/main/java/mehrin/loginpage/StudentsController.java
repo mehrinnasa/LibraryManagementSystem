@@ -200,7 +200,7 @@ public class StudentsController implements Initializable {
     @FXML
     private void handleReturnBook(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/ReturnBooks.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", node,true);
     }
 
     @FXML
