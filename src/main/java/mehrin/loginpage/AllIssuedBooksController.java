@@ -39,7 +39,7 @@ public class AllIssuedBooksController {
 
     @FXML
     public void initialize() {
-        // Table columns
+        // ... your existing column setup
         issuedIdCol.setCellValueFactory(d -> d.getValue().issuedIdProperty());
         bookIdCol.setCellValueFactory(d -> d.getValue().bookIdProperty());
         studentIdCol.setCellValueFactory(d -> d.getValue().studentIdProperty());
@@ -48,13 +48,44 @@ public class AllIssuedBooksController {
         dueDateCol.setCellValueFactory(d -> d.getValue().returnDateProperty());
         lateFeeCol.setCellValueFactory(d -> d.getValue().lateFeeProperty());
 
-        // Load all issued books
-        returnTable.setItems(loadIssuedBooks());
+        // Load all issued books initially
+        ObservableList<IssuedBook> allBooks = loadIssuedBooks();
+        returnTable.setItems(allBooks);
 
-        // Handle table row selection
-        returnTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
-            selectedBook = newSel;
-            if (newSel != null) populateInfo(newSel);
+        // --- LIVE SEARCH ---
+        issuedIdField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.isEmpty()) {
+                // show all
+                returnTable.setItems(allBooks);
+                clearInfo();
+                selectedBook = null;
+                return;
+            }
+
+            ObservableList<IssuedBook> filtered = FXCollections.observableArrayList();
+            String query = newVal.trim();
+
+            for (IssuedBook book : allBooks) {
+                // match if IssuedID starts with query (you can use contains() if you want)
+                if (book.getIssuedId().startsWith(query)) {
+                    filtered.add(book);
+                }
+            }
+
+            // Update info fields with the first match
+            if (!filtered.isEmpty()) {
+                IssuedBook first = filtered.get(0);
+                issuedIdInfo.setText(first.getIssuedId());
+                bookIdInfo.setText(first.getBookId());
+                studentIdInfo.setText(first.getStudentId());
+                lateFeeField.setText(first.getLateFee());
+                selectedBook = first;
+            } else {
+                clearInfo();
+                selectedBook = null;
+            }
+
+            returnTable.setItems(filtered);
         });
     }
 
