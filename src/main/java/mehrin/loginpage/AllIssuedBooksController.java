@@ -39,7 +39,7 @@ public class AllIssuedBooksController {
 
     @FXML
     public void initialize() {
-        // ... your existing column setup
+        // ================= TABLE COLUMNS =================
         issuedIdCol.setCellValueFactory(d -> d.getValue().issuedIdProperty());
         bookIdCol.setCellValueFactory(d -> d.getValue().bookIdProperty());
         studentIdCol.setCellValueFactory(d -> d.getValue().studentIdProperty());
@@ -48,11 +48,17 @@ public class AllIssuedBooksController {
         dueDateCol.setCellValueFactory(d -> d.getValue().returnDateProperty());
         lateFeeCol.setCellValueFactory(d -> d.getValue().lateFeeProperty());
 
-        // Load all issued books initially
+        // ================= LOAD ALL ISSUED BOOKS =================
         ObservableList<IssuedBook> allBooks = loadIssuedBooks();
         returnTable.setItems(allBooks);
 
-        // --- LIVE SEARCH ---
+        // ================= ROW SELECTION =================
+        returnTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            selectedBook = newSel;
+            if (newSel != null) populateInfo(newSel);
+        });
+
+        // ================= LIVE SEARCH =================
         issuedIdField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.isEmpty()) {
                 // show all
@@ -66,7 +72,7 @@ public class AllIssuedBooksController {
             String query = newVal.trim();
 
             for (IssuedBook book : allBooks) {
-                // match if IssuedID starts with query (you can use contains() if you want)
+                // match if IssuedID starts with query
                 if (book.getIssuedId().startsWith(query)) {
                     filtered.add(book);
                 }
@@ -75,10 +81,7 @@ public class AllIssuedBooksController {
             // Update info fields with the first match
             if (!filtered.isEmpty()) {
                 IssuedBook first = filtered.get(0);
-                issuedIdInfo.setText(first.getIssuedId());
-                bookIdInfo.setText(first.getBookId());
-                studentIdInfo.setText(first.getStudentId());
-                lateFeeField.setText(first.getLateFee());
+                populateInfo(first); // use your existing populateInfo method
                 selectedBook = first;
             } else {
                 clearInfo();
@@ -121,7 +124,13 @@ public class AllIssuedBooksController {
         bookIdInfo.setText(book.getBookId());
         studentIdInfo.setText(book.getStudentId());
         studentNameInfo.setText(book.getStudentName());
-        lateFeeField.setText(book.getLateFee());
+
+        // Calculate LateFee dynamically, even if 0
+        String fee = calculateLateFee(book.getReturnDate());
+        lateFeeField.setText(fee);
+
+        // Also update the table's lateFee property so column shows it
+        book.lateFeeProperty().set(fee);
     }
 
     // ================= SUBMIT RETURN =================
@@ -132,20 +141,59 @@ public class AllIssuedBooksController {
             return;
         }
 
+        // Calculate LateFee before return
+        String fee = calculateLateFee(selectedBook.getReturnDate());
+        selectedBook.lateFeeProperty().set(fee);
+        lateFeeField.setText(fee);
+
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Confirm return?");
         Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
+                // Update LateFee in CSV first
+                updateLateFeeInCSV(selectedBook);
+
+                // Remove issued entry
                 removeIssuedEntry();
+
+                // Increase Remaining in books.csv
                 increaseRemainingBook();
+
+                // Remove from TableView
                 returnTable.getItems().remove(selectedBook);
+
+                // Clear info panel
                 clearInfo();
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Book returned successfully");
+
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Book returned successfully. Late fee: " + fee + " Tk");
             } catch (IOException e) {
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to update files");
             }
         }
+    }
+
+    /**
+     * Update LateFee for the selected book in issueBooks.csv
+     */
+    private void updateLateFeeInCSV(IssuedBook book) throws IOException {
+        List<String> lines = FileUtil.readFile(ISSUED_FILE);
+        List<String> updated = new ArrayList<>();
+
+        for (String line : lines) {
+            String[] parts = line.split(",", -1);
+            if (parts.length != 7) continue;
+
+            if (parts[0].equalsIgnoreCase(book.getIssuedId())) {
+                // Update LateFee column (index 6)
+                parts[6] = book.getLateFee();
+            }
+
+            updated.add(String.join(",", parts));
+        }
+
+        FileUtil.writeFile(ISSUED_FILE, updated,
+                "IssuedID,BookID,StudentID,StudentName,IssuedDate,ReturnDate,LateFee");
     }
 
     // ================= REMOVE ISSUED ENTRY =================
