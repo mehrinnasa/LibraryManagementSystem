@@ -56,9 +56,9 @@
                <padding>
                    <Insets bottom="30" left="30" right="30" top="30" />
                </padding>
-               <Label styleClass="page-title" text="Dashboard Overview">
+               <Label styleClass="page-title" text="Dashboard">
                <font>
-                  <Font name="System Bold" size="14.0" />
+                  <Font name="System Bold" size="32.0" />
                </font></Label>
 
                <!-- STAT CARDS ROW -->
