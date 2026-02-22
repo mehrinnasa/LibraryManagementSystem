@@ -56,6 +56,7 @@
                     <columns>
                         <TableColumn fx:id="issuedIdCol" text="Issued ID" />
                         <TableColumn fx:id="studentIdCol" text="Student ID" />
+                        <TableColumn fx:id="studentNameCol" text="Student Name" />
                         <TableColumn fx:id="bookIdCol" text="Book ID" />
                         <TableColumn fx:id="issueDateCol" text="Issue Date" />
                         <TableColumn fx:id="dueDateCol" text="Due Date" />

@@ -16,7 +16,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 public class AllIssuedBooksController {
 
     @FXML private TextField issuedIdField;
@@ -28,6 +29,7 @@ public class AllIssuedBooksController {
     @FXML private TableView<IssuedBook> returnTable;
     @FXML private TableColumn<IssuedBook, String> issuedIdCol;
     @FXML private TableColumn<IssuedBook, String> studentIdCol;
+    @FXML private TableColumn<IssuedBook, String> studentNameCol;
     @FXML private TableColumn<IssuedBook, String> bookIdCol;
     @FXML private TableColumn<IssuedBook, String> issueDateCol;
     @FXML private TableColumn<IssuedBook, String> dueDateCol;
@@ -40,24 +42,15 @@ public class AllIssuedBooksController {
     @FXML
     public void initialize() {
 
-        issuedIdCol.setCellValueFactory(new PropertyValueFactory<>("issuedId"));
-        studentIdCol.setCellValueFactory(new PropertyValueFactory<>("studentId"));
-        bookIdCol.setCellValueFactory(new PropertyValueFactory<>("bookId"));
-        issueDateCol.setCellValueFactory(new PropertyValueFactory<>("issueDate"));
-        dueDateCol.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
-        lateFeeCol.setCellValueFactory(new PropertyValueFactory<>("lateFee"));
+        issuedIdCol.setCellValueFactory(d -> d.getValue().issuedIdProperty());
+        bookIdCol.setCellValueFactory(d -> d.getValue().bookIdProperty());
+        studentIdCol.setCellValueFactory(d -> d.getValue().studentIdProperty());
+        studentNameCol.setCellValueFactory(d -> d.getValue().studentNameProperty());
+        issueDateCol.setCellValueFactory(d -> d.getValue().issuedDateProperty());
+        dueDateCol.setCellValueFactory(d -> d.getValue().returnDateProperty());
+        lateFeeCol.setCellValueFactory(d -> d.getValue().lateFeeProperty());
 
-        returnTable.setItems(FXCollections.observableArrayList());
-
-        returnTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                selectedBook = newVal;
-                issuedIdInfo.setText(newVal.getIssuedId());
-                bookIdInfo.setText(newVal.getBookId());
-                studentIdInfo.setText(newVal.getStudentId());
-                lateFeeField.setText(newVal.getLateFee());
-            }
-        });
+        returnTable.setItems(loadIssuedBooks());
     }
 
     // ================= LOAD DETAILS =================
@@ -83,12 +76,13 @@ public class AllIssuedBooksController {
                 String lateFee = calculateLateFee(dueDate);
 
                 list.add(new IssuedBook(
-                        parts[0],   // issuedId
-                        parts[2],   // studentId
-                        parts[1],   // bookId
-                        parts[4],   // issueDate
-                        parts[5],   // dueDate
-                        lateFee
+                        parts[0], // IssuedID
+                        parts[1], // BookID
+                        parts[3], // StudentID
+                        parts[4], // StudentName
+                        parts[5], // IssuedDate
+                        parts[6], // ReturnDate
+                        parts[7]  // LateFee
                 ));
             }
         }
@@ -209,5 +203,28 @@ public class AllIssuedBooksController {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
+    }
+    private ObservableList<IssuedBook> loadIssuedBooks() {
+
+        ObservableList<IssuedBook> list = FXCollections.observableArrayList();
+
+        List<String> lines = FileUtil.readFile("issueBooks.csv");
+
+        for (String line : lines) {
+            String[] p = line.split(",", -1);
+
+            if (p.length != 8) continue;
+
+            list.add(new IssuedBook(
+                    p[0], // IssuedID
+                    p[1], // BookID
+                    p[3], // StudentID
+                    p[4], // StudentName
+                    p[5], // IssuedDate
+                    p[6], // ReturnDate
+                    p[7]  // LateFee
+            ));
+        }
+        return list;
     }
 }

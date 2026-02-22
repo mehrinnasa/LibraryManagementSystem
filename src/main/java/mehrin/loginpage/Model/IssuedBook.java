@@ -1,74 +1,46 @@
 package mehrin.loginpage.Model;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 public class IssuedBook {
 
-    private SimpleStringProperty issuedId;
-    private SimpleStringProperty studentId;
-    private SimpleStringProperty bookId;
-    private SimpleStringProperty issueDate;
-    private SimpleStringProperty dueDate;
-    private SimpleStringProperty lateFee;
+    private StringProperty issuedId;
+    private StringProperty bookId;
+    private StringProperty studentId;
+    private StringProperty studentName;
+    private StringProperty issuedDate;
+    private StringProperty returnDate;
+    private StringProperty lateFee;
 
-    // Constructor used in AllIssuedBooksController
-    public IssuedBook(String issuedId, String studentId, String bookId,
-                      String issueDate, String dueDate, String lateFee) {
+    public IssuedBook(String issuedId, String bookId,
+                      String studentId, String studentName,
+                      String issuedDate, String returnDate, String lateFee) {
+
         this.issuedId = new SimpleStringProperty(issuedId);
-        this.studentId = new SimpleStringProperty(studentId);
         this.bookId = new SimpleStringProperty(bookId);
-        this.issueDate = new SimpleStringProperty(issueDate);
-        this.dueDate = new SimpleStringProperty(dueDate);
+        this.studentId = new SimpleStringProperty(studentId);
+        this.studentName = new SimpleStringProperty(studentName);
+        this.issuedDate = new SimpleStringProperty(issuedDate);
+        this.returnDate = new SimpleStringProperty(returnDate);
         this.lateFee = new SimpleStringProperty(lateFee);
     }
 
-    // Getters
-    public String getIssuedId() {
-        return issuedId.get();
-    }
+    // Property getters for TableView
+    public StringProperty issuedIdProperty() { return issuedId; }
+    public StringProperty bookIdProperty() { return bookId; }
+    public StringProperty studentIdProperty() { return studentId; }
+    public StringProperty studentNameProperty() { return studentName; }
+    public StringProperty issuedDateProperty() { return issuedDate; }
+    public StringProperty returnDateProperty() { return returnDate; }
+    public StringProperty lateFeeProperty() { return lateFee; }
 
-    public String getStudentId() {
-        return studentId.get();
-    }
-
-    public String getBookId() {
-        return bookId.get();
-    }
-
-    public String getIssueDate() {
-        return issueDate.get();
-    }
-
-    public String getDueDate() {
-        return dueDate.get();
-    }
-
-    public String getLateFee() {
-        return lateFee.get();
-    }
-
-    // Setters (optional, if you want to modify values later)
-    public void setIssuedId(String issuedId) {
-        this.issuedId.set(issuedId);
-    }
-
-    public void setStudentId(String studentId) {
-        this.studentId.set(studentId);
-    }
-
-    public void setBookId(String bookId) {
-        this.bookId.set(bookId);
-    }
-
-    public void setIssueDate(String issueDate) {
-        this.issueDate.set(issueDate);
-    }
-
-    public void setDueDate(String dueDate) {
-        this.dueDate.set(dueDate);
-    }
-
-    public void setLateFee(String lateFee) {
-        this.lateFee.set(lateFee);
-    }
+    // Normal getters if needed
+    public String getIssuedId() { return issuedId.get(); }
+    public String getBookId() { return bookId.get(); }
+    public String getStudentId() { return studentId.get(); }
+    public String getStudentName() { return studentName.get(); }
+    public String getIssuedDate() { return issuedDate.get(); }
+    public String getReturnDate() { return returnDate.get(); }
+    public String getLateFee() { return lateFee.get(); }
 }
