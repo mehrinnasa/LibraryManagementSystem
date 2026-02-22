@@ -19,14 +19,9 @@ import java.util.Optional;
 
 public class IssueBookController {
 
-    @FXML
-    private TextField bookSearchField, studentSearchTextField;
-
-    @FXML
-    private Text bookName, bookAuthor, bookPublisher, availability;
-
-    @FXML
-    private Text studentName, studentEmail, contact;
+    @FXML private TextField bookSearchField, studentSearchTextField;
+    @FXML private Text bookName, bookAuthor, bookPublisher, availability;
+    @FXML private Text studentName, studentEmail, contact;
 
     private String boName = "";
     private String stuName = "";
@@ -37,38 +32,32 @@ public class IssueBookController {
     @FXML
     private void searchBook(KeyEvent event) {
 
-        if (event.getCode() == KeyCode.ENTER) {
+        if (event.getCode() != KeyCode.ENTER) return;
 
-            String input = bookSearchField.getText().trim();
+        String input = bookSearchField.getText().trim();
+        if (input.isEmpty()) {
+            showAlert("Field validation", "Please enter ISBN / barcode", Alert.AlertType.WARNING);
+            return;
+        }
 
-            if (input.isEmpty()) {
-                showAlert("Field validation", "Please enter ISBN / barcode", Alert.AlertType.WARNING);
-                return;
+        boolean found = false;
+
+        for (String line : FileUtil.readFile("books.csv")) {
+            String[] parts = line.split(",");
+            if (parts.length > 8 && parts[0].equalsIgnoreCase(input)) {
+                boName = parts[1];
+                bookName.setText(parts[1]);
+                bookAuthor.setText(parts[2]);
+                bookPublisher.setText(parts[3]);
+                availability.setText(parts[8]);
+                found = true;
+                break;
             }
+        }
 
-            boolean found = false;
-
-            for (String line : FileUtil.readFile("books.csv")) {
-
-                String[] parts = line.split(",");
-
-                if (parts.length > 8 && parts[0].equalsIgnoreCase(input)) {
-
-                    boName = parts[1];
-                    bookName.setText(parts[1]);
-                    bookAuthor.setText(parts[2]);
-                    bookPublisher.setText(parts[3]);
-                    availability.setText(parts[8]);
-
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                showAlert("Not Found", "No such book in the system", Alert.AlertType.INFORMATION);
-                clearBookFields();
-            }
+        if (!found) {
+            showAlert("Not Found", "No such book in the system", Alert.AlertType.INFORMATION);
+            clearBookFields();
         }
     }
 
@@ -76,37 +65,31 @@ public class IssueBookController {
     @FXML
     private void searchStudent(KeyEvent event) {
 
-        if (event.getCode() == KeyCode.ENTER) {
+        if (event.getCode() != KeyCode.ENTER) return;
 
-            String input = studentSearchTextField.getText().trim();
+        String input = studentSearchTextField.getText().trim();
+        if (input.isEmpty()) {
+            showAlert("Field validation", "Please enter Student ID", Alert.AlertType.WARNING);
+            return;
+        }
 
-            if (input.isEmpty()) {
-                showAlert("Field validation", "Please enter Student ID", Alert.AlertType.WARNING);
-                return;
+        boolean found = false;
+
+        for (String line : FileUtil.readFile("students.csv")) {
+            String[] parts = line.split(",");
+            if (parts.length > 3 && parts[0].equalsIgnoreCase(input)) {
+                stuName = parts[1];
+                studentName.setText(parts[1]);
+                contact.setText(parts[2]);
+                studentEmail.setText(parts[3]);
+                found = true;
+                break;
             }
+        }
 
-            boolean found = false;
-
-            for (String line : FileUtil.readFile("students.csv")) {
-
-                String[] parts = line.split(",");
-
-                if (parts.length > 3 && parts[0].equalsIgnoreCase(input)) {
-
-                    stuName = parts[1];
-                    studentName.setText(parts[1]);
-                    contact.setText(parts[2]);
-                    studentEmail.setText(parts[3]);
-
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                showAlert("Not Found", "Student not found", Alert.AlertType.INFORMATION);
-                clearStudentFields();
-            }
+        if (!found) {
+            showAlert("Not Found", "Student not found", Alert.AlertType.INFORMATION);
+            clearStudentFields();
         }
     }
 
@@ -119,12 +102,12 @@ public class IssueBookController {
             return;
         }
 
-        // Duplicate check
+        // Duplicate check: student already has this book
         boolean alreadyIssued = FileUtil.readFile(ISSUED_FILE).stream()
                 .anyMatch(line -> {
                     String[] parts = line.split(",");
                     return parts.length > 3 &&
-                            parts[0].equalsIgnoreCase(bookSearchField.getText().trim()) &&
+                            parts[1].equalsIgnoreCase(bookSearchField.getText().trim()) &&
                             parts[2].equalsIgnoreCase(studentSearchTextField.getText().trim());
                 });
 
@@ -137,11 +120,9 @@ public class IssueBookController {
         confirm.setTitle("Confirm Issue");
         confirm.setHeaderText(null);
         confirm.setContentText("Issue \"" + boName + "\" to \"" + stuName + "\"?");
-
         Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
-
             try {
                 issueBookInFile();
                 clearAllFields();
@@ -155,33 +136,24 @@ public class IssueBookController {
     // ================== FILE UPDATE LOGIC ==================
     private void issueBookInFile() throws IOException {
 
+        // 1️⃣ Update books.csv
         List<String> books = FileUtil.readFile("books.csv");
         List<String> updatedBooks = new ArrayList<>();
-
         boolean bookFound = false;
 
         for (String line : books) {
-
             String[] parts = line.split(",");
-
             if (parts[0].equalsIgnoreCase(bookSearchField.getText().trim())) {
-
                 bookFound = true;
-
                 int remaining = Integer.parseInt(parts[6].trim());
-
-                // ❌ Book not available
                 if (remaining <= 0) {
                     showAlert("Not Available", "This book is not available", Alert.AlertType.WARNING);
                     return;
                 }
-
-                // ✅ Reduce remaining
                 remaining--;
                 parts[6] = String.valueOf(remaining);
                 parts[8] = (remaining == 0) ? "Not Available" : "Available";
             }
-
             updatedBooks.add(String.join(",", parts));
         }
 
@@ -190,25 +162,43 @@ public class IssueBookController {
             return;
         }
 
-        // Update books.csv
         FileUtil.writeFile("books.csv", updatedBooks,
                 "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability");
 
-        // Add to issueBooks.csv
+        // 2️⃣ Update issueBooks.csv
         List<String> issued = new ArrayList<>(FileUtil.readFile(ISSUED_FILE));
-        LocalDate today = LocalDate.now();
 
-        issued.add(String.join(",",
+        // Generate unique IssuedID
+        int lastId = -1;
+        for (String line : issued) {
+            String[] parts = line.split(",", -1);
+            if (parts.length >= 1 && !parts[0].equalsIgnoreCase("IssuedID")) {
+                try {
+                    int id = Integer.parseInt(parts[0]);
+                    if (id > lastId) lastId = id;
+                } catch (Exception ignored) {}
+            }
+        }
+        int newIssuedId = lastId + 1;
+
+        // Add new issued book (LateFee = 0 initially)
+        LocalDate today = LocalDate.now();
+        LocalDate dueDate = today.plusDays(14);
+
+        String newLine = String.join(",",
+                String.valueOf(newIssuedId),
                 bookSearchField.getText().trim(),
-                boName,
                 studentSearchTextField.getText().trim(),
                 stuName,
                 today.toString(),
-                today.plusDays(14).toString()
-        ));
+                dueDate.toString(),
+                "0"
+        );
+
+        issued.add(newLine);
 
         FileUtil.writeFile(ISSUED_FILE, issued,
-                "BookID,BookName,StudentID,StudentName,IssuedDate,ReturnDate");
+                "IssuedID,BookID,StudentID,StudentName,IssuedDate,ReturnDate,LateFee");
 
         showAlert("Success", "Book issued successfully", Alert.AlertType.INFORMATION);
     }
