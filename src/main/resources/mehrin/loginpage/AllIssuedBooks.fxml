@@ -22,7 +22,6 @@
             <Button onAction="#handleBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books" />
             <Button onAction="#handleStudents" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Students" />
             <Button onAction="#handleIssueBook" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book" />
-            <Button onAction="#handleReturnBook" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Return Book" />
             <Button onAction="#handleAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books" />
             <Button onAction="#handleAnnouncement" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement" />
             <Button onAction="#handleExport" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export" />
