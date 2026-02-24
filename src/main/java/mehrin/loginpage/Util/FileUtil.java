@@ -31,6 +31,11 @@ public class FileUtil {
         createSampleAnnouncementsFile();
     }
 
+// ================== ISSUED BOOK COUNT (FROM issueBooks.csv) ==================
+public static int getIssuedBooksFromIssueFile() {
+    List<String> lines = readFile("issueBooks.csv");
+    return lines.size(); // header already skipped
+}
     /**
      * Read all lines from a CSV file
      */
@@ -257,4 +262,45 @@ public class FileUtil {
 
         return map;
     }
-}
+
+        // ================== SYNC BOOKS WITH ISSUED BOOKS ==================
+        public static void syncBooksWithIssuedBooks() {
+
+            List<String> issuedLines = readFile("issueBooks.csv");
+            Map<String, Integer> issuedCountMap = new HashMap<>();
+
+            for (String line : issuedLines) {
+                String[] parts = line.split(",");
+                String bookId = parts[1];
+
+                issuedCountMap.put(
+                        bookId,
+                        issuedCountMap.getOrDefault(bookId, 0) + 1
+                );
+            }
+
+            List<String> bookLines = readFile("books.csv");
+            List<String> updatedBooks = new ArrayList<>();
+
+            for (String line : bookLines) {
+                String[] parts = line.split(",");
+
+                String bookId = parts[0];
+                int quantity = Integer.parseInt(parts[5]);
+                int issued = issuedCountMap.getOrDefault(bookId, 0);
+                int remaining = quantity - issued;
+
+                parts[6] = String.valueOf(remaining);
+                parts[8] = remaining > 0 ? "Available" : "Not Available";
+
+                updatedBooks.add(String.join(",", parts));
+            }
+
+            writeFile(
+                    "books.csv",
+                    updatedBooks,
+                    "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability"
+            );
+        }
+
+    }

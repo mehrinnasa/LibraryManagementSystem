@@ -1,20 +1,20 @@
 ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability
-9780070701984,Programming in ANSI C,E Balagurusamy,McGrawHill,8,4,4,Long Loan Book,Available
-9780131103627,The C Programming Language,Dennis Ritchie,PHI,2,3,3,Long Loan Book,Available
+9780070701984,Programming in ANSI C,E Balagurusamy,McGrawHill,8,4,3,Long Loan Book,Available
+9780131103627,The C Programming Language,Dennis Ritchie,PHI,2,3,2,Long Loan Book,Available
 9789351342755,Let Us C,Yashavant Kanetkar,BPB,15,4,4,Long Loan Book,Available
 9780073376332,Data Structures Using C,Reema Thareja,Oxford,2,4,4,Long Loan Book,Available
 9780070669130,Discrete Mathematics and Its Applications,Kenneth Rosen,McGrawHill,7,4,3,Long Loan Book,Available
-9789351344216,Discrete Mathematical Structures,Bernard Kolman,Pearson,6,3,3,Long Loan Book,Available
-9780072467505,Computer Organization and Architecture,William Stallings,Pearson,9,4,4,Long Loan Book,Available
+9789351344216,Discrete Mathematical Structures,Bernard Kolman,Pearson,6,3,2,Long Loan Book,Available
+9780072467505,Computer Organization and Architecture,William Stallings,Pearson,9,4,3,Long Loan Book,Available
 9780124077263,Computer Architecture,Andrew Tanenbaum,Elsevier,6,3,3,Long Loan Book,Available
-9781118063330,Operating System Concepts,Silberschatz,Wiley,9,4,4,Long Loan Book,Available
-9780133591620,Modern Operating Systems,Andrew Tanenbaum,Pearson,4,3,3,Long Loan Book,Available
-9780073523323,Database System Concepts,Silberschatz,McGrawHill,6,4,4,Long Loan Book,Available
-9788131706004,Fundamentals of Database Systems,Elmasri Navathe,Pearson,6,4,4,Long Loan Book,Available
-9780132126953,Computer Networking A Top Down Approach,Kurose Ross,Pearson,7,4,4,Long Loan Book,Available
-9789332585473,Computer Networks,Andrew Tanenbaum,Pearson,5,4,4,Long Loan Book,Available
-9780078022128,Software Engineering,Ian Sommerville,Pearson,10,4,4,Long Loan Book,Available
-9780073375977,Software Engineering A Practitioners Approach,Roger Pressman,McGrawHill,7,4,4,Long Loan Book,Available
+9781118063330,Operating System Concepts,Silberschatz,Wiley,9,4,3,Long Loan Book,Available
+9780133591620,Modern Operating Systems,Andrew Tanenbaum,Pearson,4,3,2,Long Loan Book,Available
+9780073523323,Database System Concepts,Silberschatz,McGrawHill,6,4,3,Long Loan Book,Available
+9788131706004,Fundamentals of Database Systems,Elmasri Navathe,Pearson,6,4,3,Long Loan Book,Available
+9780132126953,Computer Networking A Top Down Approach,Kurose Ross,Pearson,7,4,3,Long Loan Book,Available
+9789332585473,Computer Networks,Andrew Tanenbaum,Pearson,5,4,3,Long Loan Book,Available
+9780078022128,Software Engineering,Ian Sommerville,Pearson,10,4,3,Long Loan Book,Available
+9780073375977,Software Engineering A Practitioners Approach,Roger Pressman,McGrawHill,7,4,3,Long Loan Book,Available
 9788131708510,Engineering Mathematics K A Stroud,K A Stroud,Palgrave,7,4,4,Long Loan Book,Available
 9780470458365,Advanced Engineering Mathematics,Erwin Kreyszig,Wiley,10,4,4,Long Loan Book,Available
 9789332543510,Higher Engineering Mathematics,B S Grewal,Khanna,44,4,4,Long Loan Book,Available
@@ -23,11 +23,11 @@ ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability
 9780070702011,University Physics,Hugh D Young,Pearson,13,4,4,Long Loan Book,Available
 9788126515564,Engineering Physics,Gaur and Gupta,Dhanpat Rai,8,3,3,Long Loan Book,Available
 9788121926402,Applied Physics,A K Jha,PHI,2,3,3,Long Loan Book,Available
-9788120348984,Engineering Chemistry,Jain and Jain,Dhanpat Rai,15,3,3,Long Loan Book,Available
-9780070599987,Chemistry for Engineers,B S Bahl,McGrawHill,3,3,3,Long Loan Book,Available
+9788120348984,Engineering Chemistry,Jain and Jain,Dhanpat Rai,15,3,2,Long Loan Book,Available
+9780070599987,Chemistry for Engineers,B S Bahl,McGrawHill,3,3,2,Long Loan Book,Available
 9788120331764,Textbook of Engineering Chemistry,S S Dara,S Chand,16,3,3,Long Loan Book,Available
-9789332518587,English for Technical Communication,Meenakshi Raman,Oxford,2,3,3,Long Loan Book,Available
-9780131982663,Technical Communication,Mike Markel,Pearson,12,3,3,Long Loan Book,Available
+9789332518587,English for Technical Communication,Meenakshi Raman,Oxford,2,3,2,Long Loan Book,Available
+9780131982663,Technical Communication,Mike Markel,Pearson,12,3,2,Long Loan Book,Available
 9789351343842,Business Communication,Lesikar Flatley,McGrawHill,11,3,3,Long Loan Book,Available
 9789351342319,Sociology,Anthony Giddens,Wiley,6,3,3,Long Loan Book,Available
 9780078026737,Introduction to Sociology,George Ritzer,McGrawHill,4,3,2,Long Loan Book,Available
@@ -38,8 +38,8 @@ ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability
 9780134685991,Artificial Intelligence A Modern Approach,Stuart Russell Peter Norvig,Pearson,4,4,4,Long Loan Book,Available
 9780073376301,Artificial Intelligence,Kevin Knight Elaine Rich,McGrawHill,3,3,3,Long Loan Book,Available
 9789351343200,Artificial Intelligence,S Saravana Sundaram,Oxford,2,3,3,Long Loan Book,Available
-9780262033848,Introduction to Algorithms,Thomas H Cormen,MIT Press,3,4,4,Long Loan Book,Available
-9780073523408,Algorithm Design,Jon Kleinberg Eva Tardos,Pearson,1,3,3,Long Loan Book,Available
+9780262033848,Introduction to Algorithms,Thomas H Cormen,MIT Press,3,4,3,Long Loan Book,Available
+9780073523408,Algorithm Design,Jon Kleinberg Eva Tardos,Pearson,1,3,2,Long Loan Book,Available
 9789332518648,Design and Analysis of Algorithms,Aho Hopcroft Ullman,Pearson,2,3,3,Long Loan Book,Available
 9780132143018,Computer Graphics with OpenGL,Donald Hearn Pauline Baker,Pearson,4,3,3,Long Loan Book,Available
 9780321399526,Computer Graphics Principles and Practice,John Hughes,Pearson,3,4,4,Long Loan Book,Available
@@ -51,7 +51,7 @@ ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability
 9788131707483,Compilers Principles Techniques and Tools,Aho Sethi Ullman,Pearson,2,4,4,Long Loan Book,Available
 9780070669437,Compiler Construction,Grune Jacobs,McGrawHill,1,3,3,Long Loan Book,Available
 9780132126954,Data Communications and Networking,William Stallings,Pearson,5,4,4,Long Loan Book,Available
-9789332585473,Computer Networks,Andrew Tanenbaum,Pearson,5,4,4,Long Loan Book,Available
+9789332585473,Computer Networks,Andrew Tanenbaum,Pearson,5,4,3,Long Loan Book,Available
 9780070701205,Wireless Communications and Networks,William Stallings,Pearson,2,3,3,Long Loan Book,Available
 9780134093413,Database Management Systems,Ramakrishnan Gehrke,McGrawHill,3,3,3,Long Loan Book,Available
 9789351344092,Advanced Database Systems,Ceri Pelagatti,Pearson,1,3,3,Long Loan Book,Available

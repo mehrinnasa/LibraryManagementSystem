@@ -96,6 +96,7 @@ public class DashboardController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        FileUtil.syncBooksWithIssuedBooks();
         setupStats();
         setupBookStatusChart();
     }
@@ -103,14 +104,13 @@ public class DashboardController implements Initializable {
     // ================== STAT VALUES ==================
     private void setupStats() {
         int totalBooks = FileUtil.getTotalBooks();
-        int issuedBooks = FileUtil.getIssuedBooks();
+        int issuedBooks = FileUtil.getIssuedBooksFromIssueFile();
         int totalStudents = FileUtil.getTotalStudents();
 
         totalBooksLabel.setText(String.valueOf(totalBooks));
         issuedBooksLabel.setText(String.valueOf(issuedBooks));
         totalStudentsLabel.setText(String.valueOf(totalStudents));
     }
-
 
     // ================== PIE CHART ==================
     private void setupBookStatusChart() {
@@ -139,5 +139,6 @@ public class DashboardController implements Initializable {
         chartContainer.setAlignment(Pos.CENTER);
         chartContainer.getChildren().add(pieChart);
     }
+
 
 }
