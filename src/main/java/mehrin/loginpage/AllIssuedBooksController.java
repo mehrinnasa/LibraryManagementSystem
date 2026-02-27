@@ -281,7 +281,6 @@ public class AllIssuedBooksController {
     @FXML private void handleBooks(ActionEvent e){ new LoadStage("/mehrin/loginpage/Books.fxml",(Node)e.getSource(),true); }
     @FXML private void handleStudents(ActionEvent e){ new LoadStage("/mehrin/loginpage/Students.fxml",(Node)e.getSource(),true); }
     @FXML private void handleIssueBook(ActionEvent e){ new LoadStage("/mehrin/loginpage/IssueBooks.fxml",(Node)e.getSource(),true); }
-    @FXML private void handleReturnBook(ActionEvent e){ }
     @FXML private void handleAllIssuedBooks(ActionEvent e){ new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml",(Node)e.getSource(),true); }
     @FXML private void handleAnnouncement(ActionEvent e){ new LoadStage("/mehrin/loginpage/Announcements.fxml",(Node)e.getSource(),true); }
     @FXML private void handleExport(ActionEvent e){ new LoadStage("/mehrin/loginpage/Export.fxml",(Node)e.getSource(),true); }

@@ -9,8 +9,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
+import mehrin.loginpage.Model.Book;
+import mehrin.loginpage.Model.Student;
 import mehrin.loginpage.Util.FileUtil;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,37 +31,55 @@ public class IssueBookController {
     private String stuName = "";
 
     private static final String ISSUED_FILE = "issueBooks.csv";
+    private Book selectedBook;
+    private Student selectedStudent;
+
+    private static final String BOOKS_CSV = "data/books.csv";
+    private static final String STUDENT_CSV = "data/students.csv";
 
     // ================== SEARCH BOOK ==================
     @FXML
     private void searchBook(KeyEvent event) {
 
-        if (event.getCode() != KeyCode.ENTER) return;
+        String isbn = bookSearchField.getText().trim();
 
-        String input = bookSearchField.getText().trim();
-        if (input.isEmpty()) {
-            showAlert("Field validation", "Please enter ISBN / barcode", Alert.AlertType.WARNING);
+        if (isbn.isEmpty()) {
+            clearBookFields();
+            boName = "";
             return;
         }
 
-        boolean found = false;
+        try (BufferedReader br = new BufferedReader(new FileReader(BOOKS_CSV))) {
 
-        for (String line : FileUtil.readFile("books.csv")) {
-            String[] parts = line.split(",");
-            if (parts.length > 8 && parts[0].equalsIgnoreCase(input)) {
-                boName = parts[1];
-                bookName.setText(parts[1]);
-                bookAuthor.setText(parts[2]);
-                bookPublisher.setText(parts[3]);
-                availability.setText(parts[8]);
-                found = true;
-                break;
+            String line;
+            br.readLine(); // header skip
+            boolean found = false;
+
+            while ((line = br.readLine()) != null) {
+
+                Book book = Book.fromCSV(line);
+                if (book == null) continue;
+
+                if (book.getIsbn().equals(isbn)) {
+
+                    selectedBook = book;
+                    boName = book.getTitle();
+                    bookName.setText(book.getTitle());
+                    bookAuthor.setText(book.getAuthor());
+                    bookPublisher.setText(book.getPublisher());
+                    availability.setText(book.getAvailability());
+
+                    found = true;
+                    break;
+                }
             }
-        }
 
-        if (!found) {
-            showAlert("Not Found", "No such book in the system", Alert.AlertType.INFORMATION);
-            clearBookFields();
+            if (!found) {
+                clearBookFields();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -65,34 +87,47 @@ public class IssueBookController {
     @FXML
     private void searchStudent(KeyEvent event) {
 
-        if (event.getCode() != KeyCode.ENTER) return;
+        String studentId = studentSearchTextField.getText().trim();
 
-        String input = studentSearchTextField.getText().trim();
-        if (input.isEmpty()) {
-            showAlert("Field validation", "Please enter Student ID", Alert.AlertType.WARNING);
+        if (studentId.isEmpty()) {
+            clearStudentFields();
+            stuName = "";
             return;
         }
 
-        boolean found = false;
+        try (BufferedReader br = new BufferedReader(new FileReader(STUDENT_CSV))) {
 
-        for (String line : FileUtil.readFile("students.csv")) {
-            String[] parts = line.split(",");
-            if (parts.length > 3 && parts[0].equalsIgnoreCase(input)) {
-                stuName = parts[1];
-                studentName.setText(parts[1]);
-                contact.setText(parts[2]);
-                studentEmail.setText(parts[3]);
-                found = true;
-                break;
+            String line;
+            br.readLine(); // header skip
+            boolean found = false;
+
+            while ((line = br.readLine()) != null) {
+
+                Student student = Student.fromCSV(line);
+                if (student == null) continue;
+
+                // 🔴 exact ID match only
+                if (student.getStudentId().equals(studentId)) {
+
+                    selectedStudent = student;
+                    stuName = student.getName();
+                    studentName.setText(student.getName());
+                    contact.setText(student.getPhone());
+                    studentEmail.setText(student.getEmail());
+
+                    found = true;
+                    break;
+                }
             }
-        }
 
-        if (!found) {
-            showAlert("Not Found", "Student not found", Alert.AlertType.INFORMATION);
-            clearStudentFields();
+            if (!found) {
+                clearStudentFields();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-
     // ================== ISSUE BOOK ==================
     @FXML
     private void issueBook(ActionEvent event) {
@@ -152,7 +187,7 @@ public class IssueBookController {
                 }
                 remaining--;
                 parts[6] = String.valueOf(remaining);
-                parts[8] = (remaining == 0) ? "Not Available" : "Available";
+                parts[7] = (remaining == 0) ? "Not Available" : "Available";
             }
             updatedBooks.add(String.join(",", parts));
         }
@@ -205,20 +240,20 @@ public class IssueBookController {
 
     // ================== CLEAR METHODS ==================
     private void clearBookFields() {
+        selectedBook = null;
         boName = "";
-        bookSearchField.clear();
-        bookName.setText("Book Title");
-        bookAuthor.setText("Book Author");
-        bookPublisher.setText("Book Publisher");
-        availability.setText("Availability");
+        bookName.setText("-");
+        bookAuthor.setText("-");
+        bookPublisher.setText("-");
+        availability.setText("-");
     }
 
     private void clearStudentFields() {
-        stuName = "";
-        studentSearchTextField.clear();
-        studentName.setText("Student Name");
-        studentEmail.setText("Email Address");
-        contact.setText("Contact");
+        selectedStudent = null;
+        stuName="";
+        studentName.setText("-");
+        studentEmail.setText("-");
+        contact.setText("-");
     }
 
     private void clearAllFields() {
@@ -236,7 +271,6 @@ public class IssueBookController {
     @FXML private void loadBooksPanel(ActionEvent event) { new LoadStage("/mehrin/loginpage/Books.fxml",(Node) event.getSource(),true); }
     @FXML private void loadStudentPanel(ActionEvent event) { new LoadStage("/mehrin/loginpage/Students.fxml",(Node) event.getSource(),true); }
     @FXML private void loadIssueBooksPanel(ActionEvent event) { new LoadStage("/mehrin/loginpage/IssueBooks.fxml",(Node) event.getSource(),true); }
-    @FXML private void loadReturnBooksPanel(ActionEvent event) { new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml",(Node) event.getSource(),true); }
     @FXML private void viewAllIssuedBooks(ActionEvent event) { new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml",(Node) event.getSource(),true); }
     @FXML private void loadSendAnnouncementsPanel(ActionEvent event) { new LoadStage("/mehrin/loginpage/Announcements.fxml",(Node) event.getSource(),true); }
     @FXML private void loadExportDataPanel(ActionEvent event) { new LoadStage("/mehrin/loginpage/Export.fxml",(Node) event.getSource(),true); }

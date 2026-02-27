@@ -16,7 +16,6 @@ import java.util.ResourceBundle;
 
 public class BooksController implements Initializable {
 
-    // ================= TABLE =================
     @FXML private TableView<Book> booksTable;
     @FXML private TableColumn<Book, String> bookId;
     @FXML private TableColumn<Book, String> title;
@@ -26,9 +25,8 @@ public class BooksController implements Initializable {
     @FXML private TableColumn<Book, String> edition;
     @FXML private TableColumn<Book, String> quantity;
     @FXML private TableColumn<Book, String> remainingBooks;
-    @FXML private TableColumn<Book, String> sectionCol;
+    @FXML private TableColumn<Book, String> pdfCol;
 
-    // ================= FORM =================
     @FXML private TextField searchField;
     @FXML private TextField bookIdField;
     @FXML private TextField bookTitleField;
@@ -38,35 +36,27 @@ public class BooksController implements Initializable {
     private final ObservableList<Book> booksList = FXCollections.observableArrayList();
     private BookService bookService;
 
-    // ================= INITIALIZE =================
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         bookService = new BookService();
 
-        // Status ComboBox
         statusComboBox.setItems(FXCollections.observableArrayList("Available", "Not Available"));
 
         // TableColumn CellValueFactories
         bookId.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getIsbn()));
         title.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getTitle()));
         author.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getAuthor()));
-        status.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getAvailability()));
+        status.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getAvailability()));
         publisher.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getPublisher()));
         edition.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getEdition())));
-
-        // Int fields converted to String
         quantity.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getQuantity())));
         remainingBooks.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getRemaining())));
-
-        sectionCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getSection()));
-
-        // Load books and setup
+        pdfCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getPdf()));
         loadBooks();
         setupSearch();
         setupTableClick();
     }
 
-    // ================= LOAD =================
     private void loadBooks() {
         booksList.setAll(bookService.getAllBooks());
         booksTable.setItems(booksList);
@@ -130,7 +120,7 @@ public class BooksController implements Initializable {
             bookService.updateBook(selected);
         } else {
             // ADD
-            Book book = new Book(isbn, titleVal, authorVal, "Unknown", 1, 1, 1, "General", statusVal);
+            Book book = new Book(isbn, titleVal, authorVal, "Unknown", 1, 1, 1, statusVal, "General PDF");
             bookService.addBook(book);
         }
 
@@ -198,12 +188,6 @@ public class BooksController implements Initializable {
     private void loadIssueBooksPanel(ActionEvent event) {
         Node node = (Node) event.getSource();
         new LoadStage("/mehrin/loginpage/IssueBooks.fxml", node,true);
-    }
-
-    @FXML
-    private void loadReturnBooksPanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", node,true);
     }
 
     @FXML

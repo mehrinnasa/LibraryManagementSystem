@@ -88,7 +88,8 @@
                         <TableColumn fx:id="edition" text="Edition" />
                         <TableColumn fx:id="quantity"  text="Quantity" />
                         <TableColumn fx:id="remainingBooks"  text="Remaining Books" />
-                        <TableColumn fx:id="sectionCol"  text="Book Section" />
+                        <TableColumn fx:id="pdfCol" text="PDF" />
+
                     </columns>
 
                     <columnResizePolicy>
