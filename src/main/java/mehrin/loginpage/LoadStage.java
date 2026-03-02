@@ -15,7 +15,7 @@ import javafx.stage.StageStyle;
 public class LoadStage {
 
     /**
-     * @param url   FXML path (e.g., "/mehrin/loginpage/Main.fxml")
+     * @param url   FXML path (e.g., "/mehrin/loginpage/Books.fxml")
      * @param node  Any Node from current scene to get the Stage
      * @param fullScreen  true = full screen (Main page), false = small undecorated (Login/Reset)
      */

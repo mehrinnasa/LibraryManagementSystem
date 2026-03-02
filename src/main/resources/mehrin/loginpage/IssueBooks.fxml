@@ -97,7 +97,7 @@
                                 <font>
                                     <Font name="System Bold" size="14.0" />
                                 </font></Label>
-                            <Text fx:id="bookName" text="Book Title">
+                            <Text fx:id="bookName" text="-">
                                 <font>
                                     <Font size="14.0" />
                                 </font></Text>
@@ -106,7 +106,7 @@
                                 <font>
                                     <Font name="System Bold" size="14.0" />
                                 </font></Label>
-                            <Text fx:id="bookAuthor" text="Book Author">
+                            <Text fx:id="bookAuthor" text="-">
                                 <font>
                                     <Font size="14.0" />
                                 </font></Text>
@@ -115,7 +115,7 @@
                                     <Font name="System Bold" size="14.0" />
                                 </font>
                             </Label>
-                            <Text fx:id="bookPublisher" strokeType="OUTSIDE" strokeWidth="0.0" text="Publisher">
+                            <Text fx:id="bookPublisher" strokeType="OUTSIDE" strokeWidth="0.0" text="-">
                                 <font>
                                     <Font size="14.0" />
                                 </font>
@@ -125,7 +125,7 @@
                                 <font>
                                     <Font name="System Bold" size="14.0" />
                                 </font></Label>
-                            <Text fx:id="availability" text="Availability">
+                            <Text fx:id="availability" text="-">
                                 <font>
                                     <Font size="14.0" />
                                 </font></Text>
@@ -155,7 +155,7 @@
                                 <font>
                                     <Font name="System Bold" size="14.0" />
                                 </font></Label>
-                            <Text fx:id="studentName" text="Student Name">
+                            <Text fx:id="studentName" text="-">
                                 <font>
                                     <Font size="14.0" />
                                 </font></Text>
@@ -164,7 +164,7 @@
                                 <font>
                                     <Font name="System Bold" size="14.0" />
                                 </font></Label>
-                            <Text fx:id="studentEmail" text="Email Address">
+                            <Text fx:id="studentEmail" text="-">
                                 <font>
                                     <Font size="14.0" />
                                 </font></Text>
@@ -173,7 +173,7 @@
                                 <font>
                                     <Font name="System Bold" size="14.0" />
                                 </font></Label>
-                            <Text fx:id="contact" text="Contact">
+                            <Text fx:id="contact" text="-">
                                 <font>
                                     <Font size="14.0" />
                                 </font></Text>

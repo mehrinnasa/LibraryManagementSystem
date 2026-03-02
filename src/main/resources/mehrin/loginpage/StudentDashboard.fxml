@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="750.0" prefWidth="1000.0" style="-fx-background-color: #C5D5F3;" stylesheets="@mainStyle.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mehrin.loginpage.StudentDashboardController">
+
+    <!-- ================= HEADER ================= -->
+    <top>
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #0B2A4A; -fx-padding: 14 30;">
+            <Label style="-fx-text-fill: white;-fx-font-size: 18px;-fx-font-weight: bold;" text="Rajshahi University of Engineering and Technology" />
+        </HBox>
+    </top>
+
+    <!-- ================= SIDEBAR ================= -->
+    <left>
+        <VBox alignment="TOP_CENTER" prefWidth="137.0" spacing="4" style="-fx-background-color: #143F73;" styleClass="sidebar">
+
+            <Button fx:id="home" onAction="#loadHomePanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="books" onAction="#loadBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="addToCartBooks" onAction="#loadAddToCartBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="allIssuedBooks" onAction="#loadAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="announcement" onAction="#loadAnnouncementPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="clearance" onAction="#loadClearancePanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="logout" onAction="#logout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout">
+                <font><Font size="14" /></font>
+            </Button>
+        </VBox>   </left>
+
+    <!-- ================= CENTER ================= -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: #C5D5F3;">
+            <VBox spacing="30" style="-fx-padding: 30; -fx-background-color: #C5D5F3;">
+
+                <!-- ================= STUDENT INFO ================= -->
+                <GridPane hgap="60" vgap="25">
+
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="33" />
+                        <ColumnConstraints percentWidth="33" />
+                        <ColumnConstraints percentWidth="34" />
+                    </columnConstraints>
+
+                    <!-- Row 1 -->
+                    <VBox>
+                        <Label style="-fx-font-weight: bold;" text="NAME:" />
+                        <Label fx:id="nameLabel" />
+                    </VBox>
+
+                    <VBox GridPane.columnIndex="1">
+                        <Label style="-fx-font-weight: bold;" text="ROLL NO:" />
+                        <Label fx:id="rollLabel" />
+                    </VBox>
+
+                    <VBox GridPane.columnIndex="2">
+                        <Label style="-fx-font-weight: bold;" text="REGISTRATION NO:" />
+                        <Label fx:id="regLabel" />
+                    </VBox>
+
+                    <!-- Row 2 -->
+                    <VBox GridPane.rowIndex="1">
+                        <Label style="-fx-font-weight: bold;" text="SESSION:" />
+                        <Label fx:id="sessionLabel" />
+                    </VBox>
+
+                    <VBox GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label style="-fx-font-weight: bold;" text="YEAR:" />
+                        <Label fx:id="yearLabel" />
+                    </VBox>
+
+                    <VBox GridPane.columnIndex="2" GridPane.rowIndex="1">
+                        <Label style="-fx-font-weight: bold;" text="CONTACT NO:" />
+                        <Label fx:id="contactLabel" />
+                    </VBox>
+
+                    <!-- Row 3 -->
+                    <VBox GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <Label style="-fx-font-weight: bold;" text="SEMESTER:" />
+                        <Label fx:id="semesterLabel" />
+                    </VBox>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+
+                </GridPane>
+
+                <!-- ================= TITLE BAR ================= -->
+                <HBox alignment="CENTER" style="-fx-background-color: #0B2A4A;                              -fx-padding: 15;                              -fx-background-radius: 10;">
+                    <Label style="-fx-text-fill: white;                                   -fx-font-size: 18px;                                   -fx-font-weight: bold;" text="Library Management System" />
+                </HBox>
+
+                <!-- ================= DASHBOARD OVERVIEW ================= -->
+                <Label style="-fx-font-weight: bold; -fx-font-size: 32px;" text="Dashboard" />
+
+                <!-- ================= STATS ================= -->
+                <HBox spacing="20">
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label styleClass="card-title" text="Total Books">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font></Label>
+                        <Label fx:id="totalBooksLabel" styleClass="card-value" text="0" />
+                    </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label styleClass="card-title" text="Issued Books">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font></Label>
+                        <Label fx:id="issuedBooksLabel" styleClass="card-value" text="0" />
+                    </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" />
+                </HBox>
+
+                <!-- ================= CHART SECTION ================= -->
+                <VBox fx:id="chartContainer" alignment="CENTER" prefHeight="300" style="-fx-background-color: #E6E9EC;                              -fx-background-radius: 20;                              -fx-padding: 20;">
+
+                    <Label style="-fx-font-weight: bold;" text="Book Status Distribution" />
+
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

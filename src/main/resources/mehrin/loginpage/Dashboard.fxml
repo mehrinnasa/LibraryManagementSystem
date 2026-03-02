@@ -9,7 +9,8 @@
    <top>
        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #0B2A4A; -fx-padding: 14 30;">
            <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Rajshahi University of Engineering &amp; Technology" />
-       </HBox>   </top>
+       </HBox>
+   </top>
    <left>
        <VBox alignment="TOP_CENTER" prefWidth="137.0" spacing="4" style="-fx-background-color: #143F73;" styleClass="sidebar">
 
