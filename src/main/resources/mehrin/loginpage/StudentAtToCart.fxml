@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="651.0" prefWidth="1000.0" style="-fx-background-color: #C5D5F3;" stylesheets="@mainStyle.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mehrin.loginpage.StudentAddToCartController">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <left>
+        <VBox alignment="TOP_CENTER" prefWidth="137.0" spacing="4" style="-fx-background-color: #143F73;" styleClass="sidebar">
+
+            <Button fx:id="home" onAction="#loadHomePanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="books" onAction="#loadBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="addToCart" onAction="#loadAddToCartBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Add To Cart">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="allIssuedBooks" onAction="#loadAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="announcement" onAction="#loadAnnouncementPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="clearance" onAction="#loadClearancePanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="logout" onAction="#logout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout">
+                <font><Font size="14" /></font>
+            </Button>
+        </VBox>
+    </left>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <center>
+        <HBox spacing="0" styleClass="main-content">
+
+            <!-- ===== ISSUE BOOK PANEL ===== -->
+            <VBox spacing="20" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets bottom="30" left="30" right="15" top="30" />
+                </padding>
+
+                <Label styleClass="section-title" text="Add To Cart">
+                    <font>
+                        <Font name="System Bold" size="32" />
+                    </font>
+                </Label>
+
+                <!-- ===== BOOK INFO & STUDENT INFO SIDE BY SIDE ===== -->
+                <HBox spacing="20" HBox.hgrow="ALWAYS">
+
+                    <!-- ===== BOOK INFO PANEL ===== -->
+                    <VBox prefWidth="350" spacing="15" styleClass="info-panel">
+                        <padding>
+                            <Insets bottom="30" left="30" right="30" top="30" />
+                        </padding>
+
+                        <Label prefHeight="23.0" prefWidth="130.0" styleClass="panel-title" text="Book Information">
+                            <font>
+                                <Font name="System Bold" size="18" />
+                            </font>
+                        </Label>
+
+                        <VBox spacing="10">
+                            <Label text="Book Search">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font></Label>
+                            <TextField fx:id="bookSearchField" onKeyReleased="#searchBook" promptText="Enter ISBN / barcode" />
+
+                            <Label text="Book Name">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font></Label>
+                            <Text fx:id="bookName" text="-">
+                                <font>
+                                    <Font size="14.0" />
+                                </font></Text>
+
+                            <Label text="Author">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font></Label>
+                            <Text fx:id="bookAuthor" text="-">
+                                <font>
+                                    <Font size="14.0" />
+                                </font></Text>
+                            <Label text="Publisher">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font>
+                            </Label>
+                            <Text fx:id="bookPublisher" strokeType="OUTSIDE" strokeWidth="0.0" text="-">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Text>
+
+                            <Label text="Status">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font></Label>
+                            <Text fx:id="availability" text="-">
+                                <font>
+                                    <Font size="14.0" />
+                                </font></Text>
+                        </VBox>
+                    </VBox>
+
+                    <!-- ===== STUDENT INFO PANEL ===== -->
+                    <VBox prefWidth="350" spacing="15" styleClass="info-panel">
+                        <padding>
+                            <Insets bottom="30" left="30" right="30" top="30" />
+                        </padding>
+
+                        <Label styleClass="panel-title" text="Student Information">
+                            <font>
+                                <Font name="System Bold" size="18" />
+                            </font>
+                        </Label>
+
+                        <VBox spacing="10">
+                            <Label text="Student Search">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font></Label>
+                            <TextField fx:id="studentSearchTextField" onKeyReleased="#searchStudent" promptText="Enter student ID" />
+
+                            <Label text="Student Name">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font></Label>
+                            <Text fx:id="studentName" text="-">
+                                <font>
+                                    <Font size="14.0" />
+                                </font></Text>
+
+                            <Label text="Email">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font></Label>
+                            <Text fx:id="studentEmail" text="-">
+                                <font>
+                                    <Font size="14.0" />
+                                </font></Text>
+
+                            <Label text="Contact">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font></Label>
+                            <Text fx:id="contact" text="-">
+                                <font>
+                                    <Font size="14.0" />
+                                </font></Text>
+                        </VBox>
+                    </VBox>
+
+                </HBox>
+
+                <!-- ===== ACTION BUTTONS ===== -->
+                <HBox spacing="20.0">
+                    <Button onAction="#cancel" text="Cancel" HBox.hgrow="ALWAYS">
+                        <font>
+                            <Font size="14.0" />
+                        </font></Button>
+                    <Button fx:id="issueBook" onAction="#issueBook" text="Add To Cart" HBox.hgrow="ALWAYS">
+                        <font>
+                            <Font size="14.0" />
+                        </font></Button>
+                </HBox>
+
+            </VBox>
+
+        </HBox>
+    </center>
+
+    <!-- ================= TOP HEADER ================= -->
+    <top>
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #0B2A4A; -fx-padding: 14 30;">
+            <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Rajshahi University of Engineering &amp; Technology" />
+        </HBox>
+    </top>
+
+</BorderPane>

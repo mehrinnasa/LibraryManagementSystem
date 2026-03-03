@@ -64,6 +64,10 @@
                         <TableColumn fx:id="nameColumn" text="Name" />
                         <TableColumn fx:id="phoneColumn" text="Phone" />
                         <TableColumn fx:id="emailColumn" text="Email" />
+                        <TableColumn fx:id="registrationColumn" text="Registration" />
+                        <TableColumn fx:id="sessionColumn" text="Session" />
+                        <TableColumn fx:id="yearColumn" text="Year" />
+                        <TableColumn fx:id="semesterColumn" text="Semester" />
                     </columns>
 
                     <columnResizePolicy>
@@ -73,46 +77,76 @@
             </VBox>
 
             <!-- ===== STUDENT INFO PANEL ===== -->
-            <VBox prefWidth="350" spacing="20" styleClass="info-panel">
+            <VBox prefWidth="400" spacing="20" styleClass="info-panel">
 
                 <padding>
                     <Insets bottom="30" left="30" right="30" top="30" />
                 </padding>
 
-                <Label styleClass="panel-title" text="Student information">
+                <Label styleClass="panel-title" text="Student Information">
                     <font>
                         <Font name="System Bold" size="18" />
                     </font>
                 </Label>
 
-                <VBox spacing="15">
-                    <VBox spacing="8">
-                        <Label text="Student ID" />
-                        <TextField fx:id="studentIdField" />
-                    </VBox>
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="400" vbarPolicy="AS_NEEDED">
+                    <VBox spacing="15" style="-fx-background-color: #C5D5F3;">
+                        <!-- Student ID -->
+                        <VBox spacing="8">
+                            <Label style="-fx-font-weight: bold;" text="Student ID" />
+                            <TextField fx:id="studentIdField" />
+                        </VBox>
 
-                    <VBox spacing="8">
-                        <Label text="Student Name" />
-                        <TextField fx:id="studentNameField" />
-                    </VBox>
+                        <!-- Student Name -->
+                        <VBox spacing="8">
+                            <Label style="-fx-font-weight: bold;" text="Student Name" />
+                            <TextField fx:id="studentNameField" />
+                        </VBox>
 
-                    <VBox spacing="8">
-                        <Label text="Email" />
-                        <TextField fx:id="emailField" />
-                    </VBox>
+                        <!-- Email -->
+                        <VBox spacing="8">
+                            <Label style="-fx-font-weight: bold;" text="Email" />
+                            <TextField fx:id="emailField" />
+                        </VBox>
 
-                    <VBox spacing="8">
-                        <Label text="Phone" />
-                        <TextField fx:id="phoneField" />
-                    </VBox>
-                </VBox>
+                        <!-- Phone -->
+                        <VBox spacing="8">
+                            <Label style="-fx-font-weight: bold;" text="Phone" />
+                            <TextField fx:id="phoneField" />
+                        </VBox>
 
-                <Region VBox.vgrow="ALWAYS" />
+                        <!-- Registration -->
+                        <VBox spacing="8">
+                            <Label style="-fx-font-weight: bold;" text="Registration Number" />
+                            <TextField fx:id="registrationField" />
+                        </VBox>
+
+                        <!-- Session -->
+                        <VBox spacing="8">
+                            <Label style="-fx-font-weight: bold;" text="Session" />
+                            <TextField fx:id="sessionField" />
+                        </VBox>
+
+                        <!-- Year -->
+                        <VBox spacing="8">
+                            <Label style="-fx-font-weight: bold;" text="Year" />
+                            <TextField fx:id="yearField" />
+                        </VBox>
+
+                        <!-- Semester -->
+                        <VBox spacing="8">
+                            <Label style="-fx-font-weight: bold;" text="Semester" />
+                            <TextField fx:id="semesterField" />
+                        </VBox>
+
+                        <Region VBox.vgrow="ALWAYS" />
+                    </VBox>
+                </ScrollPane>
 
                 <HBox spacing="10">
-                    <Button maxWidth="Infinity" onAction="#handleCancel" text="Cancel" HBox.hgrow="ALWAYS" />
+                    <Button maxWidth="Infinity" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" HBox.hgrow="ALWAYS" />
 
-                    <Button maxWidth="Infinity" onAction="#handleSave" text="Save" HBox.hgrow="ALWAYS" />
+                    <Button maxWidth="Infinity" onAction="#handleSave" styleClass="primary-button" text="Save" HBox.hgrow="ALWAYS" />
                 </HBox>
             </VBox>
         </HBox>
@@ -121,7 +155,7 @@
     <!-- ================= TOP BAR ================= -->
     <top>
         <HBox alignment="CENTER_LEFT" style="-fx-background-color: #0B2A4A; -fx-padding: 14 30;">
-            <Label style="-fx-text-fill: white;                           -fx-font-size: 18px;                           -fx-font-weight: bold;" text="Rajshahi University of Engineering &amp; Technology" />
+            <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Rajshahi University of Engineering &amp; Technology" />
         </HBox>
     </top>
 

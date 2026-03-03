@@ -58,12 +58,6 @@ public class DashboardController implements Initializable {
     }
 
     @FXML
-    private void loadReturnBooksPanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", node,true);
-    }
-
-    @FXML
     private void viewAllIssuedBooks(ActionEvent event) {
         Node node = (Node) event.getSource();
         new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", node,true);

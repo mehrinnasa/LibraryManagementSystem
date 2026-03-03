@@ -32,7 +32,7 @@
                 <font><Font size="14" /></font>
             </Button>
 
-            <Button fx:id="addToCartBooks" onAction="#loadAddToCartBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book">
+            <Button fx:id="addToCartBooks" onAction="#loadAddToCartBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Add To Cart">
                 <font><Font size="14" /></font>
             </Button>
 

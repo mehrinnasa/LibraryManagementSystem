@@ -22,6 +22,10 @@ public class StudentsController implements Initializable {
     @FXML private TableColumn<Student, String> nameColumn;
     @FXML private TableColumn<Student, String> phoneColumn;
     @FXML private TableColumn<Student, String> emailColumn;
+    @FXML private TableColumn<Student, String> registrationColumn;
+    @FXML private TableColumn<Student, String> sessionColumn;
+    @FXML private TableColumn<Student, String> yearColumn;
+    @FXML private TableColumn<Student, String> semesterColumn;
 
     // ================= FORM =================
     @FXML private TextField searchField;
@@ -29,6 +33,10 @@ public class StudentsController implements Initializable {
     @FXML private TextField studentNameField;
     @FXML private TextField emailField;
     @FXML private TextField phoneField;
+    @FXML private TextField registrationField;
+    @FXML private TextField sessionField;
+    @FXML private TextField yearField;
+    @FXML private TextField semesterField;
 
     private final ObservableList<Student> studentsList = FXCollections.observableArrayList();
     private StudentService studentService;
@@ -39,17 +47,23 @@ public class StudentsController implements Initializable {
 
         studentService = new StudentService();
 
+        // Setup table columns
         studentIdColumn.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getStudentId()));
-
         nameColumn.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getName()));
-
         phoneColumn.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getPhone()));
-
         emailColumn.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getEmail()));
+        registrationColumn.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getRegistration()));
+        sessionColumn.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getSession()));
+        yearColumn.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getYear()));
+        semesterColumn.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getSemester()));
 
         loadStudents();
         setupSearch();
@@ -94,6 +108,10 @@ public class StudentsController implements Initializable {
                 studentNameField.setText(student.getName());
                 emailField.setText(student.getEmail());
                 phoneField.setText(student.getPhone());
+                registrationField.setText(student.getRegistration());
+                sessionField.setText(student.getSession());
+                yearField.setText(student.getYear());
+                semesterField.setText(student.getSemester());
             }
         });
     }
@@ -106,8 +124,13 @@ public class StudentsController implements Initializable {
         String name = studentNameField.getText().trim();
         String email = emailField.getText().trim();
         String phone = phoneField.getText().trim();
+        String registration = registrationField.getText().trim();
+        String session = sessionField.getText().trim();
+        String year = yearField.getText().trim();
+        String semester = semesterField.getText().trim();
 
-        if (id.isEmpty() || name.isEmpty() || email.isEmpty() || phone.isEmpty()) {
+        if (id.isEmpty() || name.isEmpty() || email.isEmpty() || phone.isEmpty() ||
+                registration.isEmpty() || session.isEmpty() || year.isEmpty() || semester.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Validation Error",
                     "Please fill all required fields.");
             return;
@@ -121,15 +144,20 @@ public class StudentsController implements Initializable {
             selected.setName(name);
             selected.setEmail(email);
             selected.setPhone(phone);
+            selected.setRegistration(registration);
+            selected.setSession(session);
+            selected.setYear(year);
+            selected.setSemester(semester);
             studentService.updateStudent(selected);
         } else {
             // ADD
-            Student student = new Student(id, name, phone, email);
+            Student student = new Student(id, name, phone, email, registration, session, year, semester);
             studentService.addStudent(student);
         }
 
         clearForm();
         loadStudents();
+        showAlert(Alert.AlertType.INFORMATION, "Success", "Student saved successfully!");
     }
 
     // ================= DELETE =================
@@ -155,6 +183,7 @@ public class StudentsController implements Initializable {
             studentService.deleteStudent(selected.getStudentId());
             loadStudents();
             clearForm();
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Student deleted successfully!");
         }
     }
 
@@ -170,14 +199,19 @@ public class StudentsController implements Initializable {
         studentNameField.clear();
         emailField.clear();
         phoneField.clear();
+        registrationField.clear();
+        sessionField.clear();
+        yearField.clear();
+        semesterField.clear();
     }
 
-    // ================= NAVIGATION (Same as BooksController) =================
+    // ================= NAVIGATION =================
 
     @FXML
     private void handleHome(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Dashboard.fxml", node,true); }
+        new LoadStage("/mehrin/loginpage/Dashboard.fxml", node,true);
+    }
 
     @FXML
     private void handleBooks(ActionEvent event) {
@@ -232,6 +266,7 @@ public class StudentsController implements Initializable {
         Node node = (Node) event.getSource();
         new LoadStage("/mehrin/loginpage/Login.fxml", node,true);
     }
+
     // ================= ALERT =================
     private void showAlert(Alert.AlertType type, String title, String msg) {
         Alert alert = new Alert(type);

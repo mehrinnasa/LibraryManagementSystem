@@ -1,6 +1,5 @@
 package mehrin.loginpage.Service;
 
-
 import mehrin.loginpage.Model.Student;
 import mehrin.loginpage.Util.FileUtil;
 import java.util.ArrayList;
@@ -8,7 +7,7 @@ import java.util.List;
 
 public class StudentService {
     private static final String STUDENTS_FILE = "students.csv";
-    private static final String HEADER = "StudentID,Name,Phone,Email";
+    private static final String HEADER = "StudentID,Name,Phone,Email,Registration,Session,Year,Semester";
     private List<Student> students;
 
     public StudentService() {
@@ -19,13 +18,24 @@ public class StudentService {
         students = new ArrayList<>();
         List<String> lines = FileUtil.readFile(STUDENTS_FILE);
         for (String line : lines) {
-            Student student = Student.fromCSV(line);
-            if (student != null) students.add(student);
+            if (!line.isEmpty()) {
+                Student student = Student.fromCSV(line);
+                if (student != null) students.add(student);
+            }
         }
     }
 
     public List<Student> getAllStudents() {
         return new ArrayList<>(students);
+    }
+
+    public Student getStudentById(String studentId) {
+        for (Student student : students) {
+            if (student.getStudentId().equals(studentId)) {
+                return student;
+            }
+        }
+        return null;
     }
 
     public boolean addStudent(Student student) {
@@ -70,8 +80,9 @@ public class StudentService {
 
     private void saveStudents() {
         List<String> lines = new ArrayList<>();
-        for (Student student : students) lines.add(student.toCSV());
+        for (Student student : students) {
+            lines.add(student.toCSV());
+        }
         FileUtil.writeFile(STUDENTS_FILE, lines, HEADER);
     }
 }
-

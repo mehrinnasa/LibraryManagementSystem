@@ -9,16 +9,17 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import mehrin.loginpage.Model.Student;
+import mehrin.loginpage.Service.StudentService;
 import mehrin.loginpage.Util.FileUtil;
-
-import java.net.URL;
 import java.util.Map;
+import java.net.URL;
 import java.util.ResourceBundle;
+import mehrin.loginpage.Service.CartService;
 
 public class StudentDashboardController implements Initializable {
 
     // ================= STUDENT INFO LABELS =================
-
     @FXML private Label nameLabel;
     @FXML private Label rollLabel;
     @FXML private Label regLabel;
@@ -28,50 +29,100 @@ public class StudentDashboardController implements Initializable {
     @FXML private Label contactLabel;
 
     // ================= DASHBOARD STATS =================
-
     @FXML private Label totalBooksLabel;
     @FXML private Label issuedBooksLabel;
 
     @FXML private VBox chartContainer;
 
-    // ================= INITIALIZE =================
+    private String currentStudentId;
+    private StudentService studentService;
 
+    // Static variable to store student ID between page loads
+    private static String staticStudentId;
+
+    // ================= INITIALIZE =================
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        loadStudentInfo();
+        CartService.cleanExpiredCarts();
+        System.out.println("StudentDashboardController initialized");
+        studentService = new StudentService();
+
+        // If student ID was set via static variable, use it
+        if (staticStudentId != null && !staticStudentId.isEmpty()) {
+            System.out.println("Loading student ID from static: " + staticStudentId);
+            setCurrentStudentId(staticStudentId);
+        }
+
         setupStats();
         setupPieChart();
         FileUtil.syncBooksWithIssuedBooks();
-        setupStats();
+    }
+
+    // ================= SET CURRENT STUDENT ID =================
+    public void setCurrentStudentId(String studentId) {
+        System.out.println("setCurrentStudentId called with: " + studentId);
+        this.currentStudentId = studentId;
+        staticStudentId = studentId; // Store in static variable
+
+        // Call loadStudentInfo after student ID is set
+        if (studentService == null) {
+            studentService = new StudentService();
+        }
+        loadStudentInfo();
+    }
+
+    // ================= GET CURRENT STUDENT ID =================
+    public String getCurrentStudentId() {
+        return currentStudentId;
     }
 
     // ================= LOAD STUDENT INFO =================
-
     private void loadStudentInfo() {
+        System.out.println("loadStudentInfo called, currentStudentId: " + currentStudentId);
 
-        // Replace these with real logged-in student data later
-        nameLabel.setText("MAISUM MALIHA");
-        rollLabel.setText("2303007");
-        regLabel.setText("549");
-        sessionLabel.setText("2023-2024");
-        yearLabel.setText("2nd Year");
-        semesterLabel.setText("Odd");
-        contactLabel.setText("1516725678");
+        if (currentStudentId == null || currentStudentId.isEmpty()) {
+            nameLabel.setText("N/A");
+            rollLabel.setText("N/A");
+            regLabel.setText("N/A");
+            sessionLabel.setText("N/A");
+            yearLabel.setText("N/A");
+            semesterLabel.setText("N/A");
+            contactLabel.setText("N/A");
+            return;
+        }
+
+        Student student = studentService.getStudentById(currentStudentId);
+
+        if (student != null) {
+            nameLabel.setText(student.getName());
+            rollLabel.setText(student.getStudentId());
+            regLabel.setText(student.getRegistration());
+            sessionLabel.setText(student.getSession());
+            yearLabel.setText(student.getYear());
+            semesterLabel.setText(student.getSemester());
+            contactLabel.setText(student.getPhone());
+        } else {
+            nameLabel.setText("Student not found");
+            rollLabel.setText("N/A");
+            regLabel.setText("N/A");
+            sessionLabel.setText("N/A");
+            yearLabel.setText("N/A");
+            semesterLabel.setText("N/A");
+            contactLabel.setText("N/A");
+        }
     }
 
     // ================= LOAD STATS =================
-
     private void setupStats() {
         int totalBooks = FileUtil.getTotalBooks();
         int issuedBooks = FileUtil.getIssuedBooksFromIssueFile();
         totalBooksLabel.setText(String.valueOf(totalBooks));
         issuedBooksLabel.setText(String.valueOf(issuedBooks));
     }
+
     // ================= PIE CHART =================
-
     private void setupPieChart() {
-
         Map<String, Integer> statusCount = FileUtil.getBookStatusCount();
 
         PieChart pieChart = new PieChart();
@@ -81,7 +132,6 @@ public class StudentDashboardController implements Initializable {
                 new PieChart.Data("Issued", statusCount.get("Issued"))
         );
 
-        // ⭐ chart size control
         pieChart.setPrefSize(460, 460);
         pieChart.setMinSize(460, 460);
         pieChart.setMaxSize(460, 460);
@@ -98,7 +148,6 @@ public class StudentDashboardController implements Initializable {
     }
 
     // ================= SIDEBAR NAVIGATION =================
-
     @FXML
     private void loadHomePanel(ActionEvent event) {
         Node node = (Node) event.getSource();
@@ -128,13 +177,16 @@ public class StudentDashboardController implements Initializable {
         Node node = (Node) event.getSource();
         new LoadStage("/mehrin/loginpage/StudentAnnouncement.fxml", node, true);
     }
+
     @FXML
     private void loadClearancePanel(ActionEvent event) {
         Node node = (Node) event.getSource();
         new LoadStage("/mehrin/loginpage/StudentClearance.fxml", node, true);
     }
+
     @FXML
     private void logout(ActionEvent event) {
+        staticStudentId = null; // Clear student ID on logout
         Node node = (Node) event.getSource();
         new LoadStage("/mehrin/loginpage/Login.fxml", node, true);
     }

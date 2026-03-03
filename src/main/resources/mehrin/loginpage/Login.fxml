@@ -22,12 +22,12 @@
                 <Label style="-fx-font-size: 28; -fx-font-weight: bold;" text="Log in" />
 
                 <Label text="Username or Email" />
-                <TextField fx:id="usernameField" prefHeight="38" promptText="Enter your username or email" />
+                <TextField fx:id="usernameField" onKeyPressed="#onUsernameKeyPressed" prefHeight="38" promptText="Enter your username or email" />
 
                 <Label text="Password" />
-                <PasswordField fx:id="passwordField" prefHeight="38" promptText="Enter your password" />
+                <PasswordField fx:id="passwordField" onKeyPressed="#onPasswordKeyPressed" prefHeight="38" promptText="Enter your password" />
 
-                <Button fx:id="loggedInToMain" onAction="#handleLogin" prefHeight="40" prefWidth="145.0" style="-fx-background-color: #214f38; -fx-text-fill: white;" text="Log In" />
+                <Button fx:id="loggedInToMain" onAction="#handleLogin" prefHeight="31.0" prefWidth="104.0" style="-fx-background-color: #2D6A4F; -fx-text-fill: white;" text="Log In" />
 
                 <Hyperlink fx:id="resetPassword" onAction="#changePass" text="Forgot Password?" />
             </VBox>
