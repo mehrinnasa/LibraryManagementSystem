@@ -7,7 +7,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import mehrin.loginpage.Model.Book;
 import mehrin.loginpage.Service.BookService;
 
@@ -19,21 +18,25 @@ import java.util.ResourceBundle;
 
 public class BooksController implements Initializable {
 
-    @FXML private TableView<Book>              booksTable;
-    @FXML private TableColumn<Book, String>    bookId;
-    @FXML private TableColumn<Book, String>    title;
-    @FXML private TableColumn<Book, String>    author;
-    @FXML private TableColumn<Book, String>    status;
-    @FXML private TableColumn<Book, String>    publisher;
-    @FXML private TableColumn<Book, String>    edition;
-    @FXML private TableColumn<Book, String>    quantity;
-    @FXML private TableColumn<Book, String>    remainingBooks;
-    @FXML private TableColumn<Book, Void>      pdfCol;      // button column
+    @FXML private TableView<Book>           booksTable;
+    @FXML private TableColumn<Book, String> bookId;
+    @FXML private TableColumn<Book, String> title;
+    @FXML private TableColumn<Book, String> author;
+    @FXML private TableColumn<Book, String> status;
+    @FXML private TableColumn<Book, String> publisher;
+    @FXML private TableColumn<Book, String> edition;
+    @FXML private TableColumn<Book, String> quantity;
+    @FXML private TableColumn<Book, String> remainingBooks;
+    @FXML private TableColumn<Book, Void>   pdfCol;
 
-    @FXML private TextField   searchField;
-    @FXML private TextField   bookIdField;
-    @FXML private TextField   bookTitleField;
-    @FXML private TextField   authorField;
+    // ── Info panel fields ────────────────────────────────────────
+    @FXML private TextField        searchField;
+    @FXML private TextField        bookIdField;
+    @FXML private TextField        bookTitleField;
+    @FXML private TextField        authorField;
+    @FXML private TextField        publisherField;   // NEW
+    @FXML private TextField        editionField;     // NEW
+    @FXML private TextField        quantityField;    // NEW
     @FXML private ComboBox<String> statusComboBox;
 
     private final ObservableList<Book> booksList = FXCollections.observableArrayList();
@@ -53,7 +56,7 @@ public class BooksController implements Initializable {
         quantity.setCellValueFactory(d      -> new javafx.beans.property.SimpleStringProperty(String.valueOf(d.getValue().getQuantity())));
         remainingBooks.setCellValueFactory(d-> new javafx.beans.property.SimpleStringProperty(String.valueOf(d.getValue().getRemaining())));
 
-        // ── PDF column: "View PDF" or "Add PDF" button ───────────
+        // ── PDF column: View PDF / Add PDF ───────────────────────
         pdfCol.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button();
             {
@@ -63,10 +66,8 @@ public class BooksController implements Initializable {
                     if (book.hasPdf()) {
                         openPdf(book.getPdf());
                     } else {
-                        // Navigate to Export with this book pre-filled
                         ExportController.prefilledIsbn = book.getIsbn();
-                        new LoadStage("/mehrin/loginpage/Export.fxml",
-                                btn.getScene().getRoot(), true);
+                        new LoadStage("/mehrin/loginpage/Export.fxml", btn.getScene().getRoot(), true);
                     }
                 });
             }
@@ -94,14 +95,10 @@ public class BooksController implements Initializable {
         setupTableClick();
     }
 
-    // ─────────────────────────────────────────────────────────────
     private void openPdf(String path) {
         try {
             File f = new File(path);
-            if (!f.exists()) {
-                showAlert(Alert.AlertType.ERROR, "Not Found", "File not found:\n" + path);
-                return;
-            }
+            if (!f.exists()) { showAlert(Alert.AlertType.ERROR, "Not Found", "File not found:\n" + path); return; }
             Desktop.getDesktop().open(f);
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Could not open file: " + e.getMessage());
@@ -127,50 +124,80 @@ public class BooksController implements Initializable {
         });
     }
 
+    // ── Fill ALL fields when a row is clicked ───────────────────
     private void setupTableClick() {
         booksTable.getSelectionModel().selectedItemProperty().addListener((obs, oldBook, book) -> {
             if (book != null) {
                 bookIdField.setText(book.getIsbn());
                 bookTitleField.setText(book.getTitle());
                 authorField.setText(book.getAuthor());
+                publisherField.setText(book.getPublisher());
+                editionField.setText(String.valueOf(book.getEdition()));
+                quantityField.setText(String.valueOf(book.getQuantity()));
                 statusComboBox.setValue(book.getAvailability());
             }
         });
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  SAVE / DELETE / CANCEL
+    //  SAVE — now includes publisher, edition, quantity
     // ─────────────────────────────────────────────────────────────
     @FXML
     private void handleSave() {
-        String isbn      = bookIdField.getText().trim();
-        String titleVal  = bookTitleField.getText().trim();
-        String authorVal = authorField.getText().trim();
-        String statusVal = statusComboBox.getValue();
+        String isbn        = bookIdField.getText().trim();
+        String titleVal    = bookTitleField.getText().trim();
+        String authorVal   = authorField.getText().trim();
+        String publisherVal= publisherField.getText().trim();
+        String editionStr  = editionField.getText().trim();
+        String quantityStr = quantityField.getText().trim();
+        String statusVal   = statusComboBox.getValue();
 
         if (isbn.isEmpty() || titleVal.isEmpty() || authorVal.isEmpty() || statusVal == null) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", "Please fill all required fields.");
+            showAlert(Alert.AlertType.ERROR, "Validation Error", "Book ID, Title, Author and Status are required.");
             return;
         }
 
+        int editionVal  = 1;
+        int quantityVal = 1;
+        try { if (!editionStr.isEmpty())  editionVal  = Integer.parseInt(editionStr);  }
+        catch (NumberFormatException e) { showAlert(Alert.AlertType.ERROR, "Error", "Edition must be a number."); return; }
+        try { if (!quantityStr.isEmpty()) quantityVal = Integer.parseInt(quantityStr); }
+        catch (NumberFormatException e) { showAlert(Alert.AlertType.ERROR, "Error", "Quantity must be a number."); return; }
+
         Book selected = booksTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            selected.setIsbn(isbn); selected.setTitle(titleVal);
-            selected.setAuthor(authorVal); selected.setAvailability(statusVal);
+            // UPDATE existing book — preserve remaining and pdf
+            selected.setIsbn(isbn);
+            selected.setTitle(titleVal);
+            selected.setAuthor(authorVal);
+            selected.setPublisher(publisherVal.isEmpty() ? selected.getPublisher() : publisherVal);
+            selected.setEdition(editionVal);
+            selected.setQuantity(quantityVal);
+            selected.setAvailability(statusVal);
             bookService.updateBook(selected);
         } else {
-            bookService.addBook(new Book(isbn, titleVal, authorVal, "Unknown", 1, 1, 1, "General", statusVal));
+            // ADD new book
+            Book newBook = new Book(isbn, titleVal, authorVal,
+                    publisherVal.isEmpty() ? "Unknown" : publisherVal,
+                    editionVal, quantityVal, quantityVal,
+                    "General", statusVal);
+            bookService.addBook(newBook);
         }
-        clearForm(); loadBooks();
+
+        clearForm();
+        loadBooks();
     }
 
+    // ─────────────────────────────────────────────────────────────
+    //  DELETE / CANCEL
+    // ─────────────────────────────────────────────────────────────
     @FXML
     private void handleDelete() {
         Book selected = booksTable.getSelectionModel().getSelectedItem();
         if (selected == null) { showAlert(Alert.AlertType.ERROR, "Error", "Select a book to delete."); return; }
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setHeaderText(null);
-        confirm.setContentText("Delete this book?");
+        confirm.setContentText("Delete \"" + selected.getTitle() + "\"?");
         Optional<ButtonType> r = confirm.showAndWait();
         if (r.isPresent() && r.get() == ButtonType.OK) { bookService.deleteBook(selected.getIsbn()); loadBooks(); clearForm(); }
     }
@@ -178,21 +205,23 @@ public class BooksController implements Initializable {
     @FXML private void handleCancel() { clearForm(); booksTable.getSelectionModel().clearSelection(); }
 
     private void clearForm() {
-        bookIdField.clear(); bookTitleField.clear(); authorField.clear(); statusComboBox.setValue(null);
+        bookIdField.clear(); bookTitleField.clear(); authorField.clear();
+        publisherField.clear(); editionField.clear(); quantityField.clear();
+        statusComboBox.setValue(null);
     }
 
     // ─────────────────────────────────────────────────────────────
     //  NAVIGATION
     // ─────────────────────────────────────────────────────────────
-    @FXML private void loadHomePanel(ActionEvent e)           { new LoadStage("/mehrin/loginpage/Dashboard.fxml",      (Node)e.getSource(), true); }
-    @FXML private void loadBooksPanel(ActionEvent e)          { new LoadStage("/mehrin/loginpage/Books.fxml",          (Node)e.getSource(), true); }
-    @FXML private void loadStudentPanel(ActionEvent e)        { new LoadStage("/mehrin/loginpage/Students.fxml",       (Node)e.getSource(), true); }
-    @FXML private void loadIssueBooksPanel(ActionEvent e)     { new LoadStage("/mehrin/loginpage/IssueBooks.fxml",     (Node)e.getSource(), true); }
-    @FXML private void viewAllIssuedBooks(ActionEvent e)      { new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", (Node)e.getSource(), true); }
-    @FXML private void loadSendAnnouncementsPanel(ActionEvent e){ new LoadStage("/mehrin/loginpage/Announcements.fxml",(Node)e.getSource(), true); }
-    @FXML private void loadExportDataPanel(ActionEvent e)     { new LoadStage("/mehrin/loginpage/Export.fxml",         (Node)e.getSource(), true); }
-    @FXML private void loadClearancePanel(ActionEvent e)      { new LoadStage("/mehrin/loginpage/Clearance.fxml",      (Node)e.getSource(), true); }
-    @FXML private void logout(ActionEvent e)                  { new LoadStage("/mehrin/loginpage/Login.fxml",          (Node)e.getSource(), true); }
+    @FXML private void loadHomePanel(ActionEvent e)            { new LoadStage("/mehrin/loginpage/Dashboard.fxml",       (Node)e.getSource(), true); }
+    @FXML private void loadBooksPanel(ActionEvent e)           { new LoadStage("/mehrin/loginpage/Books.fxml",           (Node)e.getSource(), true); }
+    @FXML private void loadStudentPanel(ActionEvent e)         { new LoadStage("/mehrin/loginpage/Students.fxml",        (Node)e.getSource(), true); }
+    @FXML private void loadIssueBooksPanel(ActionEvent e)      { new LoadStage("/mehrin/loginpage/IssueBooks.fxml",      (Node)e.getSource(), true); }
+    @FXML private void viewAllIssuedBooks(ActionEvent e)       { new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml",  (Node)e.getSource(), true); }
+    @FXML private void loadSendAnnouncementsPanel(ActionEvent e){ new LoadStage("/mehrin/loginpage/Announcements.fxml",  (Node)e.getSource(), true); }
+    @FXML private void loadExportDataPanel(ActionEvent e)      { new LoadStage("/mehrin/loginpage/Export.fxml",          (Node)e.getSource(), true); }
+    @FXML private void loadClearancePanel(ActionEvent e)       { new LoadStage("/mehrin/loginpage/Clearance.fxml",       (Node)e.getSource(), true); }
+    @FXML private void logout(ActionEvent e)                   { new LoadStage("/mehrin/loginpage/Login.fxml",           (Node)e.getSource(), true); }
 
     private void showAlert(Alert.AlertType type, String title, String msg) {
         Alert a = new Alert(type); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
