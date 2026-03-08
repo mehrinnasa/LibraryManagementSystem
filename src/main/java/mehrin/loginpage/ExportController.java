@@ -5,75 +5,80 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import mehrin.loginpage.Model.Book;
-import mehrin.loginpage.Util.FileUtil;
 
 import java.awt.Desktop;
 import java.io.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExportController {
 
-    // ── Static handshake: BooksController sets this before navigating ──
+    // ── Static handshake from BooksController ──────────────────
     public static String prefilledIsbn = null;
 
-    @FXML private ComboBox<String> reportComboBox;
-    @FXML private TextField        bookSearchField;
-    @FXML private Text             bookName;
-    @FXML private Text             bookAuthor;
-    @FXML private Text             bookPublisher;
-    @FXML private Text             availability;
-    @FXML private Label            selectedFileLabel;   // shows chosen file path
+    @FXML private TextField bookSearchField;
+    @FXML private TextField driveUrlField;
+    @FXML private Text      bookName;
+    @FXML private Text      bookAuthor;
+    @FXML private Text      bookPublisher;
+    @FXML private Text      availability;
+    @FXML private Label     currentLinkLabel;
 
-    private Book   selectedBook = null;
-    private File   chosenFile   = null;
+    private Book selectedBook = null;
 
     private static final String BOOKS_CSV = "data/books.csv";
 
     // ─────────────────────────────────────────────────────────────
-    //  INIT
-    // ─────────────────────────────────────────────────────────────
     @FXML
     public void initialize() {
-        reportComboBox.getItems().addAll("PDF Document", "Word Document", "Excel Document");
-        reportComboBox.setValue("PDF Document");
-
-        // If arriving from "Add PDF" button in Books, pre-fill the book
         if (prefilledIsbn != null) {
             bookSearchField.setText(prefilledIsbn);
             fillBookInfo(prefilledIsbn);
-            prefilledIsbn = null; // consume it
+            prefilledIsbn = null;
         } else {
             clearBookInfo();
         }
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  SEARCH BOOK  (called on key release)
+    //  SEARCH
     // ─────────────────────────────────────────────────────────────
     @FXML
     private void searchBook() {
         String query = bookSearchField.getText().trim().toLowerCase();
         if (query.isEmpty()) { clearBookInfo(); return; }
+        fillBookInfoByQuery(query);
+    }
 
+    private void fillBookInfo(String isbn) {
+        fillBookInfoByQuery(isbn.toLowerCase());
+    }
+
+    private void fillBookInfoByQuery(String query) {
         try (BufferedReader br = new BufferedReader(new FileReader(BOOKS_CSV))) {
-            String line;
-            boolean isFirst = true;
+            String line; boolean isFirst = true;
             while ((line = br.readLine()) != null) {
                 if (isFirst) { isFirst = false; continue; }
                 Book book = Book.fromCSV(line);
                 if (book == null) continue;
-                // Match by ISBN or title (contains)
-                if (book.getIsbn().equalsIgnoreCase(query)
+                if (book.getIsbn().toLowerCase().contains(query)
                         || book.getTitle().toLowerCase().contains(query)) {
                     selectedBook = book;
                     bookName.setText(book.getTitle());
                     bookAuthor.setText(book.getAuthor());
                     bookPublisher.setText(book.getPublisher());
                     availability.setText(book.getAvailability());
+                    if (book.hasPdf()) {
+                        driveUrlField.setText(book.getPdf());
+                        currentLinkLabel.setText("✅ Current link: " + book.getPdf());
+                        currentLinkLabel.setStyle("-fx-text-fill: #2D6A4F; -fx-font-size: 11px;");
+                    } else {
+                        driveUrlField.clear();
+                        currentLinkLabel.setText("No link saved yet.");
+                        currentLinkLabel.setStyle("-fx-text-fill: #999; -fx-font-size: 11px;");
+                    }
                     return;
                 }
             }
@@ -82,81 +87,122 @@ public class ExportController {
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  BROWSE — pick the file to attach
+    //  SAVE LINK
     // ─────────────────────────────────────────────────────────────
     @FXML
-    private void browseFile(ActionEvent event) {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Select File");
-
-        String format = reportComboBox.getValue();
-        if ("PDF Document".equals(format)) {
-            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
-        } else if ("Word Document".equals(format)) {
-            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Word Files", "*.docx", "*.doc"));
-        } else {
-            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Files", "*.xlsx", "*.xls", "*.csv"));
-        }
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("All Files", "*.*"));
-
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        File file = fc.showOpenDialog(stage);
-        if (file != null) {
-            chosenFile = file;
-            selectedFileLabel.setText(file.getAbsolutePath());
-            selectedFileLabel.setStyle("-fx-text-fill: #2D6A4F;");
-        }
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    //  EXPORT — save the file path into books.csv
-    // ─────────────────────────────────────────────────────────────
-    @FXML
-    private void Export(ActionEvent event) {
+    private void handleSaveLink(ActionEvent event) {
         if (selectedBook == null) {
-            showAlert(Alert.AlertType.WARNING, "No Book", "Please search and select a book first.");
-            return;
+            showAlert(Alert.AlertType.WARNING, "No Book", "Search and select a book first."); return;
         }
-        if (chosenFile == null) {
-            showAlert(Alert.AlertType.WARNING, "No File", "Please browse and select a file first.");
-            return;
+        String url = driveUrlField.getText().trim();
+        if (url.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "No URL", "Paste a Google Drive link first."); return;
+        }
+        if (!url.startsWith("http")) {
+            showAlert(Alert.AlertType.WARNING, "Invalid URL",
+                    "URL must start with https://\nGo to Google Drive → Share → Copy link."); return;
         }
 
-        // Save the file path into books.csv for this book
-        String filePath = chosenFile.getAbsolutePath();
-        if (savePdfPathToCSV(selectedBook.getIsbn(), filePath)) {
-            selectedBook.setPdf(filePath);
-            showAlert(Alert.AlertType.INFORMATION, "Saved",
-                    "File linked to \"" + selectedBook.getTitle() + "\" successfully.\n"
-                            + "You can now view it from the Books page.");
+        url = normalizeDriveUrl(url);
+
+        if (saveLinkToCSV(selectedBook.getIsbn(), url)) {
+            showAlert(Alert.AlertType.INFORMATION, "Success",
+                    "PDF added successfully for \"" + selectedBook.getTitle() + "\"!");
+            bookSearchField.clear();
+            clearBookInfo();
         } else {
             showAlert(Alert.AlertType.ERROR, "Error", "Could not update books.csv.");
         }
     }
+    // ─────────────────────────────────────────────────────────────
+    //  CLEAR BOOK SEARCH (left panel Clear button)
+    // ─────────────────────────────────────────────────────────────
+    @FXML
+    private void handleClearBookInfo() {
+        bookSearchField.clear();
+        clearBookInfo();
+    }
+
 
     // ─────────────────────────────────────────────────────────────
-    //  SAVE PATH TO books.csv
+    //  CLEAR LINK
     // ─────────────────────────────────────────────────────────────
-    private boolean savePdfPathToCSV(String isbn, String filePath) {
+    @FXML
+    private void handleClearLink(ActionEvent event) {
+        if (selectedBook == null) {
+            showAlert(Alert.AlertType.WARNING, "No Book", "Search and select a book first."); return;
+        }
+        if (!selectedBook.hasPdf()) {
+            showAlert(Alert.AlertType.INFORMATION, "Nothing to Clear", "This book has no link saved."); return;
+        }
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setHeaderText(null);
+        confirm.setContentText("Remove the PDF link from \"" + selectedBook.getTitle() + "\"?");
+        confirm.showAndWait().ifPresent(btn -> {
+            if (btn == ButtonType.OK) {
+                if (saveLinkToCSV(selectedBook.getIsbn(), "")) {
+                    selectedBook.setPdf("");
+                    driveUrlField.clear();
+                    currentLinkLabel.setText("Link cleared.");
+                    currentLinkLabel.setStyle("-fx-text-fill: #c0392b; -fx-font-size: 11px;");
+                }
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  VIEW IN BROWSER
+    // ─────────────────────────────────────────────────────────────
+    @FXML
+    private void handleView(ActionEvent event) {
+        String url = driveUrlField.getText().trim();
+        if (url.isEmpty() || !url.startsWith("http")) {
+            showAlert(Alert.AlertType.WARNING, "No Link", "Paste or save a link first."); return;
+        }
+        openUrl(url);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  HELPERS
+    // ─────────────────────────────────────────────────────────────
+    private String normalizeDriveUrl(String url) {
+        if (url.contains("drive.google.com/file/d/") && url.contains("?")) {
+            return url.substring(0, url.indexOf("?"));
+        }
+        return url;
+    }
+
+    private void openUrl(String url) {
+        try { Desktop.getDesktop().browse(new URI(url)); }
+        catch (Exception e) { showAlert(Alert.AlertType.ERROR, "Error", "Could not open link: " + e.getMessage()); }
+    }
+
+    /**
+     * Finds the row by ISBN and rewrites it as a clean 9-col row:
+     *   ISBN,Title,Author,Publisher,Edition,Qty,Remaining,Availability,PDF
+     * This also fixes any pre-existing malformed rows (double "Available") on save.
+     */
+    private boolean saveLinkToCSV(String isbn, String url) {
         try {
-            List<String> lines   = new ArrayList<>();
-            boolean      changed = false;
+            List<String> lines = new ArrayList<>();
+            boolean changed = false;
 
             try (BufferedReader br = new BufferedReader(new FileReader(BOOKS_CSV))) {
-                String line;
-                boolean isFirst = true;
+                String line; boolean isFirst = true;
                 while ((line = br.readLine()) != null) {
-                    if (isFirst) { lines.add(line); isFirst = false; continue; }
-                    String[] p = line.split(",", -1);
-                    if (p.length >= 9 && p[0].trim().equalsIgnoreCase(isbn)) {
-                        // Ensure 10 columns
-                        if (p.length < 10) {
-                            line = line + "," + filePath;
-                        } else {
-                            p[9] = filePath;
-                            line = String.join(",", p);
-                        }
+                    if (isFirst) {
+                        // Normalize header to clean 9-col
+                        lines.add("ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF");
+                        isFirst = false;
+                        continue;
+                    }
+                    Book book = Book.fromCSV(line);
+                    if (book != null && book.getIsbn().equalsIgnoreCase(isbn)) {
+                        book.setPdf(url);
+                        line = book.toCSV(); // always writes clean 9-col
                         changed = true;
+                    } else if (book != null) {
+                        line = book.toCSV(); // clean up any other malformed rows too
                     }
                     lines.add(line);
                 }
@@ -171,45 +217,20 @@ public class ExportController {
         } catch (Exception e) { e.printStackTrace(); return false; }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  HELPERS
-    // ─────────────────────────────────────────────────────────────
-    private void fillBookInfo(String isbn) {
-        try (BufferedReader br = new BufferedReader(new FileReader(BOOKS_CSV))) {
-            String line; boolean isFirst = true;
-            while ((line = br.readLine()) != null) {
-                if (isFirst) { isFirst = false; continue; }
-                Book book = Book.fromCSV(line);
-                if (book != null && book.getIsbn().equalsIgnoreCase(isbn)) {
-                    selectedBook = book;
-                    bookName.setText(book.getTitle());
-                    bookAuthor.setText(book.getAuthor());
-                    bookPublisher.setText(book.getPublisher());
-                    availability.setText(book.getAvailability());
-                    if (book.hasPdf()) {
-                        chosenFile = new File(book.getPdf());
-                        selectedFileLabel.setText(book.getPdf());
-                        selectedFileLabel.setStyle("-fx-text-fill: #2D6A4F;");
-                    }
-                    return;
-                }
-            }
-        } catch (Exception e) { e.printStackTrace(); }
-    }
-
     private void clearBookInfo() {
-        selectedBook = null; chosenFile = null;
+        selectedBook = null;
         bookName.setText("-"); bookAuthor.setText("-");
         bookPublisher.setText("-"); availability.setText("-");
-        if (selectedFileLabel != null) {
-            selectedFileLabel.setText("No file selected");
-            selectedFileLabel.setStyle("-fx-text-fill: #999;");
+        driveUrlField.clear();
+        if (currentLinkLabel != null) {
+            currentLinkLabel.setText("No link saved yet.");
+            currentLinkLabel.setStyle("-fx-text-fill: #999; -fx-font-size: 11px;");
         }
     }
 
     private void showAlert(Alert.AlertType type, String title, String msg) {
-        Alert a = new Alert(type); a.setTitle(title); a.setHeaderText(null);
-        a.setContentText(msg); a.showAndWait();
+        Alert a = new Alert(type); a.setTitle(title);
+        a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
 
     // ─────────────────────────────────────────────────────────────

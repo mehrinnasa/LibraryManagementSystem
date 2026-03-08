@@ -11,7 +11,7 @@ import mehrin.loginpage.Model.Book;
 import mehrin.loginpage.Service.BookService;
 
 import java.awt.Desktop;
-import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -29,14 +29,13 @@ public class BooksController implements Initializable {
     @FXML private TableColumn<Book, String> remainingBooks;
     @FXML private TableColumn<Book, Void>   pdfCol;
 
-    // ── Info panel fields ────────────────────────────────────────
     @FXML private TextField        searchField;
     @FXML private TextField        bookIdField;
     @FXML private TextField        bookTitleField;
     @FXML private TextField        authorField;
-    @FXML private TextField        publisherField;   // NEW
-    @FXML private TextField        editionField;     // NEW
-    @FXML private TextField        quantityField;    // NEW
+    @FXML private TextField        publisherField;
+    @FXML private TextField        editionField;
+    @FXML private TextField        quantityField;
     @FXML private ComboBox<String> statusComboBox;
 
     private final ObservableList<Book> booksList = FXCollections.observableArrayList();
@@ -56,7 +55,7 @@ public class BooksController implements Initializable {
         quantity.setCellValueFactory(d      -> new javafx.beans.property.SimpleStringProperty(String.valueOf(d.getValue().getQuantity())));
         remainingBooks.setCellValueFactory(d-> new javafx.beans.property.SimpleStringProperty(String.valueOf(d.getValue().getRemaining())));
 
-        // ── PDF column: View PDF / Add PDF ───────────────────────
+        // ── PDF column: View PDF (opens browser) / Add PDF (goes to Export) ──
         pdfCol.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button();
             {
@@ -64,10 +63,11 @@ public class BooksController implements Initializable {
                 btn.setOnAction(e -> {
                     Book book = getTableView().getItems().get(getIndex());
                     if (book.hasPdf()) {
-                        openPdf(book.getPdf());
+                        openUrl(book.getPdf());
                     } else {
                         ExportController.prefilledIsbn = book.getIsbn();
-                        new LoadStage("/mehrin/loginpage/Export.fxml", btn.getScene().getRoot(), true);
+                        new LoadStage("/mehrin/loginpage/Export.fxml",
+                                btn.getScene().getRoot(), true);
                     }
                 });
             }
@@ -95,13 +95,12 @@ public class BooksController implements Initializable {
         setupTableClick();
     }
 
-    private void openPdf(String path) {
+    // ── Opens a Google Drive URL in the default browser ─────────
+    private void openUrl(String url) {
         try {
-            File f = new File(path);
-            if (!f.exists()) { showAlert(Alert.AlertType.ERROR, "Not Found", "File not found:\n" + path); return; }
-            Desktop.getDesktop().open(f);
+            Desktop.getDesktop().browse(new URI(url));
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Could not open file: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open link:\n" + e.getMessage());
         }
     }
 
@@ -124,7 +123,6 @@ public class BooksController implements Initializable {
         });
     }
 
-    // ── Fill ALL fields when a row is clicked ───────────────────
     private void setupTableClick() {
         booksTable.getSelectionModel().selectedItemProperty().addListener((obs, oldBook, book) -> {
             if (book != null) {
@@ -140,7 +138,7 @@ public class BooksController implements Initializable {
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  SAVE — now includes publisher, edition, quantity
+    //  SAVE
     // ─────────────────────────────────────────────────────────────
     @FXML
     private void handleSave() {
@@ -157,8 +155,7 @@ public class BooksController implements Initializable {
             return;
         }
 
-        int editionVal  = 1;
-        int quantityVal = 1;
+        int editionVal = 1, quantityVal = 1;
         try { if (!editionStr.isEmpty())  editionVal  = Integer.parseInt(editionStr);  }
         catch (NumberFormatException e) { showAlert(Alert.AlertType.ERROR, "Error", "Edition must be a number."); return; }
         try { if (!quantityStr.isEmpty()) quantityVal = Integer.parseInt(quantityStr); }
@@ -166,31 +163,19 @@ public class BooksController implements Initializable {
 
         Book selected = booksTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            // UPDATE existing book — preserve remaining and pdf
-            selected.setIsbn(isbn);
-            selected.setTitle(titleVal);
-            selected.setAuthor(authorVal);
+            selected.setIsbn(isbn); selected.setTitle(titleVal); selected.setAuthor(authorVal);
             selected.setPublisher(publisherVal.isEmpty() ? selected.getPublisher() : publisherVal);
-            selected.setEdition(editionVal);
-            selected.setQuantity(quantityVal);
+            selected.setEdition(editionVal); selected.setQuantity(quantityVal);
             selected.setAvailability(statusVal);
             bookService.updateBook(selected);
         } else {
-            // ADD new book
-            Book newBook = new Book(isbn, titleVal, authorVal,
+            bookService.addBook(new Book(isbn, titleVal, authorVal,
                     publisherVal.isEmpty() ? "Unknown" : publisherVal,
-                    editionVal, quantityVal, quantityVal,
-                    "General", statusVal);
-            bookService.addBook(newBook);
+                    editionVal, quantityVal, quantityVal, "General", statusVal));
         }
-
-        clearForm();
-        loadBooks();
+        clearForm(); loadBooks();
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  DELETE / CANCEL
-    // ─────────────────────────────────────────────────────────────
     @FXML
     private void handleDelete() {
         Book selected = booksTable.getSelectionModel().getSelectedItem();

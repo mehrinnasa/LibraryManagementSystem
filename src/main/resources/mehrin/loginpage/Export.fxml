@@ -7,43 +7,40 @@
 
 <BorderPane prefHeight="651.0" prefWidth="1000.0" style="-fx-background-color: #C5D5F3;" stylesheets="@mainStyle.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mehrin.loginpage.ExportController">
 
-    <!-- ================= LEFT SIDEBAR ================= -->
     <left>
         <VBox alignment="TOP_CENTER" prefWidth="137.0" spacing="4" style="-fx-background-color: #143F73;" styleClass="sidebar">
-            <Button onAction="#handleHome" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">         <font><Font size="14" /></font></Button>
-            <Button onAction="#handleBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books">        <font><Font size="14" /></font></Button>
-            <Button onAction="#handleStudents" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Students">     <font><Font size="14" /></font></Button>
-            <Button onAction="#handleIssueBook" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book">   <font><Font size="14" /></font></Button>
+            <Button onAction="#handleHome" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">            <font><Font size="14" /></font></Button>
+            <Button onAction="#handleBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books">           <font><Font size="14" /></font></Button>
+            <Button onAction="#handleStudents" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Students">        <font><Font size="14" /></font></Button>
+            <Button onAction="#handleIssueBook" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book">      <font><Font size="14" /></font></Button>
             <Button onAction="#handleAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books"><font><Font size="14" /></font></Button>
-            <Button onAction="#handleAnnouncement" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement"> <font><Font size="14" /></font></Button>
-            <Button onAction="#handleExport" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export">       <font><Font size="14" /></font></Button>
-            <Button onAction="#handleClearance" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance">    <font><Font size="14" /></font></Button>
-            <Button onAction="#logout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout">       <font><Font size="14" /></font></Button>
+            <Button onAction="#handleAnnouncement" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">    <font><Font size="14" /></font></Button>
+            <Button onAction="#handleExport" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export">          <font><Font size="14" /></font></Button>
+            <Button onAction="#handleClearance" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance">       <font><Font size="14" /></font></Button>
+            <Button onAction="#logout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout">          <font><Font size="14" /></font></Button>
         </VBox>
     </left>
 
-    <!-- ================= TOP HEADER ================= -->
     <top>
         <HBox alignment="CENTER_LEFT" style="-fx-background-color: #0B2A4A; -fx-padding: 14 30;">
             <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Rajshahi University of Engineering &amp; Technology" />
         </HBox>
     </top>
 
-    <!-- ================= MAIN CONTENT ================= -->
     <center>
         <VBox spacing="20" style="-fx-padding: 30;">
 
-            <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #143F73;" text="Export" />
+            <Label style="-fx-font-size: 32px; -fx-font-weight: bold;" text="Export" />
 
             <HBox spacing="20" VBox.vgrow="ALWAYS">
 
-                <!-- ── LEFT: Book Search Panel ── -->
-                <VBox prefWidth="400" spacing="14" styleClass="info-panel">
+                <!-- LEFT: Book Search Panel -->
+                <VBox prefWidth="380" spacing="14" styleClass="info-panel">
                     <padding><Insets bottom="24" left="24" right="24" top="24" /></padding>
 
                     <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #143F73;" text="Book Information" />
 
-                    <Label style="-fx-font-weight: bold;" text="Search Book (ISBN or Title)" />
+                    <Label style="-fx-font-weight: bold;" text="Search by ISBN or Title" />
                     <TextField fx:id="bookSearchField" onKeyReleased="#searchBook" prefHeight="36" promptText="Enter ISBN or book title..." />
 
                     <VBox spacing="6">
@@ -59,31 +56,42 @@
                         <Label style="-fx-font-weight: bold;" text="Status" />
                         <Text fx:id="availability" text="-"><font><Font size="13" /></font></Text>
                     </VBox>
-                </VBox>
-
-                <!-- ── RIGHT: Export Options Panel ── -->
-                <VBox prefWidth="380" spacing="16" styleClass="info-panel" HBox.hgrow="ALWAYS">
-                    <padding><Insets bottom="24" left="24" right="24" top="24" /></padding>
-
-                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #143F73;" text="Export Options" />
-
-                    <!-- Format selector -->
-                    <Label style="-fx-font-weight: bold;" text="File Format" />
-                    <ComboBox fx:id="reportComboBox" prefHeight="34" prefWidth="320" promptText="Select format" />
-
-                    <!-- File chooser -->
-                    <Label style="-fx-font-weight: bold;" text="Select File" />
-                    <Label fx:id="selectedFileLabel" maxWidth="320" style="-fx-text-fill: #999; -fx-font-size: 12px;" text="No file selected" wrapText="true" />
-
-                    <!-- Action buttons -->
-                    <HBox spacing="12">
-                       <Button onAction="#browseFile" prefHeight="34" prefWidth="98.0" style="-fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="Browse File" />
-                        <Button onAction="#Export" prefHeight="34.0" prefWidth="98.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="Save" />
-                    </HBox>
 
                     <Region VBox.vgrow="ALWAYS" />
 
-                    <Label maxWidth="320" style="-fx-text-fill: #666; -fx-font-size: 11px;" text="After saving, a 'View PDF' button will appear next to this book in the Books table." wrapText="true" />
+                    <!-- Clear button aligned to bottom, full width like the right panel buttons -->
+                    <Button mnemonicParsing="false" onAction="#handleClearBookInfo" prefHeight="36" prefWidth="93.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="Clear" />
+                </VBox>
+
+                <!-- RIGHT: Google Drive Link Panel -->
+                <VBox spacing="16" styleClass="info-panel" HBox.hgrow="ALWAYS">
+                    <padding><Insets bottom="24" left="24" right="24" top="24" /></padding>
+
+                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #143F73;" text="Link PDF" />
+
+                    <!-- Instructions -->
+                    <VBox spacing="4" style="-fx-background-color: #EAF0FB; -fx-background-radius: 6; -fx-padding: 12;">
+                        <Label style="-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #143F73;" text="How to get a shareable link:" />
+                        <Label style="-fx-font-size: 12px;" text="1.  Upload the PDF to Google Drive" />
+                        <Label style="-fx-font-size: 12px;" text="2.  Right-click the file → Share" />
+                        <Label style="-fx-font-size: 12px;" text="3.  Set to 'Anyone with the link can view'" />
+                        <Label style="-fx-font-size: 12px;" text="4.  Click 'Copy link' and paste it below" />
+                    </VBox>
+
+                    <Label style="-fx-font-weight: bold;" text="Paste Google Drive Link" />
+                    <TextField fx:id="driveUrlField" prefHeight="36" promptText="https://drive.google.com/file/d/.../view" />
+
+                    <Label fx:id="currentLinkLabel" maxWidth="420" style="-fx-text-fill: #999; -fx-font-size: 11px;" text="No link saved yet." wrapText="true" />
+
+                    <Region VBox.vgrow="ALWAYS" />
+
+                    <!-- Save Link + Delete — full width, equal size, aligned row -->
+                    <HBox spacing="10">
+                        <Button onAction="#handleSaveLink" prefHeight="36" prefWidth="93.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="Save Link" HBox.hgrow="ALWAYS" />
+
+                        <Button onAction="#handleClearLink" prefHeight="36" prefWidth="93.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="Delete" HBox.hgrow="ALWAYS" />
+                    </HBox>
+
                 </VBox>
 
             </HBox>
