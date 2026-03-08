@@ -37,7 +37,7 @@ public class AllIssuedBooksController {
     @FXML private TableColumn<IssuedBook, String> lateFeeCol;
 
     private static final String ISSUED_FILE = "issueBooks.csv";
-    private static final String CART_CSV    = "data/addToCart.csv";
+    private static final String CART_CSV    = "addToCart.csv";
 
     private IssuedBook selectedBook;
 

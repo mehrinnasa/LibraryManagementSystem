@@ -45,12 +45,12 @@ public class StudentDashboardController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         CartService.cleanExpiredCarts();
-        System.out.println("StudentDashboardController initialized");
+        //System.out.println("StudentDashboardController initialized");
         studentService = new StudentService();
 
         // If student ID was set via static variable, use it
         if (staticStudentId != null && !staticStudentId.isEmpty()) {
-            System.out.println("Loading student ID from static: " + staticStudentId);
+           // System.out.println("Loading student ID from static: " + staticStudentId);
             setCurrentStudentId(staticStudentId);
         }
 
@@ -61,7 +61,7 @@ public class StudentDashboardController implements Initializable {
 
     // ================= SET CURRENT STUDENT ID =================
     public void setCurrentStudentId(String studentId) {
-        System.out.println("setCurrentStudentId called with: " + studentId);
+        //System.out.println("setCurrentStudentId called with: " + studentId);
         this.currentStudentId = studentId;
         staticStudentId = studentId; // Store in static variable
 
@@ -79,7 +79,7 @@ public class StudentDashboardController implements Initializable {
 
     // ================= LOAD STUDENT INFO =================
     private void loadStudentInfo() {
-        System.out.println("loadStudentInfo called, currentStudentId: " + currentStudentId);
+        //System.out.println("loadStudentInfo called, currentStudentId: " + currentStudentId);
 
         if (currentStudentId == null || currentStudentId.isEmpty()) {
             nameLabel.setText("N/A");

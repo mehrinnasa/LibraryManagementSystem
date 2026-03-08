@@ -55,7 +55,7 @@ public static int getIssuedBooksFromIssueFile() {
         }
         catch (FileNotFoundException e)
         {
-            System.out.println("File not found: " + filepath);
+            //System.out.println("File not found: " + filepath);
             return lines;
         } catch (IOException e)
         {
@@ -80,7 +80,7 @@ public static int getIssuedBooksFromIssueFile() {
                 bw.newLine();
             }
 
-            System.out.println("✓ Data saved to: " + filepath);
+           // System.out.println("✓ Data saved to: " + filepath);
         } catch (IOException e) {
             e.printStackTrace();
         }
