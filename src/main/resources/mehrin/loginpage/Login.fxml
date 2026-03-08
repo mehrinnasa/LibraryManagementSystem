@@ -22,7 +22,7 @@
             <VBox alignment="CENTER_LEFT" prefHeight="440.0" prefWidth="370.0" spacing="12" style="-fx-padding: 40;">
 
                 <Label style="-fx-font-size: 26px; -fx-font-weight: bold;                               -fx-text-fill: #0B2A4A;" text="Welcome Back" />
-                <Label style="-fx-font-size: 12px; -fx-text-fill: #666;" text="Sign in to your account" />
+                <Label style="-fx-font-size: 12px; -fx-text-fill: #666;" text="Sign in " />
 
                 <!-- Username -->
                 <Label style="-fx-font-weight: bold; -fx-font-size: 13px;                               -fx-text-fill: #333;" text="Username or Email" />
@@ -45,7 +45,7 @@
                 <!-- Login button -->
                 <Button fx:id="loggedInToMain" onAction="#handleLogin" prefHeight="36" prefWidth="140" style="-fx-background-color: #0B2A4A;                                -fx-text-fill: white;                                -fx-font-size: 13px;                                -fx-font-weight: bold;                                -fx-background-radius: 6;                                -fx-cursor: hand;" text="Sign In" />
 
-                <Hyperlink fx:id="resetPassword" onAction="#changePass" style="-fx-text-fill: #2D6A4F; -fx-font-size: 12px;" text="Forgot your password?" />
+                <Hyperlink fx:id="resetPassword" onAction="#changePass" style="-fx-text-fill: #2D6A4F; -fx-font-size: 12px;" text="Forgot password?" />
 
             </VBox>
 
@@ -56,7 +56,7 @@
                         <Image url="@RUET.png" />
                     </image>
                 </ImageView>
-                <Label style="-fx-font-size: 11px; -fx-text-alignment: center; -fx-wrap-text: true; -fx-padding: 12 16 0 16; -fx-opacity: 0.8;" text="RUET Library Management System">
+                <Label style="-fx-font-size: 11px; -fx-text-alignment: center; -fx-wrap-text: true; -fx-padding: 12 16 0 16; -fx-opacity: .9;" text="RUET Library Management System">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font></Label>

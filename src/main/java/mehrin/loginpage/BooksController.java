@@ -7,46 +7,34 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import mehrin.loginpage.Model.Book;
 import mehrin.loginpage.Service.BookService;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class BooksController implements Initializable {
 
-    @FXML
-    private TableView<Book> booksTable;
-    @FXML
-    private TableColumn<Book, String> bookId;
-    @FXML
-    private TableColumn<Book, String> title;
-    @FXML
-    private TableColumn<Book, String> author;
-    @FXML
-    private TableColumn<Book, String> status;
-    @FXML
-    private TableColumn<Book, String> publisher;
-    @FXML
-    private TableColumn<Book, String> edition;
-    @FXML
-    private TableColumn<Book, String> quantity;
-    @FXML
-    private TableColumn<Book, String> remainingBooks;
-    @FXML
-    private TableColumn<Book, String> pdfCol;
+    @FXML private TableView<Book>              booksTable;
+    @FXML private TableColumn<Book, String>    bookId;
+    @FXML private TableColumn<Book, String>    title;
+    @FXML private TableColumn<Book, String>    author;
+    @FXML private TableColumn<Book, String>    status;
+    @FXML private TableColumn<Book, String>    publisher;
+    @FXML private TableColumn<Book, String>    edition;
+    @FXML private TableColumn<Book, String>    quantity;
+    @FXML private TableColumn<Book, String>    remainingBooks;
+    @FXML private TableColumn<Book, Void>      pdfCol;      // button column
 
-    @FXML
-    private TextField searchField;
-    @FXML
-    private TextField bookIdField;
-    @FXML
-    private TextField bookTitleField;
-    @FXML
-    private TextField authorField;
-    @FXML
-    private ComboBox<String> statusComboBox;
+    @FXML private TextField   searchField;
+    @FXML private TextField   bookIdField;
+    @FXML private TextField   bookTitleField;
+    @FXML private TextField   authorField;
+    @FXML private ComboBox<String> statusComboBox;
 
     private final ObservableList<Book> booksList = FXCollections.observableArrayList();
     private BookService bookService;
@@ -54,26 +42,70 @@ public class BooksController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         bookService = new BookService();
-
         statusComboBox.setItems(FXCollections.observableArrayList("Available", "Not Available"));
 
-        // TableColumn CellValueFactories
-        bookId.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getIsbn()));
-        title.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getTitle()));
-        author.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getAuthor()));
-        status.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getAvailability()));
-        publisher.setCellValueFactory(
-                data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getPublisher()));
-        edition.setCellValueFactory(
-                data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getEdition())));
-        quantity.setCellValueFactory(
-                data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getQuantity())));
-        remainingBooks.setCellValueFactory(
-                data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getRemaining())));
-        pdfCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getPdf()));
+        bookId.setCellValueFactory(d        -> new javafx.beans.property.SimpleStringProperty(d.getValue().getIsbn()));
+        title.setCellValueFactory(d         -> new javafx.beans.property.SimpleStringProperty(d.getValue().getTitle()));
+        author.setCellValueFactory(d        -> new javafx.beans.property.SimpleStringProperty(d.getValue().getAuthor()));
+        status.setCellValueFactory(d        -> new javafx.beans.property.SimpleStringProperty(d.getValue().getAvailability()));
+        publisher.setCellValueFactory(d     -> new javafx.beans.property.SimpleStringProperty(d.getValue().getPublisher()));
+        edition.setCellValueFactory(d       -> new javafx.beans.property.SimpleStringProperty(String.valueOf(d.getValue().getEdition())));
+        quantity.setCellValueFactory(d      -> new javafx.beans.property.SimpleStringProperty(String.valueOf(d.getValue().getQuantity())));
+        remainingBooks.setCellValueFactory(d-> new javafx.beans.property.SimpleStringProperty(String.valueOf(d.getValue().getRemaining())));
+
+        // ── PDF column: "View PDF" or "Add PDF" button ───────────
+        pdfCol.setCellFactory(col -> new TableCell<>() {
+            private final Button btn = new Button();
+            {
+                btn.setStyle("-fx-font-size: 11px; -fx-cursor: hand; -fx-background-radius: 4;");
+                btn.setOnAction(e -> {
+                    Book book = getTableView().getItems().get(getIndex());
+                    if (book.hasPdf()) {
+                        openPdf(book.getPdf());
+                    } else {
+                        // Navigate to Export with this book pre-filled
+                        ExportController.prefilledIsbn = book.getIsbn();
+                        new LoadStage("/mehrin/loginpage/Export.fxml",
+                                btn.getScene().getRoot(), true);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) { setGraphic(null); return; }
+                Book book = getTableView().getItems().get(getIndex());
+                if (book.hasPdf()) {
+                    btn.setText("View PDF");
+                    btn.setStyle("-fx-background-color: #2D6A4F; -fx-text-fill: white; "
+                            + "-fx-font-size: 11px; -fx-cursor: hand; -fx-background-radius: 4;");
+                } else {
+                    btn.setText("Add PDF");
+                    btn.setStyle("-fx-background-color: #143F73; -fx-text-fill: white; "
+                            + "-fx-font-size: 11px; -fx-cursor: hand; -fx-background-radius: 4;");
+                }
+                setGraphic(btn);
+            }
+        });
+
         loadBooks();
         setupSearch();
         setupTableClick();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    private void openPdf(String path) {
+        try {
+            File f = new File(path);
+            if (!f.exists()) {
+                showAlert(Alert.AlertType.ERROR, "Not Found", "File not found:\n" + path);
+                return;
+            }
+            Desktop.getDesktop().open(f);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open file: " + e.getMessage());
+        }
     }
 
     private void loadBooks() {
@@ -81,29 +113,20 @@ public class BooksController implements Initializable {
         booksTable.setItems(booksList);
     }
 
-    // ================= SEARCH =================
     private void setupSearch() {
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null || newVal.isEmpty()) {
-                booksTable.setItems(booksList);
-                return;
-            }
-
-            ObservableList<Book> filtered = FXCollections.observableArrayList();
+            if (newVal == null || newVal.isEmpty()) { booksTable.setItems(booksList); return; }
             String q = newVal.toLowerCase();
-
-            for (Book book : booksList) {
-                if (book.getTitle().toLowerCase().contains(q) ||
-                        book.getAuthor().toLowerCase().contains(q) ||
-                        book.getIsbn().contains(newVal)) {
-                    filtered.add(book);
-                }
+            ObservableList<Book> filtered = FXCollections.observableArrayList();
+            for (Book b : booksList) {
+                if (b.getTitle().toLowerCase().contains(q)
+                        || b.getAuthor().toLowerCase().contains(q)
+                        || b.getIsbn().contains(newVal)) filtered.add(b);
             }
             booksTable.setItems(filtered);
         });
     }
 
-    // ================= TABLE SELECTION =================
     private void setupTableClick() {
         booksTable.getSelectionModel().selectedItemProperty().addListener((obs, oldBook, book) -> {
             if (book != null) {
@@ -115,11 +138,13 @@ public class BooksController implements Initializable {
         });
     }
 
-    // ================= SAVE =================
+    // ─────────────────────────────────────────────────────────────
+    //  SAVE / DELETE / CANCEL
+    // ─────────────────────────────────────────────────────────────
     @FXML
     private void handleSave() {
-        String isbn = bookIdField.getText().trim();
-        String titleVal = bookTitleField.getText().trim();
+        String isbn      = bookIdField.getText().trim();
+        String titleVal  = bookTitleField.getText().trim();
         String authorVal = authorField.getText().trim();
         String statusVal = statusComboBox.getValue();
 
@@ -129,122 +154,47 @@ public class BooksController implements Initializable {
         }
 
         Book selected = booksTable.getSelectionModel().getSelectedItem();
-
         if (selected != null) {
-            // UPDATE
-            selected.setIsbn(isbn);
-            selected.setTitle(titleVal);
-            selected.setAuthor(authorVal);
-            selected.setAvailability(statusVal);
+            selected.setIsbn(isbn); selected.setTitle(titleVal);
+            selected.setAuthor(authorVal); selected.setAvailability(statusVal);
             bookService.updateBook(selected);
         } else {
-            // ADD
-            Book book = new Book(isbn, titleVal, authorVal, "Unknown", 1, 1, 1, statusVal, "General PDF");
-            bookService.addBook(book);
+            bookService.addBook(new Book(isbn, titleVal, authorVal, "Unknown", 1, 1, 1, "General", statusVal));
         }
-
-        clearForm();
-        loadBooks();
+        clearForm(); loadBooks();
     }
 
-    // ================= DELETE =================
     @FXML
     private void handleDelete() {
         Book selected = booksTable.getSelectionModel().getSelectedItem();
-
-        if (selected == null) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Please select a book to delete.");
-            return;
-        }
-
+        if (selected == null) { showAlert(Alert.AlertType.ERROR, "Error", "Select a book to delete."); return; }
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Delete Book");
         confirm.setHeaderText(null);
-        confirm.setContentText("Are you sure you want to delete this book?");
-
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            bookService.deleteBook(selected.getIsbn());
-            loadBooks();
-            clearForm();
-        }
+        confirm.setContentText("Delete this book?");
+        Optional<ButtonType> r = confirm.showAndWait();
+        if (r.isPresent() && r.get() == ButtonType.OK) { bookService.deleteBook(selected.getIsbn()); loadBooks(); clearForm(); }
     }
 
-    // ================= CANCEL =================
-    @FXML
-    private void handleCancel() {
-        clearForm();
-        booksTable.getSelectionModel().clearSelection();
-    }
+    @FXML private void handleCancel() { clearForm(); booksTable.getSelectionModel().clearSelection(); }
 
     private void clearForm() {
-        bookIdField.clear();
-        bookTitleField.clear();
-        authorField.clear();
-        statusComboBox.setValue(null);
+        bookIdField.clear(); bookTitleField.clear(); authorField.clear(); statusComboBox.setValue(null);
     }
 
-    // ================= NAVIGATION =================
-    @FXML
-    private void loadHomePanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Dashboard.fxml", node, true);
-    }
+    // ─────────────────────────────────────────────────────────────
+    //  NAVIGATION
+    // ─────────────────────────────────────────────────────────────
+    @FXML private void loadHomePanel(ActionEvent e)           { new LoadStage("/mehrin/loginpage/Dashboard.fxml",      (Node)e.getSource(), true); }
+    @FXML private void loadBooksPanel(ActionEvent e)          { new LoadStage("/mehrin/loginpage/Books.fxml",          (Node)e.getSource(), true); }
+    @FXML private void loadStudentPanel(ActionEvent e)        { new LoadStage("/mehrin/loginpage/Students.fxml",       (Node)e.getSource(), true); }
+    @FXML private void loadIssueBooksPanel(ActionEvent e)     { new LoadStage("/mehrin/loginpage/IssueBooks.fxml",     (Node)e.getSource(), true); }
+    @FXML private void viewAllIssuedBooks(ActionEvent e)      { new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", (Node)e.getSource(), true); }
+    @FXML private void loadSendAnnouncementsPanel(ActionEvent e){ new LoadStage("/mehrin/loginpage/Announcements.fxml",(Node)e.getSource(), true); }
+    @FXML private void loadExportDataPanel(ActionEvent e)     { new LoadStage("/mehrin/loginpage/Export.fxml",         (Node)e.getSource(), true); }
+    @FXML private void loadClearancePanel(ActionEvent e)      { new LoadStage("/mehrin/loginpage/Clearance.fxml",      (Node)e.getSource(), true); }
+    @FXML private void logout(ActionEvent e)                  { new LoadStage("/mehrin/loginpage/Login.fxml",          (Node)e.getSource(), true); }
 
-    @FXML
-    private void loadBooksPanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Books.fxml", node, true);
-    }
-
-    @FXML
-    private void loadStudentPanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Students.fxml", node, true);
-    }
-
-    @FXML
-    private void loadIssueBooksPanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/IssueBooks.fxml", node, true);
-    }
-
-    @FXML
-    private void viewAllIssuedBooks(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", node, true);
-    }
-
-    @FXML
-    private void loadSendAnnouncementsPanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Announcements.fxml", node, true);
-    }
-
-    @FXML
-    private void loadExportDataPanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Export.fxml", node, true);
-    }
-
-    @FXML
-    private void loadClearancePanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Clearance.fxml", node, true);
-    }
-
-    @FXML
-    private void logout(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Login.fxml", node, true);
-    }
-
-    // ================= ALERT =================
     private void showAlert(Alert.AlertType type, String title, String msg) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
+        Alert a = new Alert(type); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
 }

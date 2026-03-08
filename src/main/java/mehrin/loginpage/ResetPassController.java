@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
@@ -27,218 +28,213 @@ import java.util.List;
 
 public class ResetPassController {
 
-    @FXML
-    private TextField usernameField;
+    // ── Form fields ────────────────────────────────────────────
+    @FXML private TextField     usernameField;
 
-    @FXML
-    private PasswordField oldPasswordField;
+    @FXML private PasswordField oldPasswordField;
+    @FXML private TextField     oldPasswordVisible;
+    @FXML private Button        eyeOld;
 
-    @FXML
-    private PasswordField newPasswordField;
+    @FXML private PasswordField newPasswordField;
+    @FXML private TextField     newPasswordVisible;
+    @FXML private Button        eyeNew;
 
-    @FXML
-    private PasswordField confirmPasswordField;
+    @FXML private PasswordField confirmPasswordField;
+    @FXML private TextField     confirmPasswordVisible;
+    @FXML private Button        eyeConfirm;
+
+    private boolean oldShown     = false;
+    private boolean newShown     = false;
+    private boolean confirmShown = false;
 
     private static final String CSV_PATH = "data/loginInfo.csv";
 
-    // ================= RESET PASSWORD =================
+    // ─────────────────────────────────────────────────────────────
+    //  SHOW / HIDE TOGGLES
+    // ─────────────────────────────────────────────────────────────
+    @FXML private void toggleOld(ActionEvent e) {
+        oldShown = !oldShown;
+        toggle(oldShown, oldPasswordField, oldPasswordVisible, eyeOld);
+    }
+
+    @FXML private void toggleNew(ActionEvent e) {
+        newShown = !newShown;
+        toggle(newShown, newPasswordField, newPasswordVisible, eyeNew);
+    }
+
+    @FXML private void toggleConfirm(ActionEvent e) {
+        confirmShown = !confirmShown;
+        toggle(confirmShown, confirmPasswordField, confirmPasswordVisible, eyeConfirm);
+    }
+
+    private void toggle(boolean show, PasswordField pf, TextField tf, Button btn) {
+        if (show) {
+            tf.setText(pf.getText());
+            tf.setVisible(true);  tf.setManaged(true);
+            pf.setVisible(false); pf.setManaged(false);
+            btn.setText("Hide");
+        } else {
+            pf.setText(tf.getText());
+            pf.setVisible(true);  pf.setManaged(true);
+            tf.setVisible(false); tf.setManaged(false);
+            btn.setText("Show");
+        }
+    }
+
+    // ── Read current value regardless of which field is active ──
+    private String getOldPassword()     { return oldShown     ? oldPasswordVisible.getText()     : oldPasswordField.getText(); }
+    private String getNewPassword()     { return newShown     ? newPasswordVisible.getText()     : newPasswordField.getText(); }
+    private String getConfirmPassword() { return confirmShown ? confirmPasswordVisible.getText() : confirmPasswordField.getText(); }
+
+    // ─────────────────────────────────────────────────────────────
+    //  RESET PASSWORD
+    // ─────────────────────────────────────────────────────────────
     @FXML
     private void handleReset(ActionEvent event) {
-        String username = usernameField.getText().trim();
-        String oldPassword = oldPasswordField.getText();
-        String newPassword = newPasswordField.getText();
-        String confirmPassword = confirmPasswordField.getText();
+        String username        = usernameField.getText().trim();
+        String oldPassword     = getOldPassword();
+        String newPassword     = getNewPassword();
+        String confirmPassword = getConfirmPassword();
 
-        System.out.println("Reset Password attempt - Username: " + username);
-
-        // Validation
-        if (username.isEmpty() || oldPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
+        if (username.isEmpty() || oldPassword.isEmpty()
+                || newPassword.isEmpty() || confirmPassword.isEmpty()) {
             new MyAlert(AlertType.ERROR, "Validation Error", "Please fill all fields!");
             return;
         }
-
         if (!newPassword.equals(confirmPassword)) {
             new MyAlert(AlertType.ERROR, "Error", "New passwords do not match!");
             return;
         }
-
         if (newPassword.equals(oldPassword)) {
             new MyAlert(AlertType.ERROR, "Error", "New password must be different from old password!");
             return;
         }
-
         if (newPassword.length() < 3) {
-            new MyAlert(AlertType.ERROR, "Error", "New password must be at least 3 characters!");
+            new MyAlert(AlertType.ERROR, "Error", "Password must be at least 3 characters!");
             return;
         }
 
-        // Update password in loginInfo.csv
         if (updatePasswordInCSV(username, oldPassword, newPassword)) {
             new MyAlert(AlertType.INFORMATION, "Success", "Password changed successfully!");
             clearForm();
         } else {
-            new MyAlert(AlertType.ERROR, "Error", "Failed to change password. Check your username and old password.");
+            new MyAlert(AlertType.ERROR, "Error",
+                    "Failed to change password. Check your username and current password.");
         }
     }
 
-    // ================= KEYBOARD NAVIGATION =================
-    @FXML
-    private void onUsernameKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            oldPasswordField.requestFocus();
-            event.consume();
-        }
-    }
-
-    @FXML
-    private void onOldPasswordKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            newPasswordField.requestFocus();
-            event.consume();
-        }
-    }
-
-    @FXML
-    private void onNewPasswordKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            confirmPasswordField.requestFocus();
-            event.consume();
-        }
-    }
-
-    @FXML
-    private void onConfirmPasswordKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            handleReset(new ActionEvent());
-            event.consume();
-        }
-    }
-
-    // ================= UPDATE PASSWORD IN CSV =================
+    // ─────────────────────────────────────────────────────────────
+    //  UPDATE CSV  (preserves AccountCreatedDate)
+    // ─────────────────────────────────────────────────────────────
     private boolean updatePasswordInCSV(String username, String oldPassword, String newPassword) {
         String csvFilePath = findCSVPath();
-
         if (csvFilePath == null) {
             new MyAlert(AlertType.ERROR, "File Error", "loginInfo.csv not found!");
             return false;
         }
 
-        System.out.println("Using CSV path: " + csvFilePath);
-
         List<String> lines = new ArrayList<>();
         boolean found = false;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(csvFilePath, StandardCharsets.UTF_8))) {
-            String line;
+        try (BufferedReader reader = new BufferedReader(
+                new FileReader(csvFilePath, StandardCharsets.UTF_8))) {
+
+            String  line;
             boolean isFirstLine = true;
 
             while ((line = reader.readLine()) != null) {
-                if (isFirstLine) {
-                    lines.add(line); // Keep header
-                    System.out.println("Header: " + line);
-                    isFirstLine = false;
-                    continue;
-                }
+                if (isFirstLine) { lines.add(line); isFirstLine = false; continue; }
 
                 String[] fields = line.split(",", -1);
 
                 if (fields.length >= 5) {
                     String csvUsername = fields[0].trim();
-                    String csvEmail = fields[1].trim();
+                    String csvEmail    = fields[1].trim();
                     String csvPassword = fields[2].trim();
-                    String userType = fields[3].trim();
-                    String status = fields[4].trim();
+                    String userType    = fields[3].trim();
+                    String status      = fields[4].trim();
 
-                    System.out.println("Checking user: " + csvUsername + " (Email: " + csvEmail + ")");
-
-                    // Check if this is the user
                     if ((csvUsername.equals(username) || csvEmail.equalsIgnoreCase(username))
                             && csvPassword.equals(oldPassword)
                             && "Active".equalsIgnoreCase(status)) {
 
-                        System.out.println("✓ User found! Updating password...");
+                        String today = LocalDate.now()
+                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-                        // Update password with current date
-                        String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                        String updatedLine = csvUsername + "," + csvEmail + "," + newPassword + "," + userType + "," + status + "," + currentDate + "," + currentDate;
-                        lines.add(updatedLine);
+                        // col 5 = LastPasswordChange → today
+                        // col 6 = AccountCreatedDate → keep original
+                        String accountCreatedDate = (fields.length >= 7)
+                                ? fields[6].trim() : today;
+
+                        lines.add(csvUsername + "," + csvEmail + "," + newPassword
+                                + "," + userType + "," + status
+                                + "," + today
+                                + "," + accountCreatedDate);
                         found = true;
-                    } else {
-                        lines.add(line);
+                        continue;
                     }
-                } else {
-                    lines.add(line);
                 }
+                lines.add(line);
             }
         } catch (IOException e) {
-            System.out.println("❌ Error reading file: " + e.getMessage());
             new MyAlert(AlertType.ERROR, "File Error", "Error reading file: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
 
-        if (found) {
-            // Write back to file
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFilePath, StandardCharsets.UTF_8))) {
-                for (String line : lines) {
-                    writer.write(line);
-                    writer.newLine();
-                }
-                writer.flush();
-                System.out.println("✓ Password updated successfully and saved to CSV");
-                return true;
-            } catch (IOException e) {
-                System.out.println("❌ Error writing file: " + e.getMessage());
-                new MyAlert(AlertType.ERROR, "File Error", "Error writing file: " + e.getMessage());
-                e.printStackTrace();
-                return false;
-            }
-        } else {
-            System.out.println("❌ User not found or credentials don't match");
+        if (!found) return false;
+
+        try (BufferedWriter writer = new BufferedWriter(
+                new FileWriter(csvFilePath, StandardCharsets.UTF_8))) {
+            for (String line : lines) { writer.write(line); writer.newLine(); }
+        } catch (IOException e) {
+            new MyAlert(AlertType.ERROR, "File Error", "Error writing file: " + e.getMessage());
+            return false;
         }
 
-        return false;
+        return true;
     }
 
-    // ================= FIND CSV PATH =================
-    private String findCSVPath() {
-        String[] possiblePaths = {
-                CSV_PATH,
-                "src/" + CSV_PATH,
-                System.getProperty("user.dir") + "/" + CSV_PATH,
-                System.getProperty("user.dir") + "/src/" + CSV_PATH
-        };
+    // ─────────────────────────────────────────────────────────────
+    //  KEYBOARD NAVIGATION
+    // ─────────────────────────────────────────────────────────────
+    @FXML private void onUsernameKeyPressed(KeyEvent e)        { if (e.getCode() == KeyCode.ENTER) { (oldShown ? oldPasswordVisible : oldPasswordField).requestFocus();         e.consume(); } }
+    @FXML private void onOldPasswordKeyPressed(KeyEvent e)     { if (e.getCode() == KeyCode.ENTER) { (newShown ? newPasswordVisible : newPasswordField).requestFocus();         e.consume(); } }
+    @FXML private void onNewPasswordKeyPressed(KeyEvent e)     { if (e.getCode() == KeyCode.ENTER) { (confirmShown ? confirmPasswordVisible : confirmPasswordField).requestFocus(); e.consume(); } }
+    @FXML private void onConfirmPasswordKeyPressed(KeyEvent e) { if (e.getCode() == KeyCode.ENTER) { handleReset(new ActionEvent()); e.consume(); } }
 
-        for (String path : possiblePaths) {
-            if (Files.exists(Paths.get(path))) {
-                System.out.println("✓ Found CSV at: " + path);
-                return path;
-            }
-        }
-        return null;
-    }
-
-    // ================= BACK TO LOGIN =================
+    // ─────────────────────────────────────────────────────────────
+    //  BACK TO LOGIN
+    // ─────────────────────────────────────────────────────────────
     @FXML
     private void backToLogin(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Login.fxml"));
         Parent root = loader.load();
-
         Stage stage = (Stage) usernameField.getScene().getWindow();
-        double width = stage.getWidth();
-        double height = stage.getHeight();
-
-        Scene scene = new Scene(root, width, height);
-        stage.setScene(scene);
+        stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
         stage.setTitle("Login");
         stage.show();
     }
 
-    // ================= CLEAR FORM =================
+    // ─────────────────────────────────────────────────────────────
+    //  CLEAR
+    // ─────────────────────────────────────────────────────────────
     private void clearForm() {
         usernameField.clear();
-        oldPasswordField.clear();
-        newPasswordField.clear();
-        confirmPasswordField.clear();
+        oldPasswordField.clear();     oldPasswordVisible.clear();
+        newPasswordField.clear();     newPasswordVisible.clear();
+        confirmPasswordField.clear(); confirmPasswordVisible.clear();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  FIND CSV
+    // ─────────────────────────────────────────────────────────────
+    private String findCSVPath() {
+        String[] paths = {
+                CSV_PATH, "src/" + CSV_PATH,
+                System.getProperty("user.dir") + "/" + CSV_PATH,
+                System.getProperty("user.dir") + "/src/" + CSV_PATH
+        };
+        for (String path : paths) if (Files.exists(Paths.get(path))) return path;
+        return null;
     }
 }

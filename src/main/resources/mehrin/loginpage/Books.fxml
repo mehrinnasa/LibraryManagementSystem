@@ -27,7 +27,6 @@
                 <font><Font size="14" /></font>
             </Button>
 
-
             <Button fx:id="allIssuedBooks" onAction="#viewAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books">
                 <font><Font size="14" /></font>
             </Button>
@@ -89,7 +88,6 @@
                         <TableColumn fx:id="quantity"  text="Quantity" />
                         <TableColumn fx:id="remainingBooks"  text="Remaining Books" />
                         <TableColumn fx:id="pdfCol" text="PDF" />
-
                     </columns>
 
                     <columnResizePolicy>
@@ -136,16 +134,16 @@
 
                 <HBox spacing="10">
                     <Button maxWidth="Infinity" onAction="#handleCancel" text="Cancel" HBox.hgrow="ALWAYS" />
-
                     <Button maxWidth="Infinity" onAction="#handleSave" text="Save" HBox.hgrow="ALWAYS" />
                 </HBox>
             </VBox>
 
         </HBox>
     </center>
-   <top>
-       <HBox alignment="CENTER_LEFT" style="-fx-background-color: #0B2A4A; -fx-padding: 14 30;">
-           <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Rajshahi University of Engineering &amp; Technology" />
-       </HBox>    </top>
+    <top>
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #0B2A4A; -fx-padding: 14 30;">
+            <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Rajshahi University of Engineering &amp; Technology" />
+        </HBox>
+    </top>
 
 </BorderPane>
