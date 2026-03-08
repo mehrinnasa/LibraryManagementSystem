@@ -5,49 +5,39 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="550.0" prefWidth="730.0" style="-fx-background-color: #C5D5F3;" stylesheets="@mainStyle.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mehrin.loginpage.AllIssuedBooksController">
+<BorderPane prefHeight="550.0" prefWidth="730.0" style="-fx-background-color: #C5D5F3;" stylesheets="@mainStyle.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mehrin.loginpage.StudentAllIssuedBooksController">
 
     <!-- ================= LEFT SIDEBAR ================= -->
     <left>
         <VBox alignment="TOP_CENTER" prefWidth="137.0" spacing="4" style="-fx-background-color: #143F73;" styleClass="sidebar">
 
-            <Button onAction="#handleHome" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">
-            <font>
-               <Font size="14.0" />
-            </font></Button>
-            <Button onAction="#handleBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books">
-            <font>
-               <Font size="14.0" />
-            </font></Button>
-            <Button onAction="#handleStudents" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Students">
-            <font>
-               <Font size="14.0" />
-            </font></Button>
-            <Button onAction="#handleIssueBook" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book">
-            <font>
-               <Font size="14.0" />
-            </font></Button>
-            <Button onAction="#handleAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books">
-            <font>
-               <Font size="14.0" />
-            </font></Button>
-            <Button onAction="#handleAnnouncement" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">
-            <font>
-               <Font size="14.0" />
-            </font></Button>
-            <Button onAction="#handleExport" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export">
-            <font>
-               <Font size="14.0" />
-            </font></Button>
-            <Button onAction="#handleClearance" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance">
-            <font>
-               <Font size="14.0" />
-            </font></Button>
-            <Button onAction="#logout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout">
-            <font>
-               <Font size="14.0" />
-            </font></Button>
+            <Button fx:id="home" onAction="#loadHomePanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home">
+                <font><Font size="14" /></font>
+            </Button>
 
+            <Button fx:id="books" onAction="#loadBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="addToCart" onAction="#loadAddToCartBooksPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Add To Cart">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="allIssuedBooks" onAction="#loadAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="announcement" onAction="#loadAnnouncementPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="clearance" onAction="#loadClearancePanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance">
+                <font><Font size="14" /></font>
+            </Button>
+
+            <Button fx:id="logout" onAction="#logout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout">
+                <font><Font size="14" /></font>
+            </Button>
         </VBox>
     </left>
 
@@ -131,9 +121,7 @@
                 <Region VBox.vgrow="ALWAYS" />
 
                 <HBox spacing="10">
-                    <Button maxWidth="Infinity" onAction="#handleCancel" text="Cancel" HBox.hgrow="ALWAYS" />
-
-                    <Button maxWidth="Infinity" onAction="#submitBook" text="Confirm Return" HBox.hgrow="ALWAYS" />
+                    <Button maxWidth="Infinity" onAction="#handleCancel" prefHeight="26.0" prefWidth="72.0" text="Cancel" HBox.hgrow="ALWAYS" />
                 </HBox>
 
             </VBox>

@@ -1,85 +1,51 @@
 package mehrin.loginpage.Model;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
-/**
- * Announcement Model Class
- * Represents an announcement in the RUET Library Management System
- */
 public class Announcement {
-    private int id;
+
+    private int    id;
     private String title;
     private String message;
-    private String date;
+    private String createdDateTime;   // when first posted
+    private String updatedDateTime;   // last edited (empty if never updated)
 
-    // Default constructor
-    public Announcement() {
-        this.date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    public Announcement() {}
+
+    /** Full constructor */
+    public Announcement(int id, String title, String message,
+                        String createdDateTime, String updatedDateTime) {
+        this.id              = id;
+        this.title           = title;
+        this.message         = message;
+        this.createdDateTime = createdDateTime;
+        this.updatedDateTime = updatedDateTime;
     }
 
-    // Constructor with all fields
-    public Announcement(int id, String title, String message, String date) {
-        this.id = id;
-        this.title = title;
-        this.message = message;
-        this.date = date;
+    /** Legacy 4-arg constructor so nothing else breaks */
+    public Announcement(int id, String title, String message, String createdDateTime) {
+        this(id, title, message, createdDateTime, "");
     }
 
-    // Getters and Setters
-    public int getId() {
-        return id;
-    }
+    // ── Getters & Setters ──────────────────────────────────────
+    public int    getId()              { return id; }
+    public void   setId(int id)        { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getTitle()           { return title; }
+    public void   setTitle(String t)   { this.title = t; }
 
-    public String getTitle() {
-        return title;
-    }
+    public String getMessage()         { return message; }
+    public void   setMessage(String m) { this.message = m; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public String getCreatedDateTime()           { return createdDateTime; }
+    public void   setCreatedDateTime(String dt)  { this.createdDateTime = dt; }
 
-    public String getMessage() {
-        return message;
-    }
+    /** Kept for backward compatibility with any code calling getDateTime() */
+    public String getDateTime()        { return createdDateTime; }
+    public void   setDateTime(String dt){ this.createdDateTime = dt; }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+    public String getUpdatedDateTime()           { return updatedDateTime; }
+    public void   setUpdatedDateTime(String dt)  { this.updatedDateTime = dt; }
 
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    // Convert to CSV format (replace commas in message to avoid CSV issues)
-    public String toCSV() {
-        return id + "," + title + "," + message.replace(",", ";") + "," + date;
-    }
-
-    // Create Announcement from CSV line
-    public static Announcement fromCSV(String csvLine) {
-        String[] parts = csvLine.split(",", 4); // Split into max 4 parts
-        if (parts.length >= 4) {
-            return new Announcement(
-                    Integer.parseInt(parts[0]),
-                    parts[1],
-                    parts[2].replace(";", ","), // Convert back semicolons to commas
-                    parts[3]
-            );
-        }
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return title + " - " + date;
+    public boolean wasUpdated() {
+        return updatedDateTime != null && !updatedDateTime.trim().isEmpty();
     }
 }

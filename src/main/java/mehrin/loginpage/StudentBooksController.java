@@ -126,7 +126,7 @@ public class StudentBooksController implements Initializable {
     @FXML
     private void loadAddToCartBooksPanel(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/StudentAddToCartBooks.fxml", node, true);
+        new LoadStage("/mehrin/loginpage/StudentAddToCart.fxml", node, true);
     }
 
     @FXML

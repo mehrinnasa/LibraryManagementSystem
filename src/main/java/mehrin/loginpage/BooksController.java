@@ -16,22 +16,37 @@ import java.util.ResourceBundle;
 
 public class BooksController implements Initializable {
 
-    @FXML private TableView<Book> booksTable;
-    @FXML private TableColumn<Book, String> bookId;
-    @FXML private TableColumn<Book, String> title;
-    @FXML private TableColumn<Book, String> author;
-    @FXML private TableColumn<Book, String> status;
-    @FXML private TableColumn<Book, String> publisher;
-    @FXML private TableColumn<Book, String> edition;
-    @FXML private TableColumn<Book, String> quantity;
-    @FXML private TableColumn<Book, String> remainingBooks;
-    @FXML private TableColumn<Book, String> pdfCol;
+    @FXML
+    private TableView<Book> booksTable;
+    @FXML
+    private TableColumn<Book, String> bookId;
+    @FXML
+    private TableColumn<Book, String> title;
+    @FXML
+    private TableColumn<Book, String> author;
+    @FXML
+    private TableColumn<Book, String> status;
+    @FXML
+    private TableColumn<Book, String> publisher;
+    @FXML
+    private TableColumn<Book, String> edition;
+    @FXML
+    private TableColumn<Book, String> quantity;
+    @FXML
+    private TableColumn<Book, String> remainingBooks;
+    @FXML
+    private TableColumn<Book, String> pdfCol;
 
-    @FXML private TextField searchField;
-    @FXML private TextField bookIdField;
-    @FXML private TextField bookTitleField;
-    @FXML private TextField authorField;
-    @FXML private ComboBox<String> statusComboBox;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private TextField bookIdField;
+    @FXML
+    private TextField bookTitleField;
+    @FXML
+    private TextField authorField;
+    @FXML
+    private ComboBox<String> statusComboBox;
 
     private final ObservableList<Book> booksList = FXCollections.observableArrayList();
     private BookService bookService;
@@ -47,10 +62,14 @@ public class BooksController implements Initializable {
         title.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getTitle()));
         author.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getAuthor()));
         status.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getAvailability()));
-        publisher.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getPublisher()));
-        edition.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getEdition())));
-        quantity.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getQuantity())));
-        remainingBooks.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getRemaining())));
+        publisher.setCellValueFactory(
+                data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getPublisher()));
+        edition.setCellValueFactory(
+                data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getEdition())));
+        quantity.setCellValueFactory(
+                data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getQuantity())));
+        remainingBooks.setCellValueFactory(
+                data -> new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().getRemaining())));
         pdfCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getPdf()));
         loadBooks();
         setupSearch();
@@ -169,55 +188,55 @@ public class BooksController implements Initializable {
     @FXML
     private void loadHomePanel(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Dashboard.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/Dashboard.fxml", node, true);
     }
 
     @FXML
     private void loadBooksPanel(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Books.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/Books.fxml", node, true);
     }
 
     @FXML
     private void loadStudentPanel(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Students.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/Students.fxml", node, true);
     }
 
     @FXML
     private void loadIssueBooksPanel(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/IssueBooks.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/IssueBooks.fxml", node, true);
     }
 
     @FXML
     private void viewAllIssuedBooks(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", node, true);
     }
 
     @FXML
     private void loadSendAnnouncementsPanel(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Announcements.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/Announcements.fxml", node, true);
     }
 
     @FXML
     private void loadExportDataPanel(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Export.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/Export.fxml", node, true);
     }
 
     @FXML
     private void loadClearancePanel(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Clearance.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/Clearance.fxml", node, true);
     }
 
     @FXML
     private void logout(ActionEvent event) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Login.fxml", node,true);
+        new LoadStage("/mehrin/loginpage/Login.fxml", node, true);
     }
 
     // ================= ALERT =================

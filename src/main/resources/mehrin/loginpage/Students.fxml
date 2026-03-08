@@ -13,21 +13,42 @@
 
             <Button fx:id="home" onAction="#handleHome" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Home" />
 
-            <Button fx:id="books" onAction="#handleBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books" />
+            <Button fx:id="books" onAction="#handleBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Books">
+            <font>
+               <Font size="14.0" />
+            </font></Button>
 
-            <Button fx:id="students" onAction="#handleStudents" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Students" />
+            <Button fx:id="students" onAction="#handleStudents" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Students">
+            <font>
+               <Font size="14.0" />
+            </font></Button>
 
-            <Button fx:id="issuedBooks" onAction="#handleIssueBook" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book" />
+            <Button fx:id="issuedBooks" onAction="#handleIssueBook" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Issue Book">
+            <font>
+               <Font size="14.0" />
+            </font></Button>
 
-            <Button fx:id="allIssuedBooks" onAction="#handleAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books" />
+            <Button fx:id="allIssuedBooks" onAction="#handleAllIssuedBooks" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="All Issued Books">
+            <font>
+               <Font size="14.0" />
+            </font></Button>
 
-            <Button fx:id="announcement" onAction="#handleAnnouncement" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement" />
+            <Button fx:id="announcement" onAction="#handleAnnouncement" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">
+            <font>
+               <Font size="14.0" />
+            </font></Button>
 
-            <Button fx:id="export" onAction="#handleExport" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export" />
+            <Button fx:id="export" onAction="#handleExport" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export">
+            <font>
+               <Font size="14.0" />
+            </font></Button>
 
             <Button fx:id="clearance" onAction="#handleClearance" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Clearance" />
 
-            <Button fx:id="logout" onAction="#handleLogout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout" />
+            <Button fx:id="logout" onAction="#handleLogout" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Logout">
+            <font>
+               <Font size="14.0" />
+            </font></Button>
         </VBox>
     </left>
 

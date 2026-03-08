@@ -123,47 +123,6 @@
                         <padding>
                             <Insets bottom="30" left="30" right="30" top="30" />
                         </padding>
-
-                        <Label styleClass="panel-title" text="Student Information">
-                            <font>
-                                <Font name="System Bold" size="18" />
-                            </font>
-                        </Label>
-
-                        <VBox spacing="10">
-                            <Label text="Student Search">
-                                <font>
-                                    <Font name="System Bold" size="14.0" />
-                                </font></Label>
-                            <TextField fx:id="studentSearchTextField" onKeyReleased="#searchStudent" promptText="Enter student ID" />
-
-                            <Label text="Student Name">
-                                <font>
-                                    <Font name="System Bold" size="14.0" />
-                                </font></Label>
-                            <Text fx:id="studentName" text="-">
-                                <font>
-                                    <Font size="14.0" />
-                                </font></Text>
-
-                            <Label text="Email">
-                                <font>
-                                    <Font name="System Bold" size="14.0" />
-                                </font></Label>
-                            <Text fx:id="studentEmail" text="-">
-                                <font>
-                                    <Font size="14.0" />
-                                </font></Text>
-
-                            <Label text="Contact">
-                                <font>
-                                    <Font name="System Bold" size="14.0" />
-                                </font></Label>
-                            <Text fx:id="contact" text="-">
-                                <font>
-                                    <Font size="14.0" />
-                                </font></Text>
-                        </VBox>
                     </VBox>
 
                 </HBox>
