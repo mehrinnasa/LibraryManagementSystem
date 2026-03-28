@@ -1,7 +1,5 @@
 package mehrin.loginpage.Service;
 
-
-
 import mehrin.loginpage.Model.Book;
 import mehrin.loginpage.Util.FileUtil;
 import java.util.ArrayList;
@@ -9,7 +7,8 @@ import java.util.List;
 
 public class BookService {
     private static final String BOOKS_FILE = "books.csv";
-    private static final String HEADER = "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability";
+    private static final String HEADER = "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF";
+
     private List<Book> books;
 
     public BookService() {
@@ -65,9 +64,7 @@ public class BookService {
         return results;
     }
 
-    public int getTotalBooks() {
-        return books.size();
-    }
+    public int getTotalBooks()          { return books.size(); }
 
     public int getTotalRemainingBooks() {
         int total = 0;

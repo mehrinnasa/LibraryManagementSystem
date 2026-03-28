@@ -219,6 +219,27 @@ public class IssueBookController {
             return;
         }
 
+        // Check if this book has a "Ready" reservation for someone else
+        // addToCart: p[1]=StudentID, p[3]=BookISBN, p[7]=Status
+        String currentStudentId = studentSearchTextField.getText().trim();
+        String currentBookIsbn  = bookSearchField.getText().trim();
+        for (String line : FileUtil.readFile(CART_FILE)) {
+            String[] c = line.split(",", -1);
+            if (c.length > 7
+                    && c[3].trim().equalsIgnoreCase(currentBookIsbn)
+                    && c[7].trim().equalsIgnoreCase("Ready")
+                    && !c[1].trim().equalsIgnoreCase(currentStudentId)) {
+                // Another student has a Ready reservation for this book
+                showAlert("Reserved",
+                        "This book is reserved for student: " + c[2].trim()
+                                + " (ID: " + c[1].trim() + ")\n"
+                                + "Reservation expires: " + c[6].trim()
+                                + "\n\nYou can only issue it to them until then.",
+                        Alert.AlertType.WARNING);
+                return;
+            }
+        }
+
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirm Issue");
         confirm.setHeaderText(null);
@@ -270,7 +291,7 @@ public class IssueBookController {
         }
 
         FileUtil.writeFile("books.csv", updatedBooks,
-                "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability");
+                "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF");
 
         // 2. Update issueBooks.csv
         LocalDate today   = LocalDate.now();

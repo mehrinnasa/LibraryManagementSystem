@@ -36,7 +36,7 @@ public class StudentAllIssuedBooksController {
     @FXML private TextField lateFeeField;
 
     private static final String ISSUED_FILE = "issueBooks.csv";
-    private static final String CART_CSV    = "data/addToCart.csv";
+    private static final String CART_CSV    = "addToCart.csv";
 
     // Only this student's books are ever loaded
     private ObservableList<IssuedBook> myBooks;
@@ -118,13 +118,34 @@ public class StudentAllIssuedBooksController {
             String[] p = line.split(",", -1);
             if (p.length != 7) continue;
 
-            // ── Filter: only rows belonging to this student ────
             if (!p[2].equalsIgnoreCase(studentId)) continue;
 
             boolean pending    = p[4].equalsIgnoreCase("N/A") || p[0].startsWith("CART-");
-            String  currentFee = pending ? "0" : calculateLateFee(p[5]);
+            String  returnDate = p[5];
 
-            list.add(new IssuedBook(p[0], p[1], p[2], p[3], p[4], p[5], currentFee));
+            if (pending) {
+                String serial = p[0].startsWith("CART-") ? p[0].substring(5) : "";
+                if (!serial.isEmpty()) {
+                    for (String cartLine : FileUtil.readFile(CART_CSV)) {
+                        String[] c = cartLine.split(",", -1);
+                        // addToCart: p[0]=Serial, p[6]=ExpiryDate, p[7]=Status
+                        if (c.length > 7 && c[0].trim().equals(serial)) {
+                            String cartStatus = c[7].trim();
+                            if (cartStatus.equalsIgnoreCase("Ready")) {
+                                // Book became available — 2-day window active
+                                returnDate = c[6].trim();
+                            } else {
+                                // Still waiting for book to become available
+                                returnDate = "Waiting";
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            String currentFee = pending ? "0" : calculateLateFee(returnDate);
+            list.add(new IssuedBook(p[0], p[1], p[2], p[3], p[4], returnDate, currentFee));
         }
         return list;
     }
@@ -138,11 +159,19 @@ public class StudentAllIssuedBooksController {
         studentIdInfo.setText(book.getStudentId());
 
         if (isPending(book)) {
-            lateFeeField.setText("0  (Pending – not issued yet)");
+            lateFeeField.setText("Pending – not issued yet");
         } else {
-            String fee = calculateLateFee(book.getReturnDate());
+            // Show expire date + late fee if overdue
+            String expireDate = book.getReturnDate();
+            String fee = calculateLateFee(expireDate);
             book.lateFeeProperty().set(fee);
-            lateFeeField.setText(fee + " Tk");
+            if (Integer.parseInt(fee) > 0) {
+                lateFeeField.setText(expireDate + "  ⚠ Overdue! Fee: " + fee + " Tk");
+                lateFeeField.setStyle("-fx-text-fill: #c0392b; -fx-font-weight: bold;");
+            } else {
+                lateFeeField.setText(expireDate);
+                lateFeeField.setStyle("-fx-text-fill: #2D6A4F; -fx-font-weight: bold;");
+            }
         }
     }
 
@@ -191,7 +220,7 @@ public class StudentAllIssuedBooksController {
     // ─────────────────────────────────────────────────────────────
     @FXML private void loadHomePanel(ActionEvent e)          { new LoadStage("/mehrin/loginpage/StudentDashboard.fxml",      (Node)e.getSource(), true); }
     @FXML private void loadBooksPanel(ActionEvent e)         { new LoadStage("/mehrin/loginpage/StudentBooks.fxml",          (Node)e.getSource(), true); }
-    @FXML private void loadAddToCartBooksPanel(ActionEvent e){ new LoadStage("/mehrin/loginpage/StudentAddToCart.fxml", (Node)e.getSource(), true); }
+    @FXML private void loadAddToCartBooksPanel(ActionEvent e){ new LoadStage("/mehrin/loginpage/StudentAddToCart.fxml",    (Node)e.getSource(), true); }
     @FXML private void loadAllIssuedBooks(ActionEvent e)     { new LoadStage("/mehrin/loginpage/StudentAllIssuedBooks.fxml", (Node)e.getSource(), true); }
     @FXML private void loadAnnouncementPanel(ActionEvent e)  { new LoadStage("/mehrin/loginpage/StudentAnnouncement.fxml",   (Node)e.getSource(), true); }
     @FXML private void loadClearancePanel(ActionEvent e)     { new LoadStage("/mehrin/loginpage/StudentClearance.fxml",      (Node)e.getSource(), true); }

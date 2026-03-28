@@ -163,17 +163,79 @@ public class BooksController implements Initializable {
 
         Book selected = booksTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            selected.setIsbn(isbn); selected.setTitle(titleVal); selected.setAuthor(authorVal);
+            int quantityDiff = quantityVal - selected.getQuantity();
+            int newRemaining = Math.max(0, selected.getRemaining() + quantityDiff);
+
+            selected.setIsbn(isbn);
+            selected.setTitle(titleVal);
+            selected.setAuthor(authorVal);
             selected.setPublisher(publisherVal.isEmpty() ? selected.getPublisher() : publisherVal);
-            selected.setEdition(editionVal); selected.setQuantity(quantityVal);
+            selected.setEdition(editionVal);
+            selected.setQuantity(quantityVal);
+            selected.setRemaining(newRemaining);
             selected.setAvailability(statusVal);
-            bookService.updateBook(selected);
+
+            if (!writeBookToCSV(selected)) return; // error already shown inside
         } else {
-            bookService.addBook(new Book(isbn, titleVal, authorVal,
+            Book newBook = new Book(isbn, titleVal, authorVal,
                     publisherVal.isEmpty() ? "Unknown" : publisherVal,
-                    editionVal, quantityVal, quantityVal, "General", statusVal));
+                    editionVal, quantityVal, quantityVal, "General", statusVal);
+            if (!writeBookToCSV(newBook)) return;
         }
         clearForm(); loadBooks();
+    }
+
+    /**
+     * Reads data/books.csv, updates or appends the given book row,
+     * then writes back. Completely bypasses FileUtil and BookService
+     * to avoid path or header mismatch bugs.
+     */
+    private boolean writeBookToCSV(Book book) {
+        java.io.File csvFile = new java.io.File("data/books.csv");
+        java.util.List<String> lines = new java.util.ArrayList<>();
+        boolean found = false;
+
+        // ── Read ────────────────────────────────────────────────
+        try (java.io.BufferedReader br = new java.io.BufferedReader(
+                new java.io.FileReader(csvFile))) {
+            String line;
+            boolean firstLine = true;
+            while ((line = br.readLine()) != null) {
+                if (firstLine) {
+                    // Always write the correct header
+                    lines.add("ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF");
+                    firstLine = false;
+                    continue;
+                }
+                Book existing = Book.fromCSV(line);
+                if (existing != null && existing.getIsbn().equalsIgnoreCase(book.getIsbn())) {
+                    book.setPdf(existing.getPdf()); // preserve existing PDF link
+                    lines.add(book.toCSV());
+                    found = true;
+                } else {
+                    // Re-write other rows in clean format too
+                    lines.add(existing != null ? existing.toCSV() : line);
+                }
+            }
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Read Error","Cannot read books.csv: " + e.getMessage());
+            return false;
+        }
+
+        // New book — append
+        if (!found) lines.add(book.toCSV());
+
+        // ── Write ───────────────────────────────────────────────
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(
+                new java.io.FileWriter(csvFile, false))) {
+            for (String l : lines) { bw.write(l); bw.newLine(); }
+            bw.flush();
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Write Error","Cannot write books.csv: " + e.getMessage());
+            return false;
+        }
+
+        return true;
     }
 
     @FXML

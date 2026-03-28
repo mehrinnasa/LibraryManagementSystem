@@ -11,7 +11,6 @@ import mehrin.loginpage.Model.Book;
 import mehrin.loginpage.Service.BookService;
 
 import java.awt.Desktop;
-import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -82,16 +81,11 @@ public class StudentBooksController implements Initializable {
     }
 
     // ─────────────────────────────────────────────────────────────
-    private void openPdf(String path) {
+    private void openPdf(String url) {
         try {
-            File f = new File(path);
-            if (!f.exists()) {
-                new Alert(Alert.AlertType.ERROR, "File not found:\n" + path).showAndWait();
-                return;
-            }
-            Desktop.getDesktop().open(f);
+            Desktop.getDesktop().browse(new java.net.URI(url));
         } catch (Exception e) {
-            new Alert(Alert.AlertType.ERROR, "Could not open file.").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Could not open link:\n" + e.getMessage()).showAndWait();
         }
     }
 

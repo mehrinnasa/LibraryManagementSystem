@@ -56,7 +56,7 @@ public class Book {
     public void setQuantity(int v)        { this.quantity = v; }
 
     public int  getRemaining()            { return remaining; }
-    public void setRemaining(int v)       { this.remaining = v; this.availability = v > 0 ? "Available" : "Not Available"; }
+    public void setRemaining(int v)       { this.remaining = v; }
 
     public String getSection()            { return section; }
     public void   setSection(String v)    { this.section = v; }

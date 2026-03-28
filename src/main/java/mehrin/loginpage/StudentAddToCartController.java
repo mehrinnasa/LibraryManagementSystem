@@ -10,6 +10,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 import mehrin.loginpage.Model.Book;
 import mehrin.loginpage.Model.Student;
+import mehrin.loginpage.Util.AutoCompleteHelper;
 import mehrin.loginpage.Util.FileUtil;
 
 import java.io.BufferedReader;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class StudentAddToCartController {
 
@@ -40,6 +42,25 @@ public class StudentAddToCartController {
     public void initialize() {
         CartExpiryUtil.purgeExpiredCartEntries(CART_FILE, ISSUED_FILE);
         loadLoggedInStudent();
+
+        AutoCompleteHelper.setupAutoComplete(bookSearchField,
+                text -> FileUtil.readFile("books.csv").stream()
+                        .skip(1)
+                        .filter(line -> line.toLowerCase().contains(text.toLowerCase()))
+                        .map(line -> {
+                            String[] p = line.split(",", -1);
+                            return p.length > 1 ? p[1] + " (" + p[0] + ")" : "";
+                        })
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList()),
+                chosen -> {
+                    try {
+                        String isbn = chosen.substring(
+                                chosen.lastIndexOf("(") + 1, chosen.lastIndexOf(")"));
+                        bookSearchField.setText(isbn);
+                        searchBook(null);
+                    } catch (Exception ignored) {}
+                });
     }
 
     /** Load student object from session so we have it ready for cart logic */
@@ -66,14 +87,15 @@ public class StudentAddToCartController {
     @FXML
     private void searchBook(KeyEvent event) {
         String isbn = bookSearchField.getText().trim();
-        if (isbn.isEmpty()) { clearBookFields(); return; }
+        if (isbn.isEmpty()) { clearBookInfo(); return; }
 
         try (BufferedReader br = new BufferedReader(new FileReader(BOOKS_CSV))) {
             br.readLine();
             String line;
             while ((line = br.readLine()) != null) {
                 Book book = Book.fromCSV(line);
-                if (book != null && book.getIsbn().equals(isbn)) {
+                if (book != null && (book.getIsbn().equals(isbn)
+                        || book.getTitle().toLowerCase().contains(isbn.toLowerCase()))) {
                     selectedBook = book;
                     bookName.setText(book.getTitle());
                     bookAuthor.setText(book.getAuthor());
@@ -82,7 +104,8 @@ public class StudentAddToCartController {
                     return;
                 }
             }
-            clearBookFields();
+            // No match yet — silently clear book info but DO NOT clear the search field
+            clearBookInfo();
         } catch (Exception e) { e.printStackTrace(); }
     }
 
@@ -102,18 +125,53 @@ public class StudentAddToCartController {
             return;
         }
 
-        // Duplicate check in cart: p[1]=StudentID, p[3]=BookISBN
-        boolean alreadyInCart = FileUtil.readFile(CART_FILE).stream()
-                .anyMatch(line -> {
-                    String[] p = line.split(",", -1);
-                    return p.length > 3
-                            && p[3].equalsIgnoreCase(selectedBook.getIsbn())
-                            && p[1].equalsIgnoreCase(loggedInStudent.getStudentId());
-                });
+        // p[0]=Serial, p[1]=StudentID, p[3]=BookISBN, p[6]=ExpiryDate, p[7]=Status
+        String myCartExpiry    = null;
+        boolean waitingByOther = false; // someone else has it as "Waiting" (book not available yet)
+        boolean readyByOther   = false; // someone else has it as "Ready" (book available, 2-day window)
+        String  otherExpiry    = "";
 
-        if (alreadyInCart) {
-            showAlert("Already Added", "You already have this book in your cart.",
+        for (String line : FileUtil.readFile(CART_FILE)) {
+            String[] p = line.split(",", -1);
+            if (p.length < 8) continue;
+            if (!p[3].equalsIgnoreCase(selectedBook.getIsbn())) continue;
+
+            if (p[1].equalsIgnoreCase(loggedInStudent.getStudentId())) {
+                myCartExpiry = p[6].trim();
+            } else {
+                String cartStatus = p[7].trim();
+                if (cartStatus.equalsIgnoreCase("Waiting")) {
+                    waitingByOther = true;
+                } else if (cartStatus.equalsIgnoreCase("Ready")) {
+                    readyByOther = true;
+                    otherExpiry  = p[6].trim();
+                }
+            }
+        }
+
+        // This student already has it in cart
+        if (myCartExpiry != null) {
+            showAlert("Already Added",
+                    "You already have this book in your cart.",
                     Alert.AlertType.INFORMATION);
+            return;
+        }
+
+        // Book is unavailable AND another student is already waiting for it → block
+        if (selectedBook.getRemaining() <= 0 && waitingByOther) {
+            showAlert("Not Available",
+                    "This book is currently unavailable and is already reserved by another student. " +
+                    "Please check back later.",
+                    Alert.AlertType.WARNING);
+            return;
+        }
+
+        // Book just became available but another student has a "Ready" 2-day window → block until it expires
+        if (selectedBook.getRemaining() <= 0 && readyByOther) {
+            showAlert("Not Available",
+                    "This book is reserved by another student. " +
+                    "Their reservation expires on: " + otherExpiry,
+                    Alert.AlertType.WARNING);
             return;
         }
 
@@ -167,8 +225,10 @@ public class StudentAddToCartController {
         int newId = lastId + 1;
 
         LocalDate today  = LocalDate.now();
-        LocalDate expiry = today.plusDays(2);
         String    status = (selectedBook.getRemaining() > 0) ? "Ready" : "Waiting";
+        // Expiry is only meaningful when book is Available (Ready)
+        // For Waiting entries, expiry will be set when book becomes available
+        String expiryStr = status.equals("Ready") ? today.plusDays(2).toString() : "N/A";
 
         cartList.add(String.join(",",
                 String.valueOf(newId),
@@ -177,7 +237,7 @@ public class StudentAddToCartController {
                 selectedBook.getIsbn(),
                 selectedBook.getTitle(),
                 today.toString(),
-                expiry.toString(),
+                expiryStr,
                 status));
 
         FileUtil.writeFile(CART_FILE, cartList,
@@ -195,23 +255,36 @@ public class StudentAddToCartController {
         FileUtil.writeFile(ISSUED_FILE, issuedList,
                 "IssuedID,BookID,StudentID,StudentName,IssuedDate,ReturnDate,LateFee");
 
-        showAlert("Success",
-                "Book added to cart!\n" +
-                        "Serial No: CART-" + newId + "\n" +
-                        "Must be collected by: " + expiry,
-                Alert.AlertType.INFORMATION);
+        String alertMsg;
+        if (status.equals("Ready")) {
+            alertMsg = "Book added to cart!\n"
+                    + "Serial No: CART-" + newId + "\n"
+                    + "Must be collected by: " + expiryStr;
+        } else {
+            alertMsg = "Book added to cart!\n"
+                    + "Serial No: CART-" + newId + "\n"
+                    + "Status: Waiting — expiry will be set when the book becomes available.";
+        }
+
+        showAlert("Success", alertMsg, Alert.AlertType.INFORMATION);
     }
 
     // ─────────────────────────────────────────────────────────────
     //  CLEAR
     // ─────────────────────────────────────────────────────────────
-    private void clearBookFields() {
+    // Clears only the book info display — does NOT touch the search field
+    private void clearBookInfo() {
         selectedBook = null;
-        bookSearchField.clear();
         bookName.setText("-");
         bookAuthor.setText("-");
         bookPublisher.setText("-");
         availability.setText("-");
+    }
+
+    // Full reset including the search field — used on Cancel and after successful add
+    private void clearBookFields() {
+        bookSearchField.clear();
+        clearBookInfo();
     }
 
     @FXML private void cancel(ActionEvent event) { clearBookFields(); }

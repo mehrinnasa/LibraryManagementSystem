@@ -40,6 +40,7 @@ public class AllIssuedBooksController {
     private static final String CART_CSV    = "addToCart.csv";
 
     private IssuedBook selectedBook;
+    private ObservableList<IssuedBook> allBooks; // field so submitBook can reload it
 
     // ─────────────────────────────────────────────────────────────
     //  INIT
@@ -59,7 +60,7 @@ public class AllIssuedBooksController {
         dueDateCol.setCellValueFactory(d -> d.getValue().returnDateProperty());
         lateFeeCol.setCellValueFactory(d -> d.getValue().lateFeeProperty());
 
-        ObservableList<IssuedBook> allBooks = loadIssuedBooks();
+        allBooks = loadIssuedBooks();
         returnTable.setItems(allBooks);
 
         returnTable.getSelectionModel().selectedItemProperty()
@@ -77,7 +78,12 @@ public class AllIssuedBooksController {
             String query = newVal.trim().toLowerCase();
             ObservableList<IssuedBook> filtered = FXCollections.observableArrayList();
             for (IssuedBook book : allBooks) {
-                if (book.getStudentName().toLowerCase().contains(query)) filtered.add(book);
+                if (book.getStudentName().toLowerCase().contains(query)
+                        || book.getStudentId().toLowerCase().contains(query)
+                        || book.getBookId().toLowerCase().contains(query)
+                        || getBookTitle(book.getBookId()).toLowerCase().contains(query)) {
+                    filtered.add(book);
+                }
             }
             if (!filtered.isEmpty()) { populateInfo(filtered.get(0)); selectedBook = filtered.get(0); }
             else { clearInfo(); selectedBook = null; }
@@ -136,15 +142,39 @@ public class AllIssuedBooksController {
 
     // ─────────────────────────────────────────────────────────────
     //  LOAD ISSUED BOOKS
+    //  For CART- rows: pull expiry date from addToCart.csv so the
+    //  "Return Date" column shows the cart expiry, not "N/A"
     // ─────────────────────────────────────────────────────────────
     private ObservableList<IssuedBook> loadIssuedBooks() {
         ObservableList<IssuedBook> list = FXCollections.observableArrayList();
         for (String line : FileUtil.readFile(ISSUED_FILE)) {
             String[] p = line.split(",", -1);
             if (p.length != 7) continue;
-            boolean pending = p[4].equalsIgnoreCase("N/A") || p[0].startsWith("CART-");
-            String  fee     = pending ? "0" : calculateLateFee(p[5]);
-            list.add(new IssuedBook(p[0], p[1], p[2], p[3], p[4], p[5], fee));
+
+            boolean pending    = p[4].equalsIgnoreCase("N/A") || p[0].startsWith("CART-");
+            String  returnDate = p[5];
+
+            if (pending) {
+                String serial = p[0].startsWith("CART-") ? p[0].substring(5) : "";
+                if (!serial.isEmpty()) {
+                    for (String cartLine : FileUtil.readFile(CART_CSV)) {
+                        String[] c = cartLine.split(",", -1);
+                        // addToCart: p[0]=Serial, p[6]=ExpiryDate, p[7]=Status
+                        if (c.length > 7 && c[0].trim().equals(serial)) {
+                            String cartStatus = c[7].trim();
+                            if (cartStatus.equalsIgnoreCase("Ready")) {
+                                returnDate = c[6].trim(); // 2-day window active
+                            } else {
+                                returnDate = "Waiting";   // book not available yet
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            String fee = pending ? "0" : calculateLateFee(returnDate);
+            list.add(new IssuedBook(p[0], p[1], p[2], p[3], p[4], returnDate, fee));
         }
         return list;
     }
@@ -176,7 +206,7 @@ public class AllIssuedBooksController {
         if (studentIdInfo   != null) studentIdInfo.setText(book.getStudentId());
         if (studentNameInfo != null) studentNameInfo.setText(book.getStudentName());
         String fee = isPending(book) ? "0" : calculateLateFee(book.getReturnDate());
-        if (lateFeeField != null) lateFeeField.setText(fee);
+        if (lateFeeField    != null) lateFeeField.setText(fee.equals("0") ? "No late fee" : fee + " Tk");
         book.lateFeeProperty().set(fee);
     }
 
@@ -203,7 +233,10 @@ public class AllIssuedBooksController {
                 updateLateFeeInCSV(selectedBook);
                 removeIssuedEntry();
                 increaseRemainingBook();
-                returnTable.getItems().remove(selectedBook);
+
+                // Reload from disk so Waiting→Ready change shows immediately
+                allBooks = loadIssuedBooks();
+                returnTable.setItems(allBooks);
                 clearInfo();
                 showAlert(Alert.AlertType.INFORMATION, "Success",
                         "Book returned. Late fee: " + fee + " Tk");
@@ -265,14 +298,55 @@ public class AllIssuedBooksController {
         List<String> updated = new ArrayList<>();
         for (String line : books) {
             String[] p = line.split(",", -1);
-            if (p[0].equalsIgnoreCase(selectedBook.getBookId())) {
-                p[6] = String.valueOf(Integer.parseInt(p[6]) + 1);
-                p[8] = "Available";
+            if (p.length >= 8 && p[0].equalsIgnoreCase(selectedBook.getBookId())) {
+                p[6] = String.valueOf(Integer.parseInt(p[6].trim()) + 1);
+                p[7] = "Available";
             }
             updated.add(String.join(",", p));
         }
         FileUtil.writeFile("books.csv", updated,
-                "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Section,Availability");
+                "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF");
+
+        // If any student is Waiting for this book, set them to Ready with 2-day expiry
+        activateWaitingCartEntry(selectedBook.getBookId());
+    }
+
+    /**
+     * Finds the first "Waiting" cart entry for the given bookIsbn,
+     * sets its status to "Ready" and expiry to today + 2 days.
+     * addToCart.csv: Serial,StudentID,StudentName,BookISBN,BookName,RequestDate,ExpiryDate,Status
+     */
+    private void activateWaitingCartEntry(String bookIsbn) {
+        java.io.File cartFile = new java.io.File("data/" + CART_CSV);
+        if (!cartFile.exists()) return;
+
+        List<String> lines = new ArrayList<>();
+        boolean updated = false;
+
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(cartFile))) {
+            String line;
+            boolean firstLine = true;
+            while ((line = br.readLine()) != null) {
+                if (firstLine) { lines.add(line); firstLine = false; continue; }
+                String[] c = line.split(",", -1);
+                // p[3]=BookISBN, p[7]=Status — only update first Waiting entry
+                if (!updated && c.length > 7
+                        && c[3].trim().equalsIgnoreCase(bookIsbn)
+                        && c[7].trim().equalsIgnoreCase("Waiting")) {
+                    c[6] = LocalDate.now().plusDays(2).toString(); // new expiry
+                    c[7] = "Ready";
+                    updated = true;
+                }
+                lines.add(String.join(",", c));
+            }
+        } catch (Exception e) { return; }
+
+        if (!updated) return;
+
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(cartFile, false))) {
+            for (String l : lines) { bw.write(l); bw.newLine(); }
+            bw.flush();
+        } catch (Exception ignored) {}
     }
 
     // ─────────────────────────────────────────────────────────────
