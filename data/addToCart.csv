@@ -2,3 +2,9 @@ Serial,StudentID,StudentName,BookISBN,BookName,RequestDate,ExpiryDate,Status
 2,2303008,Mehrin Nasa Mom,9780073523323,Database System Concepts,2026-03-17,N/A,Waiting
 3,2303008,Mehrin Nasa Mom,9780072467606,C PROGRAMMING TUTORIAL,2026-04-05,2026-04-07,Ready
 4,2303007,Maisum Maliha,9780132122715,Signals & Systems,2026-04-05,2026-04-07,Ready
+5,2303008,Mehrin Nasa Mom,9780073375999,Machine Book,2026-04-06,2026-04-08,Ready
+6,2303008,Mehrin Nasa Mom,9788131706114,Introductory Circuit Analysis,2026-04-06,2026-04-08,Ready
+7,2303008,Mehrin Nasa Mom,9780070599987,Chemistry for Engineers,2026-04-06,2026-04-08,Ready
+8,2303011,Md. Farhan Masud,9780132122715,Signals & Systems,2026-04-06,2026-04-08,Ready
+9,2303011,Md. Farhan Masud,9789332581527,Solution of Fundamentals of Electric Circuits,2026-04-06,2026-04-08,Ready
+10,2303011,Md. Farhan Masud,9780133591920,Fundamentals of Electric Circuits,2026-04-06,2026-04-08,Ready

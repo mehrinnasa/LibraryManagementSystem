@@ -234,12 +234,21 @@ public class AllIssuedBooksController {
                 removeIssuedEntry();
                 increaseRemainingBook();
 
+                // If late fee >= 150 Tk, restrict student for 2 months
+                long feeAmount = 0;
+                try { feeAmount = Long.parseLong(fee); } catch (Exception ignored) {}
+                if (feeAmount >= 150) {
+                    CartExpiryUtil.saveLateRestriction(selectedBook.getStudentId(),
+                            LocalDate.now().plusMonths(2));
+                }
+
                 // Reload from disk so Waiting→Ready change shows immediately
                 allBooks = loadIssuedBooks();
                 returnTable.setItems(allBooks);
                 clearInfo();
                 showAlert(Alert.AlertType.INFORMATION, "Success",
-                        "Book returned. Late fee: " + fee + " Tk");
+                        "Book returned. Late fee: " + fee + " Tk"
+                                + (feeAmount >= 150 ? "\n⚠ Student restricted for 2 months due to excessive late fee." : ""));
             } catch (IOException e) {
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to update files");
             }
@@ -305,7 +314,7 @@ public class AllIssuedBooksController {
             updated.add(String.join(",", p));
         }
         FileUtil.writeFile("books.csv", updated,
-                "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF");
+                "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,Department,PDF");
 
         // If any student is Waiting for this book, set them to Ready with 2-day expiry
         activateWaitingCartEntry(selectedBook.getBookId());
@@ -352,6 +361,31 @@ public class AllIssuedBooksController {
     // ─────────────────────────────────────────────────────────────
     //  HELPERS
     // ─────────────────────────────────────────────────────────────
+    /** Writes/updates a 2-month late restriction for the student. */
+    private void writeLateRestriction(String studentId, LocalDate until) {
+        java.io.File f = new java.io.File("data/lateRestrictions.csv");
+        List<String> lines = new ArrayList<>();
+        boolean found = false;
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(f))) {
+            String line;
+            boolean first = true;
+            while ((line = br.readLine()) != null) {
+                if (first) { lines.add(line); first = false; continue; }
+                String[] p = line.split(",", -1);
+                if (p.length > 0 && p[0].trim().equalsIgnoreCase(studentId)) {
+                    lines.add(studentId + "," + until);
+                    found = true;
+                } else { lines.add(line); }
+            }
+        } catch (Exception ignored) {
+            lines.add("StudentID,RestrictedUntil");
+        }
+        if (!found) lines.add(studentId + "," + until);
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(f, false))) {
+            for (String l : lines) { bw.write(l); bw.newLine(); }
+        } catch (Exception ignored) {}
+    }
+
     private boolean isPending(IssuedBook book) {
         return book.getIssuedDate().equalsIgnoreCase("N/A")
                 || book.getReturnDate().equalsIgnoreCase("N/A")
@@ -364,7 +398,9 @@ public class AllIssuedBooksController {
             LocalDate dueDate = LocalDate.parse(dueDateStr);
             LocalDate today   = LocalDate.now();
             if (today.isAfter(dueDate)) {
-                return String.valueOf(ChronoUnit.DAYS.between(dueDate, today) * 5);
+                long fee = ChronoUnit.DAYS.between(dueDate, today) * 5;
+                if (fee >= 150) fee += 300; // excess penalty for 30+ days overdue
+                return String.valueOf(fee);
             }
         } catch (Exception ignored) {}
         return "0";

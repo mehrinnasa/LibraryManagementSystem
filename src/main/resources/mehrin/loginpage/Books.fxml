@@ -76,15 +76,15 @@
 
                 <TableView fx:id="booksTable" styleClass="data-table" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="bookId"         text="Book ID" />
-                        <TableColumn fx:id="title"          text="Title" />
-                        <TableColumn fx:id="author"         text="Author" />
-                        <TableColumn fx:id="status"         text="Status" />
-                        <TableColumn fx:id="publisher"      text="Publisher" />
-                        <TableColumn fx:id="edition"        text="Edition" />
-                        <TableColumn fx:id="quantity"       text="Quantity" />
-                        <TableColumn fx:id="remainingBooks" text="Remaining Books" />
-                        <TableColumn fx:id="pdfCol"         text="PDF" />
+                        <TableColumn fx:id="bookId" text="Book ID" />
+                        <TableColumn fx:id="title" text="Title" />
+                        <TableColumn fx:id="author" text="Author" />
+                        <TableColumn fx:id="status" text="Status" />
+                        <TableColumn fx:id="publisher" text="Publisher" />
+                        <TableColumn fx:id="edition" text="Edition" />
+                        <TableColumn fx:id="quantity" text="Quantity" />
+                        <TableColumn fx:id="remainingBooks" text="Remaining" />
+                        <TableColumn fx:id="pdfCol" text="PDF" />
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -135,7 +135,7 @@
 
                     <VBox spacing="6">
                         <Label text="Status" />
-                        <ComboBox fx:id="statusComboBox" prefWidth="290" />
+                        <ComboBox fx:id="statusComboBox" prefHeight="26.0" prefWidth="119.0" />
                     </VBox>
                 </VBox>
 
@@ -143,7 +143,7 @@
 
                 <HBox spacing="10">
                     <Button maxWidth="Infinity" onAction="#handleCancel" text="Cancel" HBox.hgrow="ALWAYS" />
-                    <Button maxWidth="Infinity" onAction="#handleSave"   text="Save"   HBox.hgrow="ALWAYS" />
+                    <Button maxWidth="Infinity" onAction="#handleSave" text="Save" HBox.hgrow="ALWAYS" />
                 </HBox>
             </VBox>
 

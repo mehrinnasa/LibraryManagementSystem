@@ -125,6 +125,17 @@ public class StudentAddToCartController {
             return;
         }
 
+        // Check if this student is restricted from adding THIS book to cart
+        java.time.LocalDate restrictedUntil =
+                CartExpiryUtil.getRestrictionExpiry(loggedInStudent.getStudentId(), selectedBook.getIsbn());
+        if (restrictedUntil != null) {
+            showAlert("Restricted",
+                    "You did not collect this book on time when it was reserved for you.\n"
+                            + "You cannot add this book to cart until: " + restrictedUntil,
+                    Alert.AlertType.WARNING);
+            return;
+        }
+
         // p[0]=Serial, p[1]=StudentID, p[3]=BookISBN, p[6]=ExpiryDate, p[7]=Status
         String myCartExpiry    = null;
         boolean waitingByOther = false; // someone else has it as "Waiting" (book not available yet)

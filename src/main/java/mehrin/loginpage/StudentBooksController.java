@@ -31,7 +31,10 @@ public class StudentBooksController implements Initializable {
     @FXML private TextField        bookIdField;
     @FXML private TextField        bookTitleField;
     @FXML private TextField        authorField;
-    @FXML private ComboBox<String> statusComboBox;
+    @FXML private TextField        publisherField;
+    @FXML private TextField        editionField;
+    @FXML private TextField        quantityField;
+    @FXML private TextField        statusField;
 
     private final ObservableList<Book> booksList = FXCollections.observableArrayList();
     private BookService bookService;
@@ -40,7 +43,7 @@ public class StudentBooksController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         bookService = new BookService();
 
-        statusComboBox.setItems(FXCollections.observableArrayList("Available", "Not Available"));
+        //statusField.setText(String.valueOf(FXCollections.observableArrayList("Available", "Not Available")));
 
         bookId.setCellValueFactory(d        -> new javafx.beans.property.SimpleStringProperty(d.getValue().getIsbn()));
         title.setCellValueFactory(d         -> new javafx.beans.property.SimpleStringProperty(d.getValue().getTitle()));
@@ -118,7 +121,10 @@ public class StudentBooksController implements Initializable {
                 bookIdField.setText(book.getIsbn());
                 bookTitleField.setText(book.getTitle());
                 authorField.setText(book.getAuthor());
-                statusComboBox.setValue(book.getAvailability());
+                publisherField.setText(book.getPublisher());
+                editionField.setText(String.valueOf(book.getEdition()));
+                quantityField.setText(String.valueOf(book.getQuantity()));
+                statusField.setText(book.getAvailability());
             }
         });
     }
@@ -129,7 +135,7 @@ public class StudentBooksController implements Initializable {
 
     private void clearForm() {
         bookIdField.clear(); bookTitleField.clear();
-        authorField.clear(); statusComboBox.setValue(null);
+        authorField.clear(); statusField.setText(null);
     }
 
     // ================= NAVIGATION =================

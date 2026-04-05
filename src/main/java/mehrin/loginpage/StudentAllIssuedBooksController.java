@@ -190,8 +190,9 @@ public class StudentAllIssuedBooksController {
             LocalDate due   = LocalDate.parse(dueDateStr);
             LocalDate today = LocalDate.now();
             if (today.isAfter(due)) {
-                long daysLate = ChronoUnit.DAYS.between(due, today);
-                return String.valueOf(daysLate * 5);
+                long fee = ChronoUnit.DAYS.between(due, today) * 5;
+                if (fee >= 150) fee += 300; // excess penalty for 30+ days overdue
+                return String.valueOf(fee);
             }
         } catch (Exception ignored) {}
         return "0";
@@ -220,7 +221,7 @@ public class StudentAllIssuedBooksController {
     // ─────────────────────────────────────────────────────────────
     @FXML private void loadHomePanel(ActionEvent e)          { new LoadStage("/mehrin/loginpage/StudentDashboard.fxml",      (Node)e.getSource(), true); }
     @FXML private void loadBooksPanel(ActionEvent e)         { new LoadStage("/mehrin/loginpage/StudentBooks.fxml",          (Node)e.getSource(), true); }
-    @FXML private void loadAddToCartBooksPanel(ActionEvent e){ new LoadStage("/mehrin/loginpage/StudentAddToCart.fxml",    (Node)e.getSource(), true); }
+    @FXML private void loadAddToCartBooksPanel(ActionEvent e){ new LoadStage("/mehrin/loginpage/StudentAddToCart.fxml", (Node)e.getSource(), true); }
     @FXML private void loadAllIssuedBooks(ActionEvent e)     { new LoadStage("/mehrin/loginpage/StudentAllIssuedBooks.fxml", (Node)e.getSource(), true); }
     @FXML private void loadAnnouncementPanel(ActionEvent e)  { new LoadStage("/mehrin/loginpage/StudentAnnouncement.fxml",   (Node)e.getSource(), true); }
     @FXML private void loadClearancePanel(ActionEvent e)     { new LoadStage("/mehrin/loginpage/StudentClearance.fxml",      (Node)e.getSource(), true); }

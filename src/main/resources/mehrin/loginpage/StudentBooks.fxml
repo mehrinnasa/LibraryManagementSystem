@@ -75,7 +75,7 @@
                         <TableColumn fx:id="publisher" text="Publisher" />
                         <TableColumn fx:id="edition" text="Edition" />
                         <TableColumn fx:id="quantity" text="Quantity" />
-                        <TableColumn fx:id="remainingBooks" text="Remaining Books" />
+                        <TableColumn fx:id="remainingBooks" text="Remaining" />
                         <TableColumn fx:id="pdfCol" text="PDF" />
 
                     </columns>
@@ -87,41 +87,53 @@
             </VBox>
 
             <!-- ===== BOOK INFO PANEL ===== -->
-            <VBox prefWidth="350" spacing="20" styleClass="info-panel">
+            <VBox prefWidth="350" spacing="12" styleClass="info-panel">
                 <padding>
-                    <Insets bottom="30" left="30" right="30" top="30" />
+                    <Insets bottom="20" left="30" right="30" top="20" />
                 </padding>
 
                 <Label styleClass="panel-title" text="Book information">
-                    <font>
-                        <Font name="System Bold" size="18" />
-                    </font>
+                    <font><Font name="System Bold" size="18" /></font>
                 </Label>
 
-                <VBox spacing="15">
-                    <VBox spacing="8">
+                <VBox spacing="10">
+                    <VBox spacing="6">
                         <Label text="Book ID" />
                         <TextField fx:id="bookIdField" />
                     </VBox>
 
-                    <VBox spacing="8">
-                        <Label text="Book title" />
+                    <VBox spacing="6">
+                        <Label text="Book Title" />
                         <TextField fx:id="bookTitleField" />
                     </VBox>
 
-                    <VBox spacing="8">
+                    <VBox spacing="6">
                         <Label text="Author" />
                         <TextField fx:id="authorField" />
                     </VBox>
 
-                    <VBox spacing="8">
+                    <VBox spacing="6">
+                        <Label text="Publisher" />
+                        <TextField fx:id="publisherField" />
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="Edition" />
+                        <TextField fx:id="editionField" promptText="e.g. 3" />
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="Quantity" />
+                        <TextField fx:id="quantityField" promptText="e.g. 10" />
+                    </VBox>
+
+                    <VBox spacing="6">
                         <Label text="Status" />
-                        <ComboBox fx:id="statusComboBox" />
+                        <TextField fx:id="statusField" prefWidth="290" />
                     </VBox>
                 </VBox>
 
                 <Region VBox.vgrow="ALWAYS" />
-
                 <HBox spacing="10">
                     <Button onAction="#handleCancel" prefHeight="26.0" prefWidth="64.0" text="Cancel" HBox.hgrow="ALWAYS" />
                 </HBox>
