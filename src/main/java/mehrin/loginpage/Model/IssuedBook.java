@@ -13,9 +13,7 @@ public class IssuedBook {
     private StringProperty returnDate;
     private StringProperty lateFee;
 
-    public IssuedBook(String issuedId, String bookId,
-                      String studentId, String studentName,
-                      String issuedDate, String returnDate, String lateFee) {
+    public IssuedBook(String issuedId, String bookId, String studentId, String studentName, String issuedDate, String returnDate, String lateFee) {
 
         this.issuedId = new SimpleStringProperty(issuedId);
         this.bookId = new SimpleStringProperty(bookId);

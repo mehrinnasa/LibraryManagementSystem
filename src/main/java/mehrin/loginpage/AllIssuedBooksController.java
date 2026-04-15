@@ -314,7 +314,7 @@ public class AllIssuedBooksController {
             updated.add(String.join(",", p));
         }
         FileUtil.writeFile("books.csv", updated,
-                "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,Department,PDF");
+                "ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF");
 
         // If any student is Waiting for this book, set them to Ready with 2-day expiry
         activateWaitingCartEntry(selectedBook.getBookId());

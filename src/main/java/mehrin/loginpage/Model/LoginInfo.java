@@ -15,7 +15,6 @@ public class LoginInfo {
         this.status = status;
     }
 
-    // Getters
     public String getUsername() {
         return username;
     }
@@ -29,6 +28,7 @@ public class LoginInfo {
     }
 
     public String getUserType() {
+
         return userType;
     }
 
@@ -36,7 +36,6 @@ public class LoginInfo {
         return status;
     }
 
-    // Setters
     public void setUsername(String username) {
         this.username = username;
     }
