@@ -7,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import mehrin.loginpage.Model.Student;
 import mehrin.loginpage.Service.StudentService;
@@ -15,11 +14,8 @@ import mehrin.loginpage.Util.FileUtil;
 import java.util.Map;
 import java.net.URL;
 import java.util.ResourceBundle;
-import mehrin.loginpage.Service.CartService;
 
 public class StudentDashboardController implements Initializable {
-
-    // ================= STUDENT INFO LABELS =================
     @FXML private Label nameLabel;
     @FXML private Label rollLabel;
     @FXML private Label regLabel;
@@ -27,61 +23,68 @@ public class StudentDashboardController implements Initializable {
     @FXML private Label yearLabel;
     @FXML private Label semesterLabel;
     @FXML private Label contactLabel;
-
-    // ================= DASHBOARD STATS =================
     @FXML private Label totalBooksLabel;
     @FXML private Label issuedBooksLabel;
-
     @FXML private VBox chartContainer;
-
-    private String currentStudentId;
+    private String StudentId;
     private StudentService studentService;
-
-    // Static variable to store student ID between page loads
     private static String staticStudentId;
-
-    // ================= INITIALIZE =================
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-
-        CartService.cleanExpiredCarts();
-        //System.out.println("StudentDashboardController initialized");
-        studentService = new StudentService();
-
-        // If student ID was set via static variable, use it
-        if (staticStudentId != null && !staticStudentId.isEmpty()) {
-           // System.out.println("Loading student ID from static: " + staticStudentId);
-            setCurrentStudentId(staticStudentId);
-        }
-
-        setupStats();
-        setupPieChart();
-        FileUtil.syncBooksWithIssuedBooks();
+    @FXML private void loadHomePanel(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        new LoadStage("/mehrin/loginpage/StudentDashboard.fxml", node, true);
     }
 
-    // ================= SET CURRENT STUDENT ID =================
-    public void setCurrentStudentId(String studentId) {
-        //System.out.println("setCurrentStudentId called with: " + studentId);
-        this.currentStudentId = studentId;
-        staticStudentId = studentId; // Store in static variable
+    @FXML private void loadBooksPanel(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        new LoadStage("/mehrin/loginpage/StudentBooks.fxml", node, true);
+    }
 
-        // Call loadStudentInfo after student ID is set
-        if (studentService == null) {
-            studentService = new StudentService();
+    @FXML private void loadAddToCartPanel(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        new LoadStage("/mehrin/loginpage/StudentAddToCart.fxml", node, true);
+    }
+
+    @FXML private void loadAllIssuedBooks(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        new LoadStage("/mehrin/loginpage/StudentAllIssuedBooks.fxml", node, true);
+    }
+
+    @FXML private void AnnouncementPanel(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        new LoadStage("/mehrin/loginpage/StudentAnnouncement.fxml", node, true);
+    }
+
+    @FXML private void loadClearancePanel(ActionEvent event) {
+        Node node = (Node) event.getSource();
+        new LoadStage("/mehrin/loginpage/StudentClearance.fxml", node, true);
+    }
+
+    @FXML private void logout(ActionEvent event) {
+        staticStudentId = null; // Clear student ID on logout
+        Node node = (Node) event.getSource();
+        new LoadStage("/mehrin/loginpage/Login.fxml", node, true);
+    }
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        studentService=new StudentService();
+        if (staticStudentId!=null && !staticStudentId.isEmpty()) {
+            setStudentId(staticStudentId);
+        }
+        setHeader();
+        setPieChart();
+        FileUtil.syncBooks();
+    }
+
+    public void setStudentId(String studentId) {
+        this.StudentId=studentId;
+        staticStudentId=studentId; //static variable এ store করলে dynamically use করা যাবে reload করলেও
+        if (studentService==null) {
+            studentService=new StudentService();
         }
         loadStudentInfo();
     }
-
-    // ================= GET CURRENT STUDENT ID =================
-    public String getCurrentStudentId() {
-        return currentStudentId;
-    }
-
-    // ================= LOAD STUDENT INFO =================
     private void loadStudentInfo() {
-        //System.out.println("loadStudentInfo called, currentStudentId: " + currentStudentId);
-
-        if (currentStudentId == null || currentStudentId.isEmpty()) {
+        if (StudentId==null || StudentId.isEmpty()) {
             nameLabel.setText("N/A");
             rollLabel.setText("N/A");
             regLabel.setText("N/A");
@@ -91,9 +94,7 @@ public class StudentDashboardController implements Initializable {
             contactLabel.setText("N/A");
             return;
         }
-
-        Student student = studentService.getStudentById(currentStudentId);
-
+        Student student = studentService.getStudentById(StudentId);
         if (student != null) {
             nameLabel.setText(student.getName());
             rollLabel.setText(student.getStudentId());
@@ -103,91 +104,35 @@ public class StudentDashboardController implements Initializable {
             semesterLabel.setText(student.getSemester());
             contactLabel.setText(student.getPhone());
         } else {
-            nameLabel.setText("Student not found");
-            rollLabel.setText("N/A");
-            regLabel.setText("N/A");
-            sessionLabel.setText("N/A");
-            yearLabel.setText("N/A");
-            semesterLabel.setText("N/A");
-            contactLabel.setText("N/A");
+            nameLabel.setText("Not found");
+            rollLabel.setText("Not found");
+            regLabel.setText("Not found");
+            sessionLabel.setText("Not found");
+            yearLabel.setText("Not found");
+            semesterLabel.setText("Not found");
+            contactLabel.setText("Not found");
         }
     }
-
-    // ================= LOAD STATS =================
-    private void setupStats() {
+    private void setHeader() {
         int totalBooks = FileUtil.getTotalBooks();
-        int issuedBooks = FileUtil.getIssuedBooksFromIssueFile();
+        int issuedBooks = FileUtil.getIssuedBooks();
         totalBooksLabel.setText(String.valueOf(totalBooks));
         issuedBooksLabel.setText(String.valueOf(issuedBooks));
     }
-
-    // ================= PIE CHART =================
-    private void setupPieChart() {
-        Map<String, Integer> statusCount = FileUtil.getBookStatusCount();
-
-        PieChart pieChart = new PieChart();
-
-        pieChart.getData().addAll(
-                new PieChart.Data("Available", statusCount.get("Available")),
-                new PieChart.Data("Issued", statusCount.get("Issued"))
+    private void setPieChart() {
+        Map<String, Integer> status = FileUtil.BookStatusCount();
+        PieChart pie = new PieChart();
+        pie.getData().addAll(
+                new PieChart.Data("Available", status.get("Available")),
+                new PieChart.Data("Issued", status.get("Issued"))
         );
-
-        pieChart.setPrefSize(460, 460);
-        pieChart.setMinSize(460, 460);
-        pieChart.setMaxSize(460, 460);
-
-        pieChart.setLegendVisible(true);
-        pieChart.setLabelsVisible(true);
-        pieChart.setTitle(null);
-
-        VBox.setVgrow(pieChart, Priority.NEVER);
-
+        pie.setPrefSize(460, 460);
+        pie.setMinSize(460, 460);
+        pie.setMaxSize(460, 460);
+        pie.setLabelsVisible(true);
+        pie.setTitle(null);
         chartContainer.getChildren().clear();
         chartContainer.setAlignment(Pos.CENTER);
-        chartContainer.getChildren().add(pieChart);
-    }
-
-    // ================= SIDEBAR NAVIGATION =================
-    @FXML
-    private void loadHomePanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/StudentDashboard.fxml", node, true);
-    }
-
-    @FXML
-    private void loadBooksPanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/StudentBooks.fxml", node, true);
-    }
-
-    @FXML
-    private void loadAddToCartBooksPanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/StudentAddToCart.fxml", node, true);
-    }
-
-    @FXML
-    private void loadAllIssuedBooks(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/StudentAllIssuedBooks.fxml", node, true);
-    }
-
-    @FXML
-    private void loadAnnouncementPanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/StudentAnnouncement.fxml", node, true);
-    }
-
-    @FXML
-    private void loadClearancePanel(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/StudentClearance.fxml", node, true);
-    }
-
-    @FXML
-    private void logout(ActionEvent event) {
-        staticStudentId = null; // Clear student ID on logout
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Login.fxml", node, true);
+        chartContainer.getChildren().add(pie);
     }
 }

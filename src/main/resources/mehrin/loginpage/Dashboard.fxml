@@ -34,11 +34,11 @@
                <font><Font size="14" /></font>
            </Button>
 
-           <Button fx:id="announcement" onAction="#loadSendAnnouncementsPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">
+           <Button fx:id="announcement" onAction="#loadAnnouncementsPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Announcement">
                <font><Font size="14" /></font>
            </Button>
 
-           <Button fx:id="export" onAction="#loadExportDataPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export">
+           <Button fx:id="export" onAction="#loadExportPanel" prefHeight="38" prefWidth="137" styleClass="sidebar-button" text="Export">
                <font><Font size="14" /></font>
            </Button>
 

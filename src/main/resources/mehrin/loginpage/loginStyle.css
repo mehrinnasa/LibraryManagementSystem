@@ -1,31 +1,20 @@
-/* ===============================
-   Global background
-   =============================== */
+
 .root {
     -fx-background-color: #E9EEF5;
 }
 
-/* ===============================
-   Main login card
-   =============================== */
 .card {
     -fx-background-color: #DEE1E4;
     -fx-background-radius: 20;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);
 }
 
-/* ===============================
-   Left login section
-   =============================== */
 .login-box {
     -fx-background-color: #FF9FFF;
     -fx-padding: 40;
     -fx-background-radius: 20 0 0 20;
 }
 
-/* ===============================
-   RUET top heading bar
-   =============================== */
 .ruet-top-bar {
     -fx-background-color: #0B2A4A;
     -fx-padding: 10 25;
@@ -38,9 +27,6 @@
     -fx-font-weight: bold;
 }
 
-/* ===============================
-   Buttons
-   =============================== */
 .button {
     -fx-background-color: #2F4F3E;
     -fx-text-fill: white;
@@ -52,9 +38,6 @@
     -fx-background-color: #254034;
 }
 
-/* ===============================
-   Text fields
-   =============================== */
 .text-field, .password-field {
     -fx-background-radius: 6;
 }

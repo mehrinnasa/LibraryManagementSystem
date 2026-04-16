@@ -28,7 +28,7 @@ public class FileUtil {
     }
 
 // ================== ISSUED BOOK COUNT (FROM issueBooks.csv) ==================
-public static int getIssuedBooksFromIssueFile() {
+public static int getIssuedBooks() {
     List<String> lines = readFile("issueBooks.csv");
     return lines.size(); // header already skipped
 }
@@ -113,7 +113,7 @@ public static int getIssuedBooksFromIssueFile() {
         List<String> lines = readFile("students.csv");
         return lines.size();
     }
-    public static Map<String, Integer> getBookStatusCount() {
+    public static Map<String, Integer> BookStatusCount() {
         Map<String, Integer> map = new HashMap<>();
         map.put("Available", 0);
         map.put("Issued", 0);
@@ -138,7 +138,7 @@ public static int getIssuedBooksFromIssueFile() {
     }
 
         // ================== SYNC BOOKS WITH ISSUED BOOKS ==================
-        public static void syncBooksWithIssuedBooks() {
+        public static void syncBooks() {
 
             List<String> issuedLines = readFile("issueBooks.csv");
             Map<String, Integer> issuedCountMap = new HashMap<>();

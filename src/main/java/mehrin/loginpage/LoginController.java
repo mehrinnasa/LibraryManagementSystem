@@ -74,7 +74,7 @@ public class LoginController {
             SessionManager.getInstance().setLoggedInStudentName(studentName);
             LoadStage loadStage=new LoadStage("/mehrin/loginpage/StudentDashboard.fxml", node, true);
             StudentDashboardController controller=(StudentDashboardController) loadStage.getController();
-            controller.setCurrentStudentId(loginInfo.getUsername());
+            controller.setStudentId(loginInfo.getUsername());
         }
 
         else if ("admin".equalsIgnoreCase(loginInfo.getUserType())) {
