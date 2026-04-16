@@ -36,10 +36,10 @@
 
                     <PasswordField fx:id="passwordField" onKeyPressed="#onPasswordKeyPressed" prefHeight="38" promptText="Enter your password" style="-fx-background-radius: 6;                                           -fx-border-radius: 6;                                           -fx-border-color: #ccc;                                           -fx-border-width: 1;                                           -fx-padding: 0 52 0 10;" />
 
-                    <TextField fx:id="passwordVisible" managed="false" onKeyPressed="#onPasswordKeyPressed" prefHeight="38" promptText="Enter your password" style="-fx-background-radius: 6;                                       -fx-border-radius: 6;                                       -fx-border-color: #ccc;                                       -fx-border-width: 1;                                       -fx-padding: 0 52 0 10;" visible="false" />
+                    <TextField fx:id="passwordVisibility" managed="false" onKeyPressed="#onPasswordKeyPressed" prefHeight="38" promptText="Enter your password" style="-fx-background-radius: 6;                                       -fx-border-radius: 6;                                       -fx-border-color: #ccc;                                       -fx-border-width: 1;                                       -fx-padding: 0 52 0 10;" visible="false" />
 
                     <!-- Show / Hide text button -->
-                    <Button fx:id="eyeButton" onAction="#togglePasswordVisibility" style="-fx-background-color: transparent;                                    -fx-border-color: transparent;                                    -fx-text-fill: #2D6A4F;                                    -fx-font-size: 12px;                                    -fx-font-weight: bold;                                    -fx-cursor: hand;                                    -fx-padding: 0 10 0 0;" text="Show" StackPane.alignment="CENTER_RIGHT" />
+                    <Button fx:id="show" onAction="#showOrHide" style="-fx-background-color: transparent;                                    -fx-border-color: transparent;                                    -fx-text-fill: #2D6A4F;                                    -fx-font-size: 12px;                                    -fx-font-weight: bold;                                    -fx-cursor: hand;                                    -fx-padding: 0 10 0 0;" text="Show" StackPane.alignment="CENTER_RIGHT" />
                 </StackPane>
 
                 <!-- Login button -->

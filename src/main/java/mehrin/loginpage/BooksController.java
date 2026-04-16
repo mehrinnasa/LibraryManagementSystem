@@ -95,7 +95,6 @@ public class BooksController implements Initializable {
         setupTableClick();
     }
 
-    // ── Opens a Google Drive URL in the default browser ─────────
     private void openUrl(String url) {
         try {
             Desktop.getDesktop().browse(new URI(url));

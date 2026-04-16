@@ -1,16 +1,16 @@
 ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF
 9789351344216,Discrete Mathematical Structures,Bernard Kolman,Pearson,6,3,2,Available,https://drive.google.com/file/d/1VTPlNFNlc5PonquL6JWmXyisNlXS3HSw/view
 9789351344211,Programming in ANSI,Balagirishami,Balagirishami,3,4,4,Available,https://drive.google.com/file/d/17YzkyFdNuRpoYSkCxB-fEEvADPIWDGHK/view
-9780072467606,C PROGRAMMING TUTORIAL,N/A,Tutorialspoint,1,1,0,Not Available,https://drive.google.com/file/d/17jKMh2bMEOBHtloWedOqu3oA3zwEIJRi/view?usp=sharing
+9780072467606,C PROGRAMMING TUTORIAL,N/A,Tutorialspoint,1,1,1,Available,https://drive.google.com/file/d/17jKMh2bMEOBHtloWedOqu3oA3zwEIJRi/view?usp=sharing
 9780124077269,Introduction To Computers,Peter Norton,SE,6,3,3,Available,https://drive.google.com/file/d/17QJ1ySUbhvQBvcXUztDpbPmXEmejXeOZ/view
 9781118063110,C The Complete Reference,Herbert Schildt,Herbert Schildt,4,5,5,Available,https://drive.google.com/file/d/17_9CviOOzU2ZFgwSrwwwrouclekmo3eU/view
 9780133591920,Fundamentals of Electric Circuits,Charles E Harris,Charles E Harris,4,5,5,Available,https://drive.google.com/file/d/1NRE3gWjmDixyT5sNSzzdpuwkuOREVm5x/view
 9780073523322,Theory and Problems of Electric Circuits,Schaum's,Schaum's,4,3,3,Available,https://drive.google.com/file/d/1LYyBhCkYjUjJNILdu7gmh-g_c2KQ00qL/view
-9788131706114,Introductory Circuit Analysis,Robert L. Boylestad,Robert L. Boylestad,4,6,5,Available,https://drive.google.com/file/d/1LPmGS9grFVgr6dI-GHckxw9eHWOgy5Ye/view
-9780132122715,Signals & Systems,HWEI P. HSU,HWEI P. HSU,6,2,1,Available,https://drive.google.com/file/d/1LPQDMZibEqC7BfTPxv2JcjFv7qPngas8/view
+9788131706114,Introductory Circuit Analysis,Robert L. Boylestad,Robert L. Boylestad,4,6,6,Available,https://drive.google.com/file/d/1LPmGS9grFVgr6dI-GHckxw9eHWOgy5Ye/view
+9780132122715,Signals & Systems,HWEI P. HSU,HWEI P. HSU,6,2,2,Available,https://drive.google.com/file/d/1LPQDMZibEqC7BfTPxv2JcjFv7qPngas8/view
 9789332581527,Solution of Fundamentals of Electric Circuits,Herbert Schildt,Herbert Schildt,4,5,5,Available,https://drive.google.com/file/d/1Mo6kpgJ7jOF89NAGYv3NWISYrjee0D7F/view
 9780078020127,Discrete Mathematical & Its Application,Kenneth H. Rosen,MC Graw Hill,8,6,6,Available,https://drive.google.com/file/d/1-Fy-SjBkLLuS7eKKSGl4ZNNdxqyNQDNM/view
-9780073375999,Machine Book,Stephen J. Chapman,Stephen J. Chapman,5,6,5,Available,https://drive.google.com/file/d/1DL5grDSRnToVIMzF7rIA2fN07i2tobe_/view
+9780073375999,Machine Book,Stephen J. Chapman,Stephen J. Chapman,5,6,6,Available,https://drive.google.com/file/d/1DL5grDSRnToVIMzF7rIA2fN07i2tobe_/view
 9788131707921,A Textbook of Electrical Technology,B.L Thereja,S.L System,1,3,3,Available,https://drive.google.com/file/d/1nP2eaazDFbQUIokM5WBnMIwFOKuELvT5/view
 9780470458875,Principles of Economics,Case Fair Oster,Moon,10,4,4,Available,https://drive.google.com/file/d/1e6UZVAsa0xwCPYDgczjzUJcNbCC3wTLb/view
 9789332548710,Essentials of Economics,Dirk Mateer,Moon,2016,4,4,Available,https://drive.google.com/file/d/1t6euGVN3YzeAmWlyRwHj6iXm_cSBYUxc/view
@@ -36,7 +36,7 @@ ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF
 9788126515564,Engineering Physics,Gaur and Gupta,Dhanpat Rai,8,3,3,Available
 9788121926402,Applied Physics,A K Jha,PHI,2,3,3,Available
 9788120348984,Engineering Chemistry,Jain and Jain,Dhanpat Rai,15,3,1,Available
-9780070599987,Chemistry for Engineers,B S Bahl,McGrawHill,3,3,2,Available
+9780070599987,Chemistry for Engineers,B S Bahl,McGrawHill,3,3,3,Available
 9788120331764,Textbook of Engineering Chemistry,S S Dara,S Chand,16,3,3,Available
 9789332518587,English for Technical Communication,Meenakshi Raman,Oxford,2,3,2,Available
 9780131982663,Technical Communication,Mike Markel,Pearson,12,3,3,Available

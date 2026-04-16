@@ -12,115 +12,81 @@ import javafx.scene.input.KeyEvent;
 import mehrin.loginpage.Model.LoginInfo;
 import mehrin.loginpage.Util.FileUtil;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 public class LoginController {
-
-    @FXML private TextField     usernameField;
-    @FXML private PasswordField passwordField;      // masked (default)
-    @FXML private TextField     passwordVisible;    // plain text (when shown)
-    @FXML private Button        eyeButton;
-
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+    @FXML private TextField passwordVisibility;
+    @FXML private Button show;
     private boolean passwordShown = false;
-
     private static final String CSV_PATH = "data/loginInfo.csv";
-
-    // ================= SHOW / HIDE TOGGLE =================
+    //hide show button
     @FXML
-    private void togglePasswordVisibility(ActionEvent event) {
+    private void showOrHide(ActionEvent event) {
         passwordShown = !passwordShown;
 
         if (passwordShown) {
-            passwordVisible.setText(passwordField.getText());
-            passwordVisible.setVisible(true);
-            passwordVisible.setManaged(true);
+            passwordVisibility.setText(passwordField.getText());
+            passwordVisibility.setVisible(true);
+            passwordVisibility.setManaged(true);
             passwordField.setVisible(false);
             passwordField.setManaged(false);
-            eyeButton.setText("Hide");
+            show.setText("Hide");
         } else {
-            passwordField.setText(passwordVisible.getText());
+            passwordField.setText(passwordVisibility.getText());
             passwordField.setVisible(true);
             passwordField.setManaged(true);
-            passwordVisible.setVisible(false);
-            passwordVisible.setManaged(false);
-            eyeButton.setText("Show");
+            passwordVisibility.setVisible(false);
+            passwordVisibility.setManaged(false);
+            show.setText("Show");
         }
     }
 
-    /** Returns password from whichever field is currently active */
     private String getCurrentPassword() {
-        return passwordShown
-                ? passwordVisible.getText()
-                : passwordField.getText();
+        return passwordShown ? passwordVisibility.getText() : passwordField.getText();
     }
 
-    // ================= LOGIN =================
+    // login process
     @FXML
     private void handleLogin(ActionEvent event) {
         if (!validateFields()) {
-            new MyAlert(AlertType.INFORMATION, "Validation Error",
-                    "Please enter username/email and password");
+            new MyAlert(AlertType.INFORMATION, "Validation Error", "Please enter username and password");
             return;
         }
         performLogin(event);
     }
 
-    // ================= PERFORM LOGIN =================
     private void performLogin(ActionEvent event) {
 
-        String    username  = usernameField.getText().trim();
-        String    password  = getCurrentPassword();
-        LoginInfo loginInfo = validateCredentials(username, password);
+        String username=usernameField.getText().trim();
+        String password=getCurrentPassword();
+        LoginInfo loginInfo=validateInfo(username, password);
 
-        if (loginInfo == null) {
-            new MyAlert(AlertType.ERROR, "Login Failed",
-                    "Invalid username/email or password");
-            return;
-        }
-
-        if ("Blocked".equalsIgnoreCase(loginInfo.getStatus())) {
-            new MyAlert(AlertType.WARNING, "Account Blocked",
-                    "Your account has been blocked. Please contact administrator.");
+        if (loginInfo==null) {
+            new MyAlert(AlertType.ERROR, "Login Failed", "Invalid username or password");
             return;
         }
 
         Node node = (Node) event.getSource();
 
-        // ── STUDENT ──────────────────────────────────────────
         if ("student".equalsIgnoreCase(loginInfo.getUserType())) {
-
             SessionManager.getInstance().setLoggedInStudentId(loginInfo.getUsername());
-            SessionManager.getInstance().setRole("student");
-
-            String studentName = resolveStudentName(loginInfo.getUsername());
+            String studentName=studentName(loginInfo.getUsername());
             SessionManager.getInstance().setLoggedInStudentName(studentName);
-
-            LoadStage loadStage = new LoadStage(
-                    "/mehrin/loginpage/StudentDashboard.fxml", node, true);
-
-            StudentDashboardController controller =
-                    (StudentDashboardController) loadStage.getController();
+            LoadStage loadStage=new LoadStage("/mehrin/loginpage/StudentDashboard.fxml", node, true);
+            StudentDashboardController controller=(StudentDashboardController) loadStage.getController();
             controller.setCurrentStudentId(loginInfo.getUsername());
         }
 
-        // ── ADMIN ─────────────────────────────────────────────
         else if ("admin".equalsIgnoreCase(loginInfo.getUserType())) {
-            SessionManager.getInstance().setRole("admin");
             new LoadStage("/mehrin/loginpage/Dashboard.fxml", node, true);
         }
 
         else {
-            new MyAlert(AlertType.ERROR, "Error",
-                    "Unknown user type: " + loginInfo.getUserType());
+            new MyAlert(AlertType.ERROR, "Error", "Unknown user type: " + loginInfo.getUserType());
         }
     }
 
-    // ================= RESOLVE STUDENT NAME =================
-    private String resolveStudentName(String studentId) {
+    private String studentName(String studentId) {
         for (String line : FileUtil.readFile("students.csv")) {
             String[] p = line.split(",", -1);
             if (p.length > 1 && p[0].trim().equalsIgnoreCase(studentId)) {
@@ -130,19 +96,20 @@ public class LoginController {
         return studentId;
     }
 
-    // ================= KEYBOARD NAVIGATION =================
     @FXML
     private void onUsernameKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            if (passwordShown) passwordVisible.requestFocus();
-            else               passwordField.requestFocus();
+        if (event.getCode()==KeyCode.ENTER) {
+            if (passwordShown)
+                passwordVisibility.requestFocus();
+            else
+                passwordField.requestFocus();
             event.consume();
         }
     }
 
     @FXML
     private void onPasswordKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
+        if (event.getCode()==KeyCode.ENTER) {
             if (validateFields()) {
                 performLogin(new ActionEvent((Node) event.getSource(), null));
             }
@@ -150,70 +117,24 @@ public class LoginController {
         }
     }
 
-    // ================= VALIDATE CREDENTIALS =================
-    private LoginInfo validateCredentials(String username, String password) {
-
-        String csvFilePath = findCSVPath();
-        if (csvFilePath == null) {
-            new MyAlert(AlertType.ERROR, "File Error", "loginInfo.csv not found.");
-            return null;
-        }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(csvFilePath))) {
-            String  line;
-            boolean isFirstLine = true;
-
-            while ((line = reader.readLine()) != null) {
-                if (isFirstLine) { isFirstLine = false; continue; }
-
-                String[] fields = line.split(",", -1);
-                if (fields.length >= 5) {
-                    String csvUsername = fields[0].trim();
-                    String csvEmail    = fields[1].trim();
-                    String csvPassword = fields[2].trim();
-                    String userType    = fields[3].trim();
-                    String status      = fields[4].trim();
-
-                    if ((csvUsername.equals(username) ||
-                            csvEmail.equalsIgnoreCase(username))
-                            && csvPassword.equals(password)) {
-                        return new LoginInfo(csvUsername, csvEmail,
-                                csvPassword, userType, status);
-                    }
+    private LoginInfo validateInfo(String username, String password) {
+        for (String line : FileUtil.readFile("loginInfo.csv")) {
+            String[] field=line.split(",", -1);
+            if (field.length<5) continue;
+            boolean userNameChecker=field[0].trim().equals(username)||field[1].trim().equalsIgnoreCase(username);
+            boolean  passwordChecker=field[2].trim().equals(password)||field[3].trim().equalsIgnoreCase(password);
+                if (userNameChecker && passwordChecker)
+                        return new LoginInfo(field[0].trim(),field[1].trim(),field[2].trim(),field[3].trim(),field[4].trim());
                 }
-            }
-        } catch (IOException e) {
-            new MyAlert(AlertType.ERROR, "File Error",
-                    "Error reading loginInfo.csv: " + e.getMessage());
-        }
-
         return null;
     }
 
-    // ================= FIND CSV =================
-    private String findCSVPath() {
-        String[] paths = {
-                CSV_PATH,
-                "src/" + CSV_PATH,
-                System.getProperty("user.dir") + "/" + CSV_PATH,
-                System.getProperty("user.dir") + "/src/" + CSV_PATH
-        };
-        for (String path : paths) {
-            if (Files.exists(Paths.get(path))) return path;
-        }
-        return null;
-    }
-
-    // ================= FORGOT PASSWORD =================
     @FXML
     private void changePass(ActionEvent event) {
-        new LoadStage("/mehrin/loginpage/ResetPassword.fxml",
-                (Node) event.getSource(), true);
+        new LoadStage("/mehrin/loginpage/ResetPassword.fxml", (Node) event.getSource(), true);
     }
 
-    // ================= VALIDATION =================
     private boolean validateFields() {
-        return !usernameField.getText().isEmpty()
-                && !getCurrentPassword().isEmpty();
+        return !usernameField.getText().isEmpty() && !getCurrentPassword().isEmpty();
     }
 }
