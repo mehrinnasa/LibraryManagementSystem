@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.beans.property.SimpleStringProperty;
 
 import java.net.URL;
 import java.util.Optional;
@@ -16,7 +17,6 @@ import java.util.ResourceBundle;
 
 public class StudentsController implements Initializable {
 
-    // ================= TABLE =================
     @FXML private TableView<Student> studentsTable;
     @FXML private TableColumn<Student, String> studentIdColumn;
     @FXML private TableColumn<Student, String> nameColumn;
@@ -27,7 +27,6 @@ public class StudentsController implements Initializable {
     @FXML private TableColumn<Student, String> yearColumn;
     @FXML private TableColumn<Student, String> semesterColumn;
 
-    // ================= FORM =================
     @FXML private TextField searchField;
     @FXML private TextField studentIdField;
     @FXML private TextField studentNameField;
@@ -41,66 +40,53 @@ public class StudentsController implements Initializable {
     private final ObservableList<Student> studentsList = FXCollections.observableArrayList();
     private StudentService studentService;
 
-    // ================= INITIALIZE =================
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         studentService = new StudentService();
-
-        // Setup table columns
-        studentIdColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getStudentId()));
-        nameColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getName()));
-        phoneColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getPhone()));
-        emailColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getEmail()));
-        registrationColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getRegistration()));
-        sessionColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getSession()));
-        yearColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getYear()));
-        semesterColumn.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(data.getValue().getSemester()));
-
+        setupTableColumns();
         loadStudents();
         setupSearch();
         setupTableClick();
     }
 
-    // ================= LOAD =================
+    private void setupTableColumns() {
+        studentIdColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStudentId()));
+        nameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getName()));
+        phoneColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPhone()));
+        emailColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getEmail()));
+        registrationColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getRegistration()));
+        sessionColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getSession()));
+        yearColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getYear()));
+        semesterColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getSemester()));
+    }
+
     private void loadStudents() {
         studentsList.setAll(studentService.getAllStudents());
         studentsTable.setItems(studentsList);
     }
 
-    // ================= SEARCH =================
     private void setupSearch() {
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
-
             if (newVal == null || newVal.isEmpty()) {
                 studentsTable.setItems(studentsList);
                 return;
             }
 
-            ObservableList<Student> filtered = FXCollections.observableArrayList();
-            String q = newVal.toLowerCase();
+            String query = newVal.toLowerCase();
+            ObservableList<Student> filteredStudents = FXCollections.observableArrayList();
 
-            for (Student s : studentsList) {
-                if (s.getName().toLowerCase().contains(q) ||
-                        s.getStudentId().toLowerCase().contains(q) ||
-                        s.getEmail().toLowerCase().contains(q)) {
-                    filtered.add(s);
+            for (Student student : studentsList) {
+                if (student.getName().toLowerCase().contains(query) ||
+                    student.getStudentId().toLowerCase().contains(query) ||
+                    student.getEmail().toLowerCase().contains(query)) {
+                    filteredStudents.add(student);
                 }
             }
 
-            studentsTable.setItems(filtered);
+            studentsTable.setItems(filteredStudents);
         });
     }
 
-    // ================= TABLE CLICK =================
     private void setupTableClick() {
         studentsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, student) -> {
             if (student != null) {
@@ -116,43 +102,19 @@ public class StudentsController implements Initializable {
         });
     }
 
-    // ================= SAVE =================
     @FXML
     private void handleSave() {
-
-        String id = studentIdField.getText().trim();
-        String name = studentNameField.getText().trim();
-        String email = emailField.getText().trim();
-        String phone = phoneField.getText().trim();
-        String registration = registrationField.getText().trim();
-        String session = sessionField.getText().trim();
-        String year = yearField.getText().trim();
-        String semester = semesterField.getText().trim();
-
-        if (id.isEmpty() || name.isEmpty() || email.isEmpty() || phone.isEmpty() ||
-                registration.isEmpty() || session.isEmpty() || year.isEmpty() || semester.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error",
-                    "Please fill all required fields.");
+        if (areAnyFieldsEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", "Please fill all required fields.");
             return;
         }
 
-        Student selected = studentsTable.getSelectionModel().getSelectedItem();
+        Student selectedStudent = studentsTable.getSelectionModel().getSelectedItem();
 
-        if (selected != null) {
-            // UPDATE
-            selected.setStudentId(id);
-            selected.setName(name);
-            selected.setEmail(email);
-            selected.setPhone(phone);
-            selected.setRegistration(registration);
-            selected.setSession(session);
-            selected.setYear(year);
-            selected.setSemester(semester);
-            studentService.updateStudent(selected);
+        if (selectedStudent != null) {
+            updateExistingStudent(selectedStudent);
         } else {
-            // ADD
-            Student student = new Student(id, name, phone, email, registration, session, year, semester);
-            studentService.addStudent(student);
+            addNewStudent();
         }
 
         clearForm();
@@ -160,15 +122,49 @@ public class StudentsController implements Initializable {
         showAlert(Alert.AlertType.INFORMATION, "Success", "Student saved successfully!");
     }
 
-    // ================= DELETE =================
+    private boolean areAnyFieldsEmpty() {
+        return studentIdField.getText().trim().isEmpty() ||
+               studentNameField.getText().trim().isEmpty() ||
+               emailField.getText().trim().isEmpty() ||
+               phoneField.getText().trim().isEmpty() ||
+               registrationField.getText().trim().isEmpty() ||
+               sessionField.getText().trim().isEmpty() ||
+               yearField.getText().trim().isEmpty() ||
+               semesterField.getText().trim().isEmpty();
+    }
+
+    private void updateExistingStudent(Student student) {
+        student.setStudentId(studentIdField.getText().trim());
+        student.setName(studentNameField.getText().trim());
+        student.setEmail(emailField.getText().trim());
+        student.setPhone(phoneField.getText().trim());
+        student.setRegistration(registrationField.getText().trim());
+        student.setSession(sessionField.getText().trim());
+        student.setYear(yearField.getText().trim());
+        student.setSemester(semesterField.getText().trim());
+        studentService.updateStudent(student);
+    }
+
+    private void addNewStudent() {
+        Student newStudent = new Student(
+            studentIdField.getText().trim(),
+            studentNameField.getText().trim(),
+            phoneField.getText().trim(),
+            emailField.getText().trim(),
+            registrationField.getText().trim(),
+            sessionField.getText().trim(),
+            yearField.getText().trim(),
+            semesterField.getText().trim()
+        );
+        studentService.addStudent(newStudent);
+    }
+
     @FXML
     private void handleDelete() {
+        Student selectedStudent = studentsTable.getSelectionModel().getSelectedItem();
 
-        Student selected = studentsTable.getSelectionModel().getSelectedItem();
-
-        if (selected == null) {
-            showAlert(Alert.AlertType.ERROR, "Error",
-                    "Please select a student to delete.");
+        if (selectedStudent == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Please select a student to delete.");
             return;
         }
 
@@ -180,14 +176,13 @@ public class StudentsController implements Initializable {
         Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            studentService.deleteStudent(selected.getStudentId());
+            studentService.deleteStudent(selectedStudent.getStudentId());
             loadStudents();
             clearForm();
             showAlert(Alert.AlertType.INFORMATION, "Success", "Student deleted successfully!");
         }
     }
 
-    // ================= CANCEL =================
     @FXML
     private void handleCancel() {
         clearForm();
@@ -205,69 +200,23 @@ public class StudentsController implements Initializable {
         semesterField.clear();
     }
 
-    // ================= NAVIGATION =================
-
-    @FXML
-    private void handleHome(ActionEvent event) {
+    // Navigation handlers
+    private void loadPage(ActionEvent event, String fxmlPath) {
         Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Dashboard.fxml", node,true);
+        new LoadStage(fxmlPath, node, true);
     }
 
-    @FXML
-    private void handleBooks(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Books.fxml", node,true);
-    }
+    @FXML private void handleHome(ActionEvent event) { loadPage(event, "/mehrin/loginpage/Dashboard.fxml"); }
+    @FXML private void handleBooks(ActionEvent event) { loadPage(event, "/mehrin/loginpage/Books.fxml"); }
+    @FXML private void handleStudents(ActionEvent event) { loadPage(event, "/mehrin/loginpage/Students.fxml"); }
+    @FXML private void handleIssueBook(ActionEvent event) { loadPage(event, "/mehrin/loginpage/IssueBooks.fxml"); }
+    @FXML private void handleReturnBook(ActionEvent event) { loadPage(event, "/mehrin/loginpage/AllIssuedBooks.fxml"); }
+    @FXML private void handleAllIssuedBooks(ActionEvent event) { loadPage(event, "/mehrin/loginpage/AllIssuedBooks.fxml"); }
+    @FXML private void handleAnnouncement(ActionEvent event) { loadPage(event, "/mehrin/loginpage/Announcements.fxml"); }
+    @FXML private void handleExport(ActionEvent event) { loadPage(event, "/mehrin/loginpage/Export.fxml"); }
+    @FXML private void handleClearance(ActionEvent event) { loadPage(event, "/mehrin/loginpage/Clearance.fxml"); }
+    @FXML private void handleLogout(ActionEvent event) { loadPage(event, "/mehrin/loginpage/Login.fxml"); }
 
-    @FXML
-    private void handleStudents(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Students.fxml", node,true);
-    }
-
-    @FXML
-    private void handleIssueBook(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/IssueBooks.fxml", node,true);
-    }
-
-    @FXML
-    private void handleReturnBook(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", node,true);
-    }
-
-    @FXML
-    private void handleAllIssuedBooks(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/AllIssuedBooks.fxml", node,true);
-    }
-
-    @FXML
-    private void handleAnnouncement(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Announcements.fxml", node,true);
-    }
-
-    @FXML
-    private void handleExport(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Export.fxml", node,true);
-    }
-
-    @FXML
-    private void handleClearance(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Clearance.fxml", node,true);
-    }
-
-    @FXML
-    private void handleLogout(ActionEvent event) {
-        Node node = (Node) event.getSource();
-        new LoadStage("/mehrin/loginpage/Login.fxml", node,true);
-    }
-
-    // ================= ALERT =================
     private void showAlert(Alert.AlertType type, String title, String msg) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
