@@ -38,6 +38,8 @@ public class BooksController implements Initializable {
     @FXML private TableColumn<Book, Void> pdfCol;
 
     @FXML private TextField searchField;
+    
+    // book data fields
     @FXML private TextField bookIdField;
     @FXML private TextField bookTitleField;
     @FXML private TextField authorField;
@@ -46,22 +48,15 @@ public class BooksController implements Initializable {
     @FXML private TextField quantityField;
     @FXML private ComboBox<String> statusComboBox;
 
-    private final ObservableList<Book> booksList = FXCollections.observableArrayList();
-    private BookService bookService;
+    private ObservableList<Book> booksList = FXCollections.observableArrayList();
+    private BookService service;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        bookService = new BookService();
+        service = new BookService();
         statusComboBox.setItems(FXCollections.observableArrayList("Available", "Not Available"));
 
-        setupTableColumns();
-        setupPdfColumn();
-        loadBooks();
-        setupSearch();
-        setupTableClick();
-    }
-
-    private void setupTableColumns() {
+        // init table columns
         bookId.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getIsbn()));
         title.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTitle()));
         author.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getAuthor()));
@@ -70,19 +65,66 @@ public class BooksController implements Initializable {
         edition.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getEdition())));
         quantity.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getQuantity())));
         remainingBooks.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getRemaining())));
+
+        setupPdfBtn();
+        
+        // initial load
+        booksList.setAll(service.getAllBooks());
+        booksTable.setItems(booksList);
+
+        // live search
+        searchField.textProperty().addListener((observable, oldText, newText) -> {
+            if (newText == null || newText.trim().isEmpty()) { 
+                booksTable.setItems(booksList); 
+                return; 
+            }
+            
+            String needle = newText.toLowerCase();
+            ObservableList<Book> results = FXCollections.observableArrayList();
+            
+            for (int i = 0; i < booksList.size(); i++) {
+                Book b = booksList.get(i);
+                if (b.getTitle().toLowerCase().contains(needle) || 
+                    b.getAuthor().toLowerCase().contains(needle) || 
+                    b.getIsbn().contains(newText)) {
+                    results.add(b);
+                }
+            }
+            booksTable.setItems(results);
+        });
+
+        // select from table
+        booksTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, selected) -> {
+            if (selected != null) {
+                bookIdField.setText(selected.getIsbn());
+                bookTitleField.setText(selected.getTitle());
+                authorField.setText(selected.getAuthor());
+                publisherField.setText(selected.getPublisher());
+                editionField.setText(String.valueOf(selected.getEdition()));
+                quantityField.setText(String.valueOf(selected.getQuantity()));
+                statusComboBox.setValue(selected.getAvailability());
+            }
+        });
     }
 
-    private void setupPdfColumn() {
+    private void setupPdfBtn() {
         pdfCol.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button();
             {
                 btn.setStyle("-fx-font-size: 11px; -fx-cursor: hand; -fx-background-radius: 4;");
-                btn.setOnAction(e -> {
-                    Book book = getTableView().getItems().get(getIndex());
-                    if (book.hasPdf()) {
-                        openUrl(book.getPdf());
+                btn.setOnAction(evt -> {
+                    Book b = getTableView().getItems().get(getIndex());
+                    if (b.hasPdf()) {
+                        try {
+                            Desktop.getDesktop().browse(new URI(b.getPdf()));
+                        } catch (Exception ex) {
+                            Alert a = new Alert(Alert.AlertType.ERROR);
+                            a.setHeaderText(null);
+                            a.setContentText("Could not open link:\n" + ex.getMessage());
+                            a.showAndWait();
+                        }
                     } else {
-                        ExportController.prefilledIsbn = book.getIsbn();
+                        ExportController.prefilledIsbn = b.getIsbn();
                         new LoadStage("/mehrin/loginpage/Export.fxml", btn.getScene().getRoot(), true);
                     }
                 });
@@ -96,8 +138,8 @@ public class BooksController implements Initializable {
                     return; 
                 }
                 
-                Book book = getTableView().getItems().get(getIndex());
-                if (book.hasPdf()) {
+                Book bk = getTableView().getItems().get(getIndex());
+                if (bk.hasPdf()) {
                     btn.setText("View PDF");
                     btn.setStyle("-fx-background-color: #2D6A4F; -fx-text-fill: white; -fx-font-size: 11px; -fx-cursor: hand; -fx-background-radius: 4;");
                 } else {
@@ -109,237 +151,206 @@ public class BooksController implements Initializable {
         });
     }
 
-    private void openUrl(String url) {
-        try {
-            Desktop.getDesktop().browse(new URI(url));
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Could not open link:\n" + e.getMessage());
-        }
-    }
-
-    private void loadBooks() {
-        booksList.setAll(bookService.getAllBooks());
-        booksTable.setItems(booksList);
-    }
-
-    private void setupSearch() {
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null || newVal.isEmpty()) { 
-                booksTable.setItems(booksList); 
-                return; 
-            }
-            
-            String query = newVal.toLowerCase();
-            ObservableList<Book> filteredBooks = FXCollections.observableArrayList();
-            
-            for (Book book : booksList) {
-                if (book.getTitle().toLowerCase().contains(query) || 
-                    book.getAuthor().toLowerCase().contains(query) || 
-                    book.getIsbn().contains(newVal)) {
-                    filteredBooks.add(book);
-                }
-            }
-            booksTable.setItems(filteredBooks);
-        });
-    }
-
-    private void setupTableClick() {
-        booksTable.getSelectionModel().selectedItemProperty().addListener((obs, oldBook, book) -> {
-            if (book != null) {
-                bookIdField.setText(book.getIsbn());
-                bookTitleField.setText(book.getTitle());
-                authorField.setText(book.getAuthor());
-                publisherField.setText(book.getPublisher());
-                editionField.setText(String.valueOf(book.getEdition()));
-                quantityField.setText(String.valueOf(book.getQuantity()));
-                statusComboBox.setValue(book.getAvailability());
-            }
-        });
-    }
-
     @FXML
     private void handleSave() {
-        if (areAnyFieldsEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", "Book ID, Title, Author and Status are required.");
+        // check required
+        boolean missing = bookIdField.getText().trim().isEmpty() || 
+                          bookTitleField.getText().trim().isEmpty() || 
+                          authorField.getText().trim().isEmpty() || 
+                          statusComboBox.getValue() == null;
+                          
+        if (missing) {
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setTitle("Validation Error");
+            a.setHeaderText(null);
+            a.setContentText("Book ID, Title, Author and Status are required.");
+            a.showAndWait();
             return;
         }
 
-        int editionValue = parseIntField(editionField.getText(), 1, "Edition");
-        if (editionValue == -1) return;
+        int ed = 1;
+        int qty = 1;
         
-        int quantityValue = parseIntField(quantityField.getText(), 1, "Quantity");
-        if (quantityValue == -1) return;
-
-        Book selectedBook = booksTable.getSelectionModel().getSelectedItem();
-        
-        if (selectedBook != null) {
-            updateExistingBook(selectedBook, editionValue, quantityValue);
-        } else {
-            addNewBook(editionValue, quantityValue);
-        }
-        
-        clearForm();
-        loadBooks();
-    }
-
-    private boolean areAnyFieldsEmpty() {
-        return bookIdField.getText().trim().isEmpty() || 
-               bookTitleField.getText().trim().isEmpty() || 
-               authorField.getText().trim().isEmpty() || 
-               statusComboBox.getValue() == null;
-    }
-
-    private int parseIntField(String valueStr, int defaultValue, String fieldName) {
-        if (valueStr.trim().isEmpty()) {
-            return defaultValue;
-        }
         try {
-            return Integer.parseInt(valueStr.trim());
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", fieldName + " must be a valid number.");
-            return -1;
+            if (!editionField.getText().trim().isEmpty()) {
+                ed = Integer.parseInt(editionField.getText().trim());
+            }
+        } catch(NumberFormatException e) {
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setHeaderText(null);
+            a.setContentText("Edition must be a valid number.");
+            a.showAndWait();
+            return;
         }
+        
+        try {
+            if (!quantityField.getText().trim().isEmpty()) {
+                qty = Integer.parseInt(quantityField.getText().trim());
+            }
+        } catch(NumberFormatException e) {
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setHeaderText(null);
+            a.setContentText("Quantity must be a valid number.");
+            a.showAndWait();
+            return;
+        }
+
+        Book current = booksTable.getSelectionModel().getSelectedItem();
+        
+        if (current != null) {
+            int diff = qty - current.getQuantity();
+            int newRemain = Math.max(0, current.getRemaining() + diff);
+
+            String pub = publisherField.getText().trim();
+
+            current.setIsbn(bookIdField.getText().trim());
+            current.setTitle(bookTitleField.getText().trim());
+            current.setAuthor(authorField.getText().trim());
+            current.setPublisher(pub.isEmpty() ? current.getPublisher() : pub);
+            current.setEdition(ed);
+            current.setQuantity(qty);
+            current.setRemaining(newRemain);
+            current.setAvailability(statusComboBox.getValue());
+
+            writeBookCsv(current);
+        } else {
+            String pub = publisherField.getText().trim();
+            Book newBk = new Book(
+                bookIdField.getText().trim(),
+                bookTitleField.getText().trim(),
+                authorField.getText().trim(),
+                pub.isEmpty() ? "Unknown" : pub,
+                ed, 
+                qty, 
+                qty, 
+                "General", 
+                statusComboBox.getValue()
+            );
+            writeBookCsv(newBk);
+        }
+        
+        bookIdField.setText(""); 
+        bookTitleField.setText(""); 
+        authorField.setText("");
+        publisherField.setText(""); 
+        editionField.setText(""); 
+        quantityField.setText("");
+        statusComboBox.setValue(null);
+        
+        // refresh data
+        booksList.setAll(service.getAllBooks());
+        booksTable.setItems(booksList);
     }
 
-    private void updateExistingBook(Book book, int newEdition, int newQuantity) {
-        int quantityDiff = newQuantity - book.getQuantity();
-        int newRemaining = Math.max(0, book.getRemaining() + quantityDiff);
+    private void writeBookCsv(Book targetBook) {
+        File f = new File("data/books.csv");
+        List<String> textLines = new ArrayList<>();
+        boolean isFound = false;
 
-        String publisherVal = publisherField.getText().trim();
-
-        book.setIsbn(bookIdField.getText().trim());
-        book.setTitle(bookTitleField.getText().trim());
-        book.setAuthor(authorField.getText().trim());
-        book.setPublisher(publisherVal.isEmpty() ? book.getPublisher() : publisherVal);
-        book.setEdition(newEdition);
-        book.setQuantity(newQuantity);
-        book.setRemaining(newRemaining);
-        book.setAvailability(statusComboBox.getValue());
-
-        writeBookToCSV(book);
-    }
-
-    private void addNewBook(int edition, int quantity) {
-        String publisherVal = publisherField.getText().trim();
-        Book newBook = new Book(
-            bookIdField.getText().trim(),
-            bookTitleField.getText().trim(),
-            authorField.getText().trim(),
-            publisherVal.isEmpty() ? "Unknown" : publisherVal,
-            edition, 
-            quantity, 
-            quantity, 
-            "General", 
-            statusComboBox.getValue()
-        );
-        writeBookToCSV(newBook);
-    }
-
-    private boolean writeBookToCSV(Book book) {
-        File csvFile = new File("data/books.csv");
-        List<String> lines = new ArrayList<>();
-        boolean found = false;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-            String line;
-            boolean isFirstLine = true;
-            while ((line = br.readLine()) != null) {
-                if (isFirstLine) {
-                    lines.add("ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF");
-                    isFirstLine = false;
+        try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
+            String l;
+            boolean first = true;
+            while ((l = reader.readLine()) != null) {
+                if (first) {
+                    textLines.add("ISBN,Title,Author,Publisher,Edition,Quantity,Remaining,Availability,PDF");
+                    first = false;
                     continue;
                 }
                 
-                Book existingBook = Book.fromCSV(line);
-                if (existingBook != null && existingBook.getIsbn().equalsIgnoreCase(book.getIsbn())) {
-                    book.setPdf(existingBook.getPdf());
-                    lines.add(book.toCSV());
-                    found = true;
+                Book parsed = Book.fromCSV(l);
+                if (parsed != null && parsed.getIsbn().equalsIgnoreCase(targetBook.getIsbn())) {
+                    targetBook.setPdf(parsed.getPdf());
+                    textLines.add(targetBook.toCSV());
+                    isFound = true;
                 } else {
-                    lines.add(existingBook != null ? existingBook.toCSV() : line);
+                    if (parsed != null) textLines.add(parsed.toCSV());
+                    else textLines.add(l);
                 }
             }
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Read Error", "Cannot read books.csv: " + e.getMessage());
-            return false;
+        } catch (Exception ex) {
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setContentText("Cannot read books.csv: " + ex.getMessage());
+            a.showAndWait();
+            return;
         }
 
-        if (!found) {
-            lines.add(book.toCSV());
+        if (!isFound) {
+            textLines.add(targetBook.toCSV());
         }
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(csvFile, false))) {
-            for (String l : lines) { 
-                bw.write(l); 
-                bw.newLine(); 
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(f, false))) {
+            for (int i = 0; i < textLines.size(); i++) { 
+                writer.write(textLines.get(i)); 
+                writer.newLine(); 
             }
-            bw.flush();
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Write Error", "Cannot write books.csv: " + e.getMessage());
-            return false;
+            writer.flush();
+        } catch (Exception ex) {
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setContentText("Cannot write books.csv: " + ex.getMessage());
+            a.showAndWait();
         }
-
-        return true;
     }
 
     @FXML
     private void handleDelete() {
-        Book selectedBook = booksTable.getSelectionModel().getSelectedItem();
+        Book toDelete = booksTable.getSelectionModel().getSelectedItem();
         
-        if (selectedBook == null) { 
-            showAlert(Alert.AlertType.ERROR, "Error", "Please select a book to delete."); 
+        if (toDelete == null) { 
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setHeaderText(null);
+            a.setContentText("Please select a book to delete.");
+            a.showAndWait();
             return; 
         }
         
-        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setHeaderText(null);
-        confirmDialog.setContentText("Are you sure you want to delete \"" + selectedBook.getTitle() + "\"?");
+        Alert conf = new Alert(Alert.AlertType.CONFIRMATION);
+        conf.setHeaderText(null);
+        conf.setContentText("Are you sure you want to delete \"" + toDelete.getTitle() + "\"?");
         
-        Optional<ButtonType> result = confirmDialog.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) { 
-            bookService.deleteBook(selectedBook.getIsbn()); 
-            loadBooks(); 
-            clearForm(); 
+        Optional<ButtonType> res = conf.showAndWait();
+        if (res.isPresent() && res.get() == ButtonType.OK) { 
+            service.deleteBook(toDelete.getIsbn()); 
+            
+            // force refresh
+            booksList.setAll(service.getAllBooks());
+            booksTable.setItems(booksList);
+            
+            bookIdField.setText(""); 
+            bookTitleField.setText(""); 
+            authorField.setText("");
+            publisherField.setText(""); 
+            editionField.setText(""); 
+            quantityField.setText("");
+            statusComboBox.setValue(null);
         }
     }
 
     @FXML 
     private void handleCancel() { 
-        clearForm(); 
+        bookIdField.setText(""); 
+        bookTitleField.setText(""); 
+        authorField.setText("");
+        publisherField.setText(""); 
+        editionField.setText(""); 
+        quantityField.setText("");
+        statusComboBox.setValue(null);
+        
         booksTable.getSelectionModel().clearSelection(); 
     }
 
-    private void clearForm() {
-        bookIdField.clear(); 
-        bookTitleField.clear(); 
-        authorField.clear();
-        publisherField.clear(); 
-        editionField.clear(); 
-        quantityField.clear();
-        statusComboBox.setValue(null);
+    // Nav stuff
+    private void switchScene(ActionEvent evt, String fxml) {
+        Node sourceNode = (Node) evt.getSource();
+        new LoadStage(fxml, sourceNode, true);
     }
 
-    // Navigation handlers
-    private void loadPage(ActionEvent event, String fxmlPath) {
-        Node node = (Node) event.getSource();
-        new LoadStage(fxmlPath, node, true);
-    }
-
-    @FXML private void loadHomePanel(ActionEvent e) { loadPage(e, "/mehrin/loginpage/Dashboard.fxml"); }
-    @FXML private void loadBooksPanel(ActionEvent e) { loadPage(e, "/mehrin/loginpage/Books.fxml"); }
-    @FXML private void loadStudentPanel(ActionEvent e) { loadPage(e, "/mehrin/loginpage/Students.fxml"); }
-    @FXML private void loadIssueBooksPanel(ActionEvent e) { loadPage(e, "/mehrin/loginpage/IssueBooks.fxml"); }
-    @FXML private void viewAllIssuedBooks(ActionEvent e) { loadPage(e, "/mehrin/loginpage/AllIssuedBooks.fxml"); }
-    @FXML private void loadSendAnnouncementsPanel(ActionEvent e) { loadPage(e, "/mehrin/loginpage/Announcements.fxml"); }
-    @FXML private void loadExportDataPanel(ActionEvent e) { loadPage(e, "/mehrin/loginpage/Export.fxml"); }
-    @FXML private void loadClearancePanel(ActionEvent e) { loadPage(e, "/mehrin/loginpage/Clearance.fxml"); }
-    @FXML private void logout(ActionEvent e) { loadPage(e, "/mehrin/loginpage/Login.fxml"); }
-
-    private void showAlert(Alert.AlertType type, String title, String msg) {
-        Alert alert = new Alert(type); 
-        alert.setTitle(title); 
-        alert.setHeaderText(null); 
-        alert.setContentText(msg); 
-        alert.showAndWait();
-    }
+    @FXML private void loadHomePanel(ActionEvent e) { switchScene(e, "/mehrin/loginpage/Dashboard.fxml"); }
+    @FXML private void loadBooksPanel(ActionEvent e) { switchScene(e, "/mehrin/loginpage/Books.fxml"); }
+    @FXML private void loadStudentPanel(ActionEvent e) { switchScene(e, "/mehrin/loginpage/Students.fxml"); }
+    @FXML private void loadIssueBooksPanel(ActionEvent e) { switchScene(e, "/mehrin/loginpage/IssueBooks.fxml"); }
+    @FXML private void viewAllIssuedBooks(ActionEvent e) { switchScene(e, "/mehrin/loginpage/AllIssuedBooks.fxml"); }
+    @FXML private void loadSendAnnouncementsPanel(ActionEvent e) { switchScene(e, "/mehrin/loginpage/Announcements.fxml"); }
+    @FXML private void loadExportDataPanel(ActionEvent e) { switchScene(e, "/mehrin/loginpage/Export.fxml"); }
+    @FXML private void loadClearancePanel(ActionEvent e) { switchScene(e, "/mehrin/loginpage/Clearance.fxml"); }
+    @FXML private void logout(ActionEvent e) { switchScene(e, "/mehrin/loginpage/Login.fxml"); }
 }
