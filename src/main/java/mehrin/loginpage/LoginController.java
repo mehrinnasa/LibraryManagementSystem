@@ -14,14 +14,18 @@ import mehrin.loginpage.Util.FileUtil;
 
 public class LoginController {
 
-    @FXML private TextField usernameField;
-    @FXML private PasswordField passwordField;
-    @FXML private TextField passwordVisibility;
-    @FXML private Button show;
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private TextField passwordVisibility;
+    @FXML
+    private Button show;
 
     private boolean isPasswordVisible = false;
-    private static final String LOGIN_DATA_FILE = "data/loginInfo.csv";
-    private static final String STUDENTS_DATA_FILE = "data/students.csv";
+    private static final String LOGIN_DATA_FILE = "loginInfo.csv";
+    private static final String STUDENTS_DATA_FILE = "students.csv";
 
     @FXML
     private void showOrHide(ActionEvent event) {
@@ -31,7 +35,7 @@ public class LoginController {
             passwordVisibility.setText(passwordField.getText());
             passwordVisibility.setVisible(true);
             passwordVisibility.setManaged(true);
-            
+
             passwordField.setVisible(false);
             passwordField.setManaged(false);
             show.setText("Hide");
@@ -39,7 +43,7 @@ public class LoginController {
             passwordField.setText(passwordVisibility.getText());
             passwordField.setVisible(true);
             passwordField.setManaged(true);
-            
+
             passwordVisibility.setVisible(false);
             passwordVisibility.setManaged(false);
             show.setText("Show");
@@ -62,7 +66,7 @@ public class LoginController {
     private void performLogin(ActionEvent event) {
         String username = usernameField.getText().trim();
         String password = getEnteredPassword();
-        
+
         LoginInfo userAccount = findValidAccount(username, password);
 
         if (userAccount == null) {
@@ -85,10 +89,10 @@ public class LoginController {
     private void setupStudentSessionAndNavigate(LoginInfo account, Node sourceNode) {
         String studentId = account.getUsername();
         SessionManager.getInstance().setLoggedInStudentId(studentId);
-        
+
         String fullName = fetchStudentName(studentId);
         SessionManager.getInstance().setLoggedInStudentName(fullName);
-        
+
         LoadStage loadStage = new LoadStage("/mehrin/loginpage/StudentDashboard.fxml", sourceNode, true);
         StudentDashboardController controller = (StudentDashboardController) loadStage.getController();
         controller.setStudentId(studentId);
@@ -129,13 +133,18 @@ public class LoginController {
     private LoginInfo findValidAccount(String username, String password) {
         for (String line : FileUtil.readFile(LOGIN_DATA_FILE)) {
             String[] fields = line.split(",", -1);
-            if (fields.length < 5) continue;
-            
-            boolean matchesUsername = fields[0].trim().equals(username) || fields[1].trim().equalsIgnoreCase(username);
-            boolean matchesPassword = fields[2].trim().equals(password) || fields[3].trim().equalsIgnoreCase(password);
-            
-            if (matchesUsername && matchesPassword) {
-                return new LoginInfo(fields[0].trim(), fields[1].trim(), fields[2].trim(), fields[3].trim(), fields[4].trim());
+            if (fields.length < 5)
+                continue;
+
+            // fields: [0]=Username, [1]=Email, [2]=Password, [3]=UserType, [4]=Status
+            boolean matchesUsername = fields[0].trim().equals(username)
+                    || fields[1].trim().equalsIgnoreCase(username);
+            boolean matchesPassword = fields[2].trim().equals(password);
+            boolean isActive = fields[4].trim().equalsIgnoreCase("Active");
+
+            if (matchesUsername && matchesPassword && isActive) {
+                return new LoginInfo(fields[0].trim(), fields[1].trim(),
+                        fields[2].trim(), fields[3].trim(), fields[4].trim());
             }
         }
         return null;
