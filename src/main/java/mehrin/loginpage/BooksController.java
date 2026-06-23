@@ -11,7 +11,6 @@ import javafx.beans.property.SimpleStringProperty;
 import mehrin.loginpage.Model.Book;
 import mehrin.loginpage.Service.BookService;
 
-import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -107,6 +106,92 @@ public class BooksController implements Initializable {
         });
     }
 
+    /**
+     * Detects whether Java is running inside WSL (Windows Subsystem for Linux).
+     * WSL kernels report "microsoft" or "WSL" in /proc/version.
+     */
+    private static boolean isRunningInWSL() {
+        try {
+            java.nio.file.Path p = java.nio.file.Paths.get("/proc/version");
+            if (java.nio.file.Files.exists(p)) {
+                String v = new String(java.nio.file.Files.readAllBytes(p)).toLowerCase();
+                return v.contains("microsoft") || v.contains("wsl");
+            }
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    /**
+     * Opens a URL in the default browser, handling:
+     *   - WSL  : uses powershell.exe / cmd.exe from the Windows host
+     *   - Windows (native) : cmd /c start
+     *   - macOS : open
+     *   - Linux : xdg-open
+     * Each method is tried in sequence; the first that succeeds wins.
+     */
+    private static void openInBrowser(String rawUrl, javafx.scene.Scene scene) {
+        // Convert Google Drive /view links to /preview so they render in-browser
+        String url = rawUrl.replaceAll("/view(\\?.*)?$", "/preview");
+        Thread t = new Thread(() -> {
+            String lastErr = "Unknown error";
+
+            // ── 1. WSL: open via Windows tools accessible from the Linux layer ──
+            if (isRunningInWSL()) {
+                // powershell.exe is in PATH inside WSL
+                try {
+                    Process p = new ProcessBuilder(
+                            "powershell.exe", "-NoProfile", "-NonInteractive",
+                            "-Command", "Start-Process", "'" + url + "'")
+                            .redirectErrorStream(true).start();
+                    p.waitFor();
+                    return;   // success
+                } catch (Exception e) { lastErr = e.getMessage(); }
+
+                // Fallback: reach Windows cmd.exe directly via /mnt/c
+                try {
+                    new ProcessBuilder(
+                            "/mnt/c/Windows/System32/cmd.exe", "/c", "start", "", url)
+                            .start();
+                    return;   // success
+                } catch (Exception e) { lastErr = e.getMessage(); }
+            }
+
+            // ── 2. Native Windows ──
+            String os = System.getProperty("os.name", "").toLowerCase();
+            if (os.contains("win")) {
+                try {
+                    new ProcessBuilder("cmd", "/c", "start", "", url).start();
+                    return;
+                } catch (Exception e) { lastErr = e.getMessage(); }
+            }
+
+            // ── 3. macOS ──
+            if (os.contains("mac")) {
+                try {
+                    new ProcessBuilder("open", url).start();
+                    return;
+                } catch (Exception e) { lastErr = e.getMessage(); }
+            }
+
+            // ── 4. Generic Linux / xdg-open ──
+            try {
+                new ProcessBuilder("xdg-open", url).start();
+                return;
+            } catch (Exception e) { lastErr = e.getMessage(); }
+
+            // ── All methods failed ── show error on FX thread ──
+            final String msg = lastErr;
+            javafx.application.Platform.runLater(() -> {
+                Alert a = new Alert(Alert.AlertType.ERROR);
+                a.setHeaderText(null);
+                a.setContentText("Could not open PDF link:\n" + msg);
+                a.showAndWait();
+            });
+        });
+        t.setDaemon(true);
+        t.start();
+    }
+
     private void setupPdfBtn() {
         pdfCol.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button();
@@ -115,14 +200,7 @@ public class BooksController implements Initializable {
                 btn.setOnAction(evt -> {
                     Book b = getTableView().getItems().get(getIndex());
                     if (b.hasPdf()) {
-                        try {
-                            Desktop.getDesktop().browse(new URI(b.getPdf()));
-                        } catch (Exception ex) {
-                            Alert a = new Alert(Alert.AlertType.ERROR);
-                            a.setHeaderText(null);
-                            a.setContentText("Could not open link:\n" + ex.getMessage());
-                            a.showAndWait();
-                        }
+                        openInBrowser(b.getPdf(), btn.getScene());
                     } else {
                         ExportController.prefilledIsbn = b.getIsbn();
                         new LoadStage("/mehrin/loginpage/Export.fxml", btn.getScene().getRoot(), true);

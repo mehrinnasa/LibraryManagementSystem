@@ -10,7 +10,6 @@ import javafx.scene.control.*;
 import mehrin.loginpage.Model.Book;
 import mehrin.loginpage.Service.BookService;
 
-import java.awt.Desktop;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -84,12 +83,69 @@ public class StudentBooksController implements Initializable {
     }
 
     // ─────────────────────────────────────────────────────────────
-    private void openPdf(String url) {
+    /** True when Java is running inside WSL (checks /proc/version for "microsoft"/"wsl"). */
+    private static boolean isRunningInWSL() {
         try {
-            Desktop.getDesktop().browse(new java.net.URI(url));
-        } catch (Exception e) {
-            new Alert(Alert.AlertType.ERROR, "Could not open link:\n" + e.getMessage()).showAndWait();
-        }
+            java.nio.file.Path p = java.nio.file.Paths.get("/proc/version");
+            if (java.nio.file.Files.exists(p)) {
+                String v = new String(java.nio.file.Files.readAllBytes(p)).toLowerCase();
+                return v.contains("microsoft") || v.contains("wsl");
+            }
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    /**
+     * Opens a URL in the default browser.
+     * Works in WSL, native Windows, macOS, and plain Linux.
+     */
+    private void openPdf(String rawUrl) {
+        // Convert Google Drive /view links to /preview so they render in-browser
+        String url = rawUrl.replaceAll("/view(\\?.*)?$", "/preview");
+        Thread t = new Thread(() -> {
+            String lastErr = "Unknown error";
+
+            // 1. WSL: use Windows host tools
+            if (isRunningInWSL()) {
+                try {
+                    Process p = new ProcessBuilder(
+                            "powershell.exe", "-NoProfile", "-NonInteractive",
+                            "-Command", "Start-Process", "'" + url + "'")
+                            .redirectErrorStream(true).start();
+                    p.waitFor();
+                    return;
+                } catch (Exception e) { lastErr = e.getMessage(); }
+                try {
+                    new ProcessBuilder("/mnt/c/Windows/System32/cmd.exe", "/c", "start", "", url).start();
+                    return;
+                } catch (Exception e) { lastErr = e.getMessage(); }
+            }
+
+            // 2. Native Windows
+            String os = System.getProperty("os.name", "").toLowerCase();
+            if (os.contains("win")) {
+                try { new ProcessBuilder("cmd", "/c", "start", "", url).start(); return; }
+                catch (Exception e) { lastErr = e.getMessage(); }
+            }
+
+            // 3. macOS
+            if (os.contains("mac")) {
+                try { new ProcessBuilder("open", url).start(); return; }
+                catch (Exception e) { lastErr = e.getMessage(); }
+            }
+
+            // 4. Generic Linux
+            try { new ProcessBuilder("xdg-open", url).start(); return; }
+            catch (Exception e) { lastErr = e.getMessage(); }
+
+            // All methods failed
+            final String msg = lastErr;
+            javafx.application.Platform.runLater(() ->
+                new Alert(Alert.AlertType.ERROR, "Could not open PDF:\n" + msg).showAndWait()
+            );
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     private void loadBooks() {
