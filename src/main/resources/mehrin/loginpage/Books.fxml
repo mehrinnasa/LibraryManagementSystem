@@ -135,7 +135,7 @@
 
                     <VBox spacing="6">
                         <Label text="Status" />
-                        <ComboBox fx:id="statusComboBox" prefHeight="26.0" prefWidth="119.0" />
+                        <ComboBox fx:id="Status" prefHeight="26.0" prefWidth="119.0" />
                     </VBox>
                 </VBox>
 

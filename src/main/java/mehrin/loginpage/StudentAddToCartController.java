@@ -172,7 +172,7 @@ public class StudentAddToCartController {
         if (selectedBook.getRemaining() <= 0 && waitingByOther) {
             showAlert("Not Available",
                     "This book is currently unavailable and is already reserved by another student. " +
-                    "Please check back later.",
+                            "Please check back later.",
                     Alert.AlertType.WARNING);
             return;
         }
@@ -181,7 +181,7 @@ public class StudentAddToCartController {
         if (selectedBook.getRemaining() <= 0 && readyByOther) {
             showAlert("Not Available",
                     "This book is reserved by another student. " +
-                    "Their reservation expires on: " + otherExpiry,
+                            "Their reservation expires on: " + otherExpiry,
                     Alert.AlertType.WARNING);
             return;
         }

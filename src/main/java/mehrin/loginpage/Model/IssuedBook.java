@@ -32,8 +32,6 @@ public class IssuedBook {
     public StringProperty issuedDateProperty() { return issuedDate; }
     public StringProperty returnDateProperty() { return returnDate; }
     public StringProperty lateFeeProperty() { return lateFee; }
-
-    // Normal getters if needed
     public String getIssuedId() { return issuedId.get(); }
     public String getBookId() { return bookId.get(); }
     public String getStudentId() { return studentId.get(); }

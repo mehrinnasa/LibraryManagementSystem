@@ -6,18 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * File Utility Class
- * Handles all CSV file reading and writing operations
- * Creates data directory and sample files automatically
- */
 public class FileUtil {
 
     private static final String DATA = "data/";
 
-    /**
-     * Initialize data directory and create sample files if they don't exist
-     */
     public static void initializeDataFiles() {
         File file = new File(DATA);
         if (!file.exists()) {
@@ -32,36 +24,34 @@ public static int getIssuedBooks() {
     List<String> lines = readFile("issueBooks.csv");
     return lines.size(); // header already skipped
 }
-    /**
-     * Read all lines from a CSV file
-     */
+//Read data on csv
+    //static tai object lagbe na direct FileUtil.readFile("students.csv") emne call korte parbo
     public static List<String> readFile(String filename) {
-        List<String> lines = new ArrayList<>();
-        String filepath = DATA + filename;//dhoro filename book.csv to eita eita file path data/book.csv
+        List<String> lines=new ArrayList<>();
+        String filepath=DATA+filename;//dhoro filename book.csv to eitar file path 'data/book.csv'
         //line pora ses hole close kore dibe
-        try (BufferedReader br = new BufferedReader(new FileReader(filepath))) //BufferedReader line by line
+        try (BufferedReader br = new BufferedReader(new FileReader(filepath))) //BufferedReader pura line by line eksate pore
         {
             String line;
-            boolean firstLine = true;
-            while ((line = br.readLine()) != null) {
-                if (firstLine) {
-                    firstLine = false; // Skip header
+            boolean firstLine=true;
+            while((line=br.readLine())!=null) {
+                if(firstLine){
+                    firstLine=false; //header skip korbo
                     continue;
                 }
-                if (!line.trim().isEmpty()) {//faka line skip kore
+                if (!line.trim().isEmpty()){//faka line na hole list a add kora
                     lines.add(line);
                 }
             }
         }
         catch (FileNotFoundException e)
         {
-            //System.out.println("File not found: " + filepath);
             return lines;
-        } catch (IOException e)
+        }
+        catch(IOException e)
         {
             e.printStackTrace();//error er bistarito console a print kore
         }
-
         return lines;
     }
 
